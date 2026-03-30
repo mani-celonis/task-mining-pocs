@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080">
+<title>Work IQ × Celonis Task Mining — POC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --celonis-green: #00d47e;
+    --celonis-dark: #0a1628;
+    --celonis-navy: #111d33;
+    --celonis-blue: #3b82f6;
+    --celonis-purple: #8b5cf6;
+    --celonis-orange: #f59e0b;
+    --celonis-red: #ef4444;
+    --celonis-cyan: #06b6d4;
+    --ms-blue: #0078d4;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --glass-bg: rgba(17, 29, 51, 0.7);
+    --glass-border: rgba(255,255,255,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--celonis-dark);
+    color: var(--text-primary);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .presentation {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: var(--celonis-dark);
+  }
+
+  .bg-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 800px 600px at 15% 20%, rgba(0,212,126,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 600px 500px at 85% 80%, rgba(59,130,246,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 400px at 50% 50%, rgba(139,92,246,0.04) 0%, transparent 70%);
+    z-index: 0;
+  }
+
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    z-index: 1;
+    padding: 60px 80px;
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+
+  .progress-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    z-index: 100;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--celonis-green), var(--celonis-blue));
+    width: 0%;
+    transition: width 0.3s linear;
+  }
+
+  .controls {
+    position: fixed;
+    bottom: 20px;
+    right: 32px;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+    align-items: center;
+  }
+  .controls button {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .controls button:hover {
+    background: rgba(0,212,126,0.15);
+    color: var(--celonis-green);
+    border-color: rgba(0,212,126,0.3);
+  }
+  .slide-counter {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    min-width: 50px;
+    text-align: center;
+  }
+  .timer {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== SLIDE 0: Title ===== */
+  .title-slide .logos {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 44px;
+  }
+  .logo-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.3px;
+  }
+  .logo-celonis {
+    background: rgba(0,212,126,0.1);
+    border: 1px solid rgba(0,212,126,0.2);
+    color: var(--celonis-green);
+  }
+  .logo-ms {
+    background: rgba(0,120,212,0.1);
+    border: 1px solid rgba(0,120,212,0.2);
+    color: var(--ms-blue);
+  }
+  .logo-connector {
+    font-size: 26px;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+  .title-slide h1 {
+    font-size: 58px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1.15;
+    text-align: center;
+    margin-bottom: 18px;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .title-slide h1 span {
+    background: linear-gradient(135deg, var(--celonis-green) 0%, var(--celonis-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .title-slide .subtitle {
+    font-size: 20px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    text-align: center;
+    max-width: 750px;
+    line-height: 1.6;
+  }
+  .title-slide .customer-badge {
+    margin-top: 36px;
+    padding: 10px 28px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    backdrop-filter: blur(10px);
+  }
+  .title-slide .customer-badge strong {
+    color: var(--celonis-orange);
+    font-weight: 600;
+  }
+
+  /* ===== SLIDE 1: Problem ===== */
+  .problem-slide h2 {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 44px;
+    text-align: center;
+  }
+  .two-worlds {
+    display: flex;
+    gap: 32px;
+    align-items: stretch;
+    width: 100%;
+    max-width: 1400px;
+  }
+  .world-card {
+    flex: 1;
+    padding: 32px;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+  .slide.active .world-card { opacity: 1; transform: translateY(0); }
+  .slide.active .world-card:nth-child(1) { transition-delay: 0.3s; }
+  .slide.active .world-card:nth-child(2) { transition-delay: 0.5s; }
+  .slide.active .world-card:nth-child(3) { transition-delay: 0.7s; }
+  .world-card h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .world-card .icon { font-size: 24px; }
+  .world-card ul { list-style: none; }
+  .world-card ul li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 15px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .world-card ul li:last-child { border-bottom: none; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--celonis-green); }
+  .dot-blue { background: var(--ms-blue); }
+  .dot-red { background: var(--celonis-red); }
+  .gap-card {
+    flex: 0.55;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .gap-card .gap-icon {
+    font-size: 64px;
+    margin-bottom: 14px;
+    opacity: 0.6;
+  }
+  .gap-card p {
+    font-size: 17px;
+    color: var(--celonis-red);
+    font-weight: 600;
+  }
+  .gap-card .sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* ===== SLIDE 2: Architecture ===== */
+  .arch-slide h2 {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 36px;
+  }
+  .arch-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+  }
+  .arch-row {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .arch-box {
+    padding: 20px 28px;
+    border-radius: 14px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.5s ease;
+    min-width: 240px;
+  }
+  .slide.active .arch-box { opacity: 1; transform: scale(1); }
+  .slide.active .arch-row:nth-child(1) .arch-box { transition-delay: 0.2s; }
+  .slide.active .arch-row:nth-child(3) .arch-box { transition-delay: 0.5s; }
+  .slide.active .arch-row:nth-child(5) .arch-box { transition-delay: 0.8s; }
+  .slide.active .arch-row:nth-child(7) .arch-box { transition-delay: 1.1s; }
+  .arch-box.source-tm {
+    background: rgba(0,212,126,0.1);
+    border: 1px solid rgba(0,212,126,0.25);
+  }
+  .arch-box.source-wiq {
+    background: rgba(0,120,212,0.1);
+    border: 1px solid rgba(0,120,212,0.25);
+  }
+  .arch-box.etl {
+    background: rgba(139,92,246,0.1);
+    border: 1px solid rgba(139,92,246,0.25);
+    min-width: 530px;
+  }
+  .arch-box.cluster {
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.25);
+    min-width: 530px;
+  }
+  .arch-box.pig {
+    background: linear-gradient(135deg, rgba(0,212,126,0.15), rgba(59,130,246,0.15));
+    border: 1px solid rgba(0,212,126,0.3);
+    min-width: 530px;
+  }
+  .arch-box .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+    opacity: 0.6;
+  }
+  .arch-box .name {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .arch-box .desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .arch-arrow {
+    font-size: 22px;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .slide.active .arch-row:nth-child(2) .arch-arrow { opacity: 0.5; transition-delay: 0.4s; }
+  .slide.active .arch-row:nth-child(4) .arch-arrow { opacity: 0.5; transition-delay: 0.7s; }
+  .slide.active .arch-row:nth-child(6) .arch-arrow { opacity: 0.5; transition-delay: 1.0s; }
+  .arch-row.arrow-row { gap: 0; }
+
+  /* ===== SLIDE 3: Raw Data ===== */
+  .data-slide h2 {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .data-slide .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+  }
+  .data-tables {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 1600px;
+  }
+  .data-table-container {
+    flex: 1;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.6s ease;
+  }
+  .data-table-container:nth-child(2) { transform: translateX(20px); }
+  .slide.active .data-table-container { opacity: 1; transform: translateX(0); }
+  .slide.active .data-table-container:nth-child(1) { transition-delay: 0.3s; }
+  .slide.active .data-table-container:nth-child(2) { transition-delay: 0.6s; }
+  .table-header {
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .table-header.tm { background: rgba(0,212,126,0.1); color: var(--celonis-green); }
+  .table-header.wiq { background: rgba(0,120,212,0.1); color: var(--ms-blue); }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .data-table th {
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .data-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  .data-table tbody tr {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s ease;
+  }
+  .slide.active .data-table-container:nth-child(1) tbody tr:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+  .slide.active .data-table-container:nth-child(1) tbody tr:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+  .slide.active .data-table-container:nth-child(1) tbody tr:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.7s; }
+  .slide.active .data-table-container:nth-child(1) tbody tr:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.8s; }
+  .slide.active .data-table-container:nth-child(1) tbody tr:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.9s; }
+  .slide.active .data-table-container:nth-child(1) tbody tr:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 1.0s; }
+  .slide.active .data-table-container:nth-child(2) tbody tr:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.8s; }
+  .slide.active .data-table-container:nth-child(2) tbody tr:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.9s; }
+  .slide.active .data-table-container:nth-child(2) tbody tr:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 1.0s; }
+  .slide.active .data-table-container:nth-child(2) tbody tr:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 1.1s; }
+  .slide.active .data-table-container:nth-child(2) tbody tr:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 1.2s; }
+  .slide.active .data-table-container:nth-child(2) tbody tr:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 1.3s; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-human { background: rgba(0,212,126,0.15); color: var(--celonis-green); }
+  .badge-agent { background: rgba(139,92,246,0.15); color: var(--celonis-purple); }
+
+  /* ===== SLIDE 4: Clustering ===== */
+  .cluster-slide h2 {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .cluster-slide .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+  .process-flow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 36px;
+    opacity: 0;
+    transition: all 0.8s ease;
+  }
+  .slide.active .process-flow { opacity: 1; transition-delay: 0.3s; }
+  .process-step {
+    padding: 18px 24px;
+    border-radius: 14px;
+    text-align: center;
+    min-width: 200px;
+  }
+  .process-step .step-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .process-step .step-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .process-step .step-time {
+    font-size: 22px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+  .step-human {
+    background: rgba(0,212,126,0.1);
+    border: 2px solid rgba(0,212,126,0.3);
+  }
+  .step-human .step-time { color: var(--celonis-green); }
+  .step-agent {
+    background: rgba(139,92,246,0.1);
+    border: 2px solid rgba(139,92,246,0.3);
+  }
+  .step-agent .step-time { color: var(--celonis-purple); }
+  .step-hybrid {
+    background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(0,212,126,0.1));
+    border: 2px solid rgba(139,92,246,0.3);
+  }
+  .step-hybrid .step-time { color: var(--celonis-cyan); }
+  .flow-arrow {
+    font-size: 22px;
+    color: var(--text-secondary);
+    opacity: 0.4;
+  }
+
+  .cluster-table-full {
+    width: 100%;
+    max-width: 1400px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease 0.6s;
+  }
+  .slide.active .cluster-table-full { opacity: 1; transform: translateY(0); }
+  .cluster-table-full table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .cluster-table-full th {
+    padding: 12px 18px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .cluster-table-full td {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 13px;
+  }
+  .task-name-cell {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .actor-bar {
+    height: 7px;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    width: 110px;
+    background: rgba(255,255,255,0.05);
+  }
+  .actor-bar .human-part { background: var(--celonis-green); }
+  .actor-bar .agent-part { background: var(--celonis-purple); }
+
+  /* ===== SLIDE 5: Insights ===== */
+  .insights-slide h2 {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 40px;
+  }
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+    width: 100%;
+    max-width: 1300px;
+  }
+  .insight-card {
+    padding: 32px;
+    border-radius: 18px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+  .slide.active .insight-card:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+  .slide.active .insight-card:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+  .slide.active .insight-card:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+  .slide.active .insight-card:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.8s; }
+  .insight-card .metric {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    line-height: 1;
+  }
+  .metric-green { color: var(--celonis-green); }
+  .metric-blue { color: var(--celonis-blue); }
+  .metric-orange { color: var(--celonis-orange); }
+  .metric-purple { color: var(--celonis-purple); }
+  .insight-card .insight-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .insight-card .insight-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ===== SLIDE 6: CTA ===== */
+  .cta-slide h2 {
+    font-size: 46px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 14px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .cta-slide h2 span {
+    background: linear-gradient(135deg, var(--celonis-green), var(--celonis-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .cta-slide .cta-sub {
+    font-size: 18px;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 680px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+  .cta-steps {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+  }
+  .cta-step {
+    flex: 1;
+    padding: 28px;
+    border-radius: 18px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+  .slide.active .cta-step:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+  .slide.active .cta-step:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+  .slide.active .cta-step:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.7s; }
+  .slide.active .cta-step:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.9s; }
+  .cta-step .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 0 auto 14px;
+    background: rgba(0,212,126,0.1);
+    border: 1px solid rgba(0,212,126,0.2);
+    color: var(--celonis-green);
+  }
+  .cta-step h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .cta-step p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .watermark {
+    position: fixed;
+    top: 28px;
+    left: 36px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.15);
+    z-index: 100;
+    letter-spacing: 0.5px;
+  }
+  .watermark-right {
+    position: fixed;
+    top: 28px;
+    right: 36px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.12);
+    z-index: 100;
+  }
+
+  .pulse-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--celonis-green);
+    margin-right: 5px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .autoplay-hint {
+    position: fixed;
+    bottom: 22px;
+    left: 36px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    z-index: 100;
+  }
+  .autoplay-hint kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    font-size: 10px;
+    background: rgba(255,255,255,0.05);
+  }
+</style>
+</head>
+<body>
+<div class="presentation">
+  <div class="bg-gradient"></div>
+  <div class="grid-bg"></div>
+  <div class="watermark">CELONIS × MICROSOFT</div>
+  <div class="watermark-right"><span class="pulse-dot"></span>POC — INTERNAL</div>
+  <div class="autoplay-hint"><kbd>Space</kbd> Play/Pause &nbsp; <kbd>←</kbd> <kbd>→</kbd> Navigate</div>
+
+  <!-- SLIDE 0: Title -->
+  <div class="slide title-slide active" data-duration="12000">
+    <div class="logos">
+      <div class="logo-box logo-celonis">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Celonis Task Mining
+      </div>
+      <span class="logo-connector">&times;</span>
+      <div class="logo-box logo-ms">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" fill="currentColor" rx="1" opacity="0.9"/><rect x="13" y="3" width="8" height="8" fill="currentColor" rx="1" opacity="0.7"/><rect x="3" y="13" width="8" height="8" fill="currentColor" rx="1" opacity="0.6"/><rect x="13" y="13" width="8" height="8" fill="currentColor" rx="1" opacity="0.8"/></svg>
+        Microsoft Work IQ
+      </div>
+    </div>
+    <h1>Unified <span>Human + Agent</span><br>Process Intelligence</h1>
+    <p class="subtitle">Combining desktop activity mining with Copilot agent signals to create a complete picture of how work actually happens</p>
+    <div class="customer-badge">Customer Demo &mdash; <strong>Contoso Financial Services</strong> &mdash; Loan Origination Process</div>
+  </div>
+
+  <!-- SLIDE 1: Problem -->
+  <div class="slide problem-slide" data-duration="16000">
+    <h2>Today: Two Invisible Worlds</h2>
+    <div class="two-worlds">
+      <div class="world-card">
+        <h3><span class="icon">&#128421;</span> Human Desktop Activity</h3>
+        <ul>
+          <li><span class="dot dot-green"></span> SAP transaction entry (VA01)</li>
+          <li><span class="dot dot-green"></span> Email review in Outlook</li>
+          <li><span class="dot dot-green"></span> Spreadsheet edits in Excel</li>
+          <li><span class="dot dot-green"></span> SharePoint document lookup</li>
+          <li><span class="dot dot-green"></span> Browser form submissions</li>
+        </ul>
+        <div style="margin-top:14px;font-size:12px;color:var(--celonis-green);font-weight:600;">Captured by Task Mining Client + Extension</div>
+      </div>
+      <div class="world-card gap-card">
+        <div class="gap-icon">&#128263;</div>
+        <p>Blind Spot</p>
+        <div class="sub">No visibility into agent-assisted steps,<br>handoffs, or hybrid work patterns</div>
+      </div>
+      <div class="world-card">
+        <h3><span class="icon">&#129302;</span> Copilot Agent Activity</h3>
+        <ul>
+          <li><span class="dot dot-blue"></span> Document summarization</li>
+          <li><span class="dot dot-blue"></span> Credit risk analysis via RAG</li>
+          <li><span class="dot dot-blue"></span> Email draft generation</li>
+          <li><span class="dot dot-blue"></span> Data extraction from PDFs</li>
+          <li><span class="dot dot-blue"></span> Meeting follow-up actions</li>
+        </ul>
+        <div style="margin-top:14px;font-size:12px;color:var(--ms-blue);font-weight:600;">Captured by Work IQ / Microsoft Graph</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Architecture -->
+  <div class="slide arch-slide" data-duration="18000">
+    <h2>Source-Agnostic Integration Architecture</h2>
+    <div class="arch-flow">
+      <div class="arch-row">
+        <div class="arch-box source-tm">
+          <div class="label">Source 1</div>
+          <div class="name" style="color:var(--celonis-green)">Celonis Task Mining</div>
+          <div class="desc">Desktop + Browser UiEvents</div>
+        </div>
+        <div class="arch-box source-wiq">
+          <div class="label">Source 2</div>
+          <div class="name" style="color:var(--ms-blue)">Microsoft Work IQ</div>
+          <div class="desc">Copilot + M365 signals via MCP / Graph</div>
+        </div>
+      </div>
+      <div class="arch-row arrow-row"><span class="arch-arrow">&#9660;</span></div>
+      <div class="arch-row">
+        <div class="arch-box etl">
+          <div class="label">Normalization Layer</div>
+          <div class="name" style="color:var(--celonis-purple)">Unified Activity Schema</div>
+          <div class="desc">Source-agnostic ETL adapter &mdash; extensible to any agent infra (LangChain, CrewAI, custom)</div>
+        </div>
+      </div>
+      <div class="arch-row arrow-row"><span class="arch-arrow">&#9660;</span></div>
+      <div class="arch-row">
+        <div class="arch-box cluster">
+          <div class="label">AI Processing (ML_JOB / ML_WORKBENCH)</div>
+          <div class="name" style="color:var(--celonis-orange)">Semantic Task Clustering</div>
+          <div class="desc">Embedding-based clustering &rarr; auto-discover tasks from granular activity logs</div>
+        </div>
+      </div>
+      <div class="arch-row arrow-row"><span class="arch-arrow">&#9660;</span></div>
+      <div class="arch-row">
+        <div class="arch-box pig">
+          <div class="label">Output</div>
+          <div class="name" style="color:var(--celonis-green)">Process Intelligence Graph (PiG)</div>
+          <div class="desc">Labeled task events &mdash; HUMAN / AGENT / HYBRID &mdash; visible in Celonis Studio</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Raw Data -->
+  <div class="slide data-slide" data-duration="18000">
+    <h2>Contoso Financial &mdash; Raw Activity Logs</h2>
+    <p class="subtitle">Loan Application #4872 &mdash; Applicant: John Smith &mdash; March 28, 2026</p>
+    <div class="data-tables">
+      <div class="data-table-container">
+        <div class="table-header tm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Task Mining &mdash; Desktop Capture
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Time</th><th>Event Type</th><th>Application</th><th>Context</th><th>Actor</th></tr></thead>
+          <tbody>
+            <tr><td>09:01:12</td><td>Left click</td><td>SAP GUI</td><td>VA01 &mdash; Order Type field</td><td><span class="badge badge-human">Human</span></td></tr>
+            <tr><td>09:01:45</td><td>Element changed</td><td>SAP GUI</td><td>VA01 &mdash; Customer ID</td><td><span class="badge badge-human">Human</span></td></tr>
+            <tr><td>09:02:30</td><td>Activated tab</td><td>Outlook Web</td><td>Loan App #4872 email</td><td><span class="badge badge-human">Human</span></td></tr>
+            <tr><td>09:03:15</td><td>Copy to clipboard</td><td>Outlook Web</td><td>Email body text copied</td><td><span class="badge badge-human">Human</span></td></tr>
+            <tr><td>09:04:00</td><td>Left click</td><td>SharePoint</td><td>Credit_Report_4872.xlsx</td><td><span class="badge badge-human">Human</span></td></tr>
+            <tr><td>09:04:22</td><td>Element changed</td><td>SharePoint</td><td>Risk score cell updated</td><td><span class="badge badge-human">Human</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="data-table-container">
+        <div class="table-header wiq">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" fill="currentColor" rx="1" opacity="0.9"/><rect x="14" y="3" width="7" height="7" fill="currentColor" rx="1" opacity="0.7"/><rect x="3" y="14" width="7" height="7" fill="currentColor" rx="1" opacity="0.6"/><rect x="14" y="14" width="7" height="7" fill="currentColor" rx="1" opacity="0.8"/></svg>
+          Work IQ &mdash; Agent Signals
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Time</th><th>Event Type</th><th>Application</th><th>Context</th><th>Actor</th></tr></thead>
+          <tbody>
+            <tr><td>09:05:00</td><td>Copilot Invoke</td><td>Word</td><td>"Summarize credit risk for #4872"</td><td><span class="badge badge-agent">Agent</span></td></tr>
+            <tr><td>09:05:08</td><td>Agent Tool Call</td><td>Word</td><td>RAG: credit score history</td><td><span class="badge badge-agent">Agent</span></td></tr>
+            <tr><td>09:05:15</td><td>Agent Completion</td><td>Word</td><td>Risk: Medium, FICO 720</td><td><span class="badge badge-agent">Agent</span></td></tr>
+            <tr><td>09:06:00</td><td>Copilot Invoke</td><td>Outlook</td><td>"Draft approval email to mgr"</td><td><span class="badge badge-agent">Agent</span></td></tr>
+            <tr><td>09:06:05</td><td>Agent Completion</td><td>Outlook</td><td>Email draft generated</td><td><span class="badge badge-agent">Agent</span></td></tr>
+            <tr><td>09:07:00</td><td>Left click</td><td>Outlook</td><td>Send button pressed</td><td><span class="badge badge-human">Human</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Clustering Result -->
+  <div class="slide cluster-slide" data-duration="20000">
+    <h2>After AI Task Clustering</h2>
+    <p class="subtitle">12 granular events &rarr; 4 semantic task instances in PiG</p>
+    <div class="process-flow">
+      <div class="process-step step-human">
+        <div class="step-name">Create Sales Order</div>
+        <div class="step-meta">SAP GUI &middot; Human</div>
+        <div class="step-time">63s</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="process-step step-human">
+        <div class="step-name">Review Application</div>
+        <div class="step-meta">Outlook + SharePoint &middot; Human</div>
+        <div class="step-time">112s</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="process-step step-agent">
+        <div class="step-name">AI Risk Assessment</div>
+        <div class="step-meta">Word Copilot &middot; Agent</div>
+        <div class="step-time">15s</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="process-step step-hybrid">
+        <div class="step-name">Draft &amp; Send Approval</div>
+        <div class="step-meta">Outlook Copilot &middot; Hybrid</div>
+        <div class="step-time">60s</div>
+      </div>
+    </div>
+    <div class="cluster-table-full">
+      <table>
+        <thead><tr><th>Task Label (PiG)</th><th>Case ID</th><th>Duration</th><th>Events</th><th>Actor Mix</th><th>Applications</th><th style="width:130px">Human / Agent</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="task-name-cell" style="color:var(--celonis-green)">Create Sales Order</td>
+            <td style="color:var(--text-secondary)">LOAN-4872</td>
+            <td style="color:var(--text-primary);font-weight:600">63s</td>
+            <td style="color:var(--text-secondary)">2</td>
+            <td><span class="badge badge-human">100% Human</span></td>
+            <td style="color:var(--text-secondary)">SAP GUI</td>
+            <td><div class="actor-bar"><div class="human-part" style="width:100%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="task-name-cell" style="color:var(--celonis-green)">Review Loan Application</td>
+            <td style="color:var(--text-secondary)">LOAN-4872</td>
+            <td style="color:var(--text-primary);font-weight:600">112s</td>
+            <td style="color:var(--text-secondary)">4</td>
+            <td><span class="badge badge-human">100% Human</span></td>
+            <td style="color:var(--text-secondary)">Outlook, SharePoint</td>
+            <td><div class="actor-bar"><div class="human-part" style="width:100%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="task-name-cell" style="color:var(--celonis-purple)">AI Credit Risk Assessment</td>
+            <td style="color:var(--text-secondary)">LOAN-4872</td>
+            <td style="color:var(--text-primary);font-weight:600">15s</td>
+            <td style="color:var(--text-secondary)">3</td>
+            <td><span class="badge badge-agent">100% Agent</span></td>
+            <td style="color:var(--text-secondary)">Word (Copilot)</td>
+            <td><div class="actor-bar"><div class="agent-part" style="width:100%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="task-name-cell" style="color:var(--celonis-cyan)">Draft &amp; Send Approval</td>
+            <td style="color:var(--text-secondary)">LOAN-4872</td>
+            <td style="color:var(--text-primary);font-weight:600">60s</td>
+            <td style="color:var(--text-secondary)">3</td>
+            <td><span class="badge" style="background:rgba(6,182,212,0.15);color:var(--celonis-cyan)">67% Agent</span></td>
+            <td style="color:var(--text-secondary)">Outlook (Copilot)</td>
+            <td><div class="actor-bar"><div class="agent-part" style="width:67%"></div><div class="human-part" style="width:33%"></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Insights -->
+  <div class="slide insights-slide" data-duration="16000">
+    <h2>Actionable Intelligence for Contoso</h2>
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="metric metric-green">32&times;</div>
+        <div class="insight-title">Agent Efficiency Gain</div>
+        <div class="insight-desc">AI credit risk assessment: <strong>15 seconds</strong> vs. manual <strong>8 minutes</strong>. Quantifiable Copilot ROI visible directly in process analytics.</div>
+      </div>
+      <div class="insight-card">
+        <div class="metric metric-orange">45s</div>
+        <div class="insight-title">Handoff Friction Detected</div>
+        <div class="insight-desc">Gap between human review and agent invocation. Opportunity to automate the trigger &mdash; saving 45 seconds per loan case.</div>
+      </div>
+      <div class="insight-card">
+        <div class="metric metric-purple">3&times;</div>
+        <div class="insight-title">Process Variant Impact</div>
+        <div class="insight-desc">Analysts who skip Copilot (variant B) have <strong>3&times; longer</strong> cycle times. Clear case for standardizing AI-assisted path.</div>
+      </div>
+      <div class="insight-card">
+        <div class="metric metric-blue">62%</div>
+        <div class="insight-title">Agent Adoption Rate</div>
+        <div class="insight-desc">62% of loan officers use the hybrid human+agent path. Track adoption trends and correlate with process KPIs in Studio.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Next Steps -->
+  <div class="slide cta-slide" data-duration="20000">
+    <h2>Next Steps:<br><span>From POC to Production</span></h2>
+    <p class="cta-sub">The fundamental plumbing already exists in our Task Mining stack.<br>Here's what we validate next:</p>
+    <div class="cta-steps">
+      <div class="cta-step">
+        <div class="step-num">1</div>
+        <h4>Work IQ API Access</h4>
+        <p>Validate Microsoft Graph / MCP endpoint availability for Copilot interaction logs and agent telemetry</p>
+      </div>
+      <div class="cta-step">
+        <div class="step-num">2</div>
+        <h4>Schema Extension</h4>
+        <p>Extend GatewayClientEventTransport with actorType discriminator: HUMAN / AGENT / HYBRID</p>
+      </div>
+      <div class="cta-step">
+        <div class="step-num">3</div>
+        <h4>ETL Adapter</h4>
+        <p>Build source-agnostic normalization layer compatible with Work IQ and any agent infrastructure</p>
+      </div>
+      <div class="cta-step">
+        <div class="step-num">4</div>
+        <h4>ML Clustering</h4>
+        <p>Run AI task clustering on merged human+agent event stream via existing ML_JOB pipeline</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="controls">
+    <span class="timer" id="timer">0:00 / 2:00</span>
+    <button id="prevBtn" title="Previous (Left Arrow)">&#9664;</button>
+    <button id="playBtn" title="Play/Pause (Space)">&#9654;</button>
+    <button id="nextBtn" title="Next (Right Arrow)">&#9654;</button>
+    <span class="slide-counter" id="slideCounter">1 / 7</span>
+  </div>
+</div>
+
+<script>
+(function() {
+  var slides = document.querySelectorAll('.slide');
+  var progressBar = document.getElementById('progressBar');
+  var playBtn = document.getElementById('playBtn');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var slideCounter = document.getElementById('slideCounter');
+  var timerEl = document.getElementById('timer');
+
+  var currentSlide = 0;
+  var isPlaying = false;
+  var totalElapsed = 0;
+  var slideElapsed = 0;
+  var tickInterval = null;
+
+  var durations = [];
+  for (var i = 0; i < slides.length; i++) {
+    durations.push(parseInt(slides[i].getAttribute('data-duration'), 10));
+  }
+  var totalDuration = durations.reduce(function(a, b) { return a + b; }, 0);
+
+  function formatTime(ms) {
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function getElapsedBefore(idx) {
+    var sum = 0;
+    for (var i = 0; i < idx; i++) sum += durations[i];
+    return sum;
+  }
+
+  function updateUI() {
+    var pct = (totalElapsed / totalDuration) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+    timerEl.textContent = formatTime(totalElapsed) + ' / ' + formatTime(totalDuration);
+    slideCounter.textContent = (currentSlide + 1) + ' / ' + slides.length;
+  }
+
+  function goToSlide(index) {
+    if (index < 0 || index >= slides.length) return;
+    slides[currentSlide].classList.remove('active');
+    slides[currentSlide].classList.add('exit');
+    var old = currentSlide;
+    currentSlide = index;
+    slides[currentSlide].classList.remove('exit');
+    slides[currentSlide].classList.add('active');
+    setTimeout(function() { slides[old].classList.remove('exit'); }, 900);
+    slideElapsed = 0;
+    updateUI();
+  }
+
+  function nextSlideAuto() {
+    if (currentSlide < slides.length - 1) {
+      goToSlide(currentSlide + 1);
+    } else {
+      pause();
+    }
+  }
+
+  function play() {
+    isPlaying = true;
+    playBtn.innerHTML = '&#9646;&#9646;';
+    slideElapsed = 0;
+    tickInterval = setInterval(function() {
+      totalElapsed += 100;
+      slideElapsed += 100;
+      updateUI();
+      if (slideElapsed >= durations[currentSlide]) {
+        nextSlideAuto();
+      }
+    }, 100);
+  }
+
+  function pause() {
+    isPlaying = false;
+    playBtn.innerHTML = '&#9654;';
+    clearInterval(tickInterval);
+  }
+
+  function togglePlay() {
+    if (isPlaying) pause(); else play();
+  }
+
+  playBtn.addEventListener('click', togglePlay);
+  prevBtn.addEventListener('click', function() {
+    pause();
+    if (currentSlide > 0) {
+      totalElapsed = getElapsedBefore(currentSlide - 1);
+      goToSlide(currentSlide - 1);
+    }
+  });
+  nextBtn.addEventListener('click', function() {
+    pause();
+    if (currentSlide < slides.length - 1) {
+      totalElapsed = getElapsedBefore(currentSlide + 1);
+      goToSlide(currentSlide + 1);
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    if (e.code === 'ArrowRight') {
+      pause();
+      if (currentSlide < slides.length - 1) {
+        totalElapsed = getElapsedBefore(currentSlide + 1);
+        goToSlide(currentSlide + 1);
+      }
+    }
+    if (e.code === 'ArrowLeft') {
+      pause();
+      if (currentSlide > 0) {
+        totalElapsed = getElapsedBefore(currentSlide - 1);
+        goToSlide(currentSlide - 1);
+      }
+    }
+  });
+
+  updateUI();
+})();
+</script>
+</body>
+</html>
