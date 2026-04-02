@@ -7,6 +7,7 @@ Flask web server providing:
 from __future__ import annotations
 import json
 import os
+from pathlib import Path
 
 from flask import Flask, jsonify, render_template
 
@@ -20,6 +21,8 @@ app = Flask(
     __name__,
     template_folder=os.path.join(os.path.dirname(__file__), "templates"),
 )
+
+SAMPLES_DIR = Path(__file__).resolve().parent.parent / "data" / "samples"
 
 _cache: dict = {}
 
@@ -66,10 +69,25 @@ def run_pipeline() -> dict:
     return result
 
 
+def _load_samples() -> dict:
+    samples = {}
+    for name in ["work_iq_schema", "work_iq_sample_events", "task_mining_sample_events", "unified_activity_schema"]:
+        path = SAMPLES_DIR / f"{name}.json"
+        if path.exists():
+            with open(path) as f:
+                samples[name] = json.load(f)
+    return samples
+
+
 @app.route("/")
 def dashboard():
     data = run_pipeline()
-    return render_template("dashboard.html", data_json=json.dumps(data))
+    samples = _load_samples()
+    return render_template(
+        "dashboard.html",
+        data_json=json.dumps(data),
+        samples_json=json.dumps(samples),
+    )
 
 
 @app.route("/api/raw")
@@ -97,3 +115,8 @@ def api_pig():
 def api_pipeline():
     data = run_pipeline()
     return jsonify(data)
+
+
+@app.route("/api/samples")
+def api_samples():
+    return jsonify(_load_samples())

@@ -115,6 +115,32 @@
   .scroll-table::-webkit-scrollbar{width:6px}
   .scroll-table::-webkit-scrollbar-track{background:transparent}
   .scroll-table::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+
+  /* Schema / Samples */
+  .schema-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+  .schema-grid.full{grid-template-columns:1fr}
+  .json-block{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;
+    padding:20px;font-family:'Menlo','Consolas',monospace;font-size:12px;line-height:1.6;
+    color:var(--t2);overflow:auto;max-height:500px;white-space:pre-wrap;word-break:break-word}
+  .json-block::-webkit-scrollbar{width:6px}
+  .json-block::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+  .json-key{color:#7dd3fc}.json-str{color:#86efac}.json-num{color:#fbbf24}
+  .json-bool{color:#c084fc}.json-null{color:#94a3b8;font-style:italic}
+  .sample-event{padding:20px;border-radius:14px;background:var(--glass);border:1px solid var(--border);margin-bottom:16px}
+  .sample-event .ev-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .sample-event .ev-type{font-size:15px;font-weight:700}
+  .sample-event .ev-meta{font-size:12px;color:var(--t2)}
+  .sample-event .ev-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+  .ev-field{padding:8px 12px;border-radius:8px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.04)}
+  .ev-field .ef-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--t2);margin-bottom:2px}
+  .ev-field .ef-value{font-size:13px;color:var(--t1);word-break:break-word}
+  .ev-field .ef-value.mono{font-family:'Menlo','Consolas',monospace;font-size:11px}
+  .schema-prop-table td:first-child{font-family:'Menlo',monospace;font-size:12px;color:var(--cyan);white-space:nowrap}
+  .schema-prop-table td:nth-child(2){font-family:'Menlo',monospace;font-size:11px;color:var(--purple)}
+  .schema-prop-table td:nth-child(3){font-size:12px;max-width:400px}
+  .schema-section-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .schema-section-sub{font-size:12px;color:var(--t2);margin-bottom:16px}
+  .mapping-arrow{display:flex;align-items:center;justify-content:center;padding:16px 0;font-size:24px;color:var(--t2);opacity:.4}
 </style>
 </head>
 <body>
@@ -140,6 +166,7 @@
   <button class="tab" onclick="switchTab('tasks')">Task Instances</button>
   <button class="tab" onclick="switchTab('variants')">Variants</button>
   <button class="tab" onclick="switchTab('raw')">Raw Events</button>
+  <button class="tab" onclick="switchTab('schemas')">Schemas &amp; Samples</button>
 </div>
 
 <!-- ===== OVERVIEW ===== -->
@@ -209,11 +236,61 @@
   </div>
 </div>
 
+<!-- ===== SCHEMAS & SAMPLES ===== -->
+<div class="panel" id="panel-schemas">
+
+  <!-- Work IQ Schema -->
+  <div class="card">
+    <div class="card-header">
+      <h3><span style="color:var(--ms)">&#9632;</span> &nbsp;Microsoft Work IQ &mdash; Signal Schema</h3>
+      <span style="font-size:12px;color:var(--t2)">Microsoft Graph beta / MCP Context Layer</span>
+    </div>
+    <div class="card-body">
+      <div class="schema-section-sub">Fields captured from the Work IQ / Copilot analytics layer for each activity signal</div>
+      <div class="scroll-table" style="max-height:420px"><table class="schema-prop-table" id="wiqSchemaTable"></table></div>
+    </div>
+  </div>
+
+  <!-- Sample Work IQ Events -->
+  <div class="card">
+    <div class="card-header">
+      <h3><span style="color:var(--ms)">&#9632;</span> &nbsp;Work IQ Sample Events &mdash; LOAN-4872</h3>
+      <span style="font-size:12px;color:var(--t2)" id="wiqSampleCount"></span>
+    </div>
+    <div class="card-body" id="wiqSampleEvents"></div>
+  </div>
+
+  <!-- Sample Task Mining Events -->
+  <div class="card">
+    <div class="card-header">
+      <h3><span style="color:var(--green)">&#9632;</span> &nbsp;Task Mining Sample Events &mdash; LOAN-4872</h3>
+      <span style="font-size:12px;color:var(--t2)" id="tmSampleCount"></span>
+    </div>
+    <div class="card-body" id="tmSampleEvents"></div>
+  </div>
+
+  <!-- Unified Schema Mapping -->
+  <div class="card">
+    <div class="card-header">
+      <h3><span style="color:var(--purple)">&#9632;</span> &nbsp;Unified Activity Schema &mdash; Normalization Target</h3>
+      <span style="font-size:12px;color:var(--t2)">Source-agnostic format for AI clustering</span>
+    </div>
+    <div class="card-body">
+      <div class="schema-section-sub">Both Work IQ and Task Mining events normalize into this schema before entering the clustering engine</div>
+      <div class="scroll-table" style="max-height:350px"><table class="schema-prop-table" id="unifiedSchemaTable"></table></div>
+      <div class="mapping-arrow">&#9660; Normalized Examples &#9660;</div>
+      <div id="unifiedExamples"></div>
+    </div>
+  </div>
+
+</div>
+
 </div>
 
 <script>
 const DATA = {{ data_json | safe }};
 const pig = DATA.pig;
+const SAMPLES = {{ samples_json | safe }};
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -421,6 +498,117 @@ function renderRaw() {
     wiq.map(e => `<tr><td>${(e.timestamp||'').substring(11,19)}</td><td>${e.actionType}</td><td>${e.appHost||''}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.copilotPrompt||e.copilotResponse||e.pluginName||''}</td><td>${e.caseId||''}</td></tr>`).join('') + '</tbody>';
 }
 
+// --- Schemas & Samples ---
+function renderSchemaTable(containerId, schema) {
+  const props = schema.properties || {};
+  const required = new Set(schema.required || []);
+  const rows = Object.entries(props).map(([name, def]) => {
+    const typeStr = Array.isArray(def.type) ? def.type.filter(t=>t!=='null').join(' | ') : (def.type || '');
+    const enumStr = def.enum ? '<br><span style="font-size:10px;color:var(--orange)">' + def.enum.filter(e=>e!==null).join(', ') + '</span>' : '';
+    const req = required.has(name) ? ' <span style="color:var(--red);font-size:9px">REQUIRED</span>' : '';
+    return `<tr><td>${name}${req}</td><td>${typeStr}</td><td>${def.description || ''}${enumStr}</td></tr>`;
+  });
+  document.getElementById(containerId).innerHTML =
+    '<thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+}
+
+function renderSampleEvents(containerId, countId, events, sourceType) {
+  if (!events || !events.length) { document.getElementById(containerId).innerHTML = '<div style="color:var(--t2)">No sample data</div>'; return; }
+  document.getElementById(countId).textContent = events.length + ' sample events';
+
+  document.getElementById(containerId).innerHTML = events.map(ev => {
+    const isAgent = ev.copilotUsed || (ev.actionType || '').startsWith('copilot.');
+    const badgeCls = isAgent ? 'tb-agent' : 'tb-human';
+    const badgeText = isAgent ? 'AGENT' : 'HUMAN';
+    const evType = sourceType === 'wiq' ? (ev.actionType || '') : (ev.eventType || '');
+    const app = sourceType === 'wiq' ? (ev.appHost || '') : (ev.application || '');
+    const title = ev.resourceTitle || ev.tabTitle || '';
+
+    const fields = [];
+    fields.push({l:'Timestamp', v:ev.timestamp});
+    fields.push({l:'Action Type', v:evType});
+    fields.push({l:'Application', v:app});
+    if (title) fields.push({l:'Resource', v:title});
+    fields.push({l:'User', v:ev.userPrincipalName || ev.userId || ''});
+
+    if (ev.copilotPrompt) fields.push({l:'Copilot Prompt', v:ev.copilotPrompt, mono:true});
+    if (ev.copilotResponse) fields.push({l:'Copilot Response', v: ev.copilotResponse.substring(0,300) + (ev.copilotResponse.length>300?'...':''), mono:true});
+    if (ev.copilotModel) fields.push({l:'Model', v:ev.copilotModel});
+    if (ev.copilotConfidence) fields.push({l:'Confidence', v:(ev.copilotConfidence * 100).toFixed(0) + '%'});
+    if (ev.pluginName) fields.push({l:'Plugin', v:ev.pluginName});
+    if (ev.pluginInvocations && ev.pluginInvocations.length) {
+      ev.pluginInvocations.forEach(pi => {
+        fields.push({l:'Tool: ' + pi.pluginName, v: pi.inputQuery + (pi.durationMs ? ' (' + pi.durationMs + 'ms)' : ''), mono:true});
+        if (pi.outputSummary) fields.push({l:'Tool Result', v: pi.outputSummary, mono:true});
+      });
+    }
+    if (ev.clipboardText) fields.push({l:'Clipboard', v:ev.clipboardText, mono:true});
+    if (ev.domPath) fields.push({l:'DOM Path', v:ev.domPath, mono:true});
+    if (ev.context && ev.context.elementId) fields.push({l:'Element', v: ev.context.elementType + '#' + ev.context.elementId + (ev.context.elementValue ? ' = ' + ev.context.elementValue : '')});
+    if (ev.sensitivityLabel) fields.push({l:'Sensitivity', v:ev.sensitivityLabel});
+    if (ev.meetingSubject) fields.push({l:'Meeting', v:ev.meetingSubject});
+    if (ev.participants) fields.push({l:'Participants', v:ev.participants.join(', ')});
+    if (ev.resourceUrl) fields.push({l:'URL', v:ev.resourceUrl, mono:true});
+    if (ev.durationMs) fields.push({l:'Duration', v:(ev.durationMs >= 60000 ? Math.round(ev.durationMs/60000) + 'min' : ev.durationMs + 'ms')});
+
+    const borderColor = isAgent ? 'rgba(139,92,246,.25)' : 'rgba(0,212,126,.25)';
+
+    return `<div class="sample-event" style="border-left:3px solid ${borderColor}">
+      <div class="ev-header">
+        <div><span class="ev-type">${evType}</span> <span class="tbadge ${badgeCls}" style="margin-left:8px">${badgeText}</span></div>
+        <div class="ev-meta">${ev.timestamp} &middot; ${app}</div>
+      </div>
+      <div class="ev-body">
+        ${fields.map(f => `<div class="ev-field"><div class="ef-label">${f.l}</div><div class="ef-value${f.mono?' mono':''}">${f.v}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderUnifiedExamples(containerId, schema) {
+  const examples = schema.examples || [];
+  if (!examples.length) return;
+
+  document.getElementById(containerId).innerHTML = examples.map(ex => {
+    const comment = ex._comment || '';
+    const srcBadge = ex.source === 'work_iq'
+      ? '<span class="tbadge tb-wiq">Work IQ</span>'
+      : '<span class="tbadge tb-tm">Task Mining</span>';
+    const actorBdg = ex.actor_type === 'AGENT'
+      ? '<span class="tbadge tb-agent">AGENT</span>'
+      : '<span class="tbadge tb-human">HUMAN</span>';
+
+    const fields = Object.entries(ex).filter(([k]) => k !== '_comment').map(([k,v]) => {
+      const val = typeof v === 'object' ? JSON.stringify(v, null, 1) : String(v || '');
+      return `<div class="ev-field"><div class="ef-label">${k}</div><div class="ef-value mono">${val}</div></div>`;
+    });
+
+    return `<div class="sample-event" style="border-left:3px solid rgba(139,92,246,.3)">
+      <div class="ev-header">
+        <div><span class="ev-type">${ex.event_type || ''}</span> ${srcBadge} ${actorBdg}</div>
+        <div class="ev-meta">${comment}</div>
+      </div>
+      <div class="ev-body">${fields.join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSchemas() {
+  if (SAMPLES.work_iq_schema) {
+    renderSchemaTable('wiqSchemaTable', SAMPLES.work_iq_schema);
+  }
+  if (SAMPLES.unified_activity_schema) {
+    renderSchemaTable('unifiedSchemaTable', SAMPLES.unified_activity_schema);
+    renderUnifiedExamples('unifiedExamples', SAMPLES.unified_activity_schema);
+  }
+  if (SAMPLES.work_iq_sample_events) {
+    renderSampleEvents('wiqSampleEvents', 'wiqSampleCount', SAMPLES.work_iq_sample_events.events, 'wiq');
+  }
+  if (SAMPLES.task_mining_sample_events) {
+    renderSampleEvents('tmSampleEvents', 'tmSampleCount', SAMPLES.task_mining_sample_events.events, 'tm');
+  }
+}
+
 // Initialize
 renderKPIs();
 renderCharts();
@@ -428,6 +616,7 @@ renderProcessFlow();
 renderTasks();
 renderVariants();
 renderRaw();
+renderSchemas();
 </script>
 </body>
 </html>
