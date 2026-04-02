@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Unified Activity Event",
+  "description": "Source-agnostic activity event schema that both Task Mining UiEvents and Work IQ signals normalize into. This is the canonical input to the AI-based task clustering engine. Designed to be extensible to any agent infrastructure (LangChain, CrewAI, AutoGen, custom).",
+  "type": "object",
+  "required": ["timestamp", "event_type", "source", "actor_type", "actor_id", "application"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique identifier for this normalized event"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Normalized event type (e.g. 'Left click', 'CopilotInvocation', 'AgentToolCall', 'AgentCompletion')"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["celonis_desktop", "celonis_browser", "work_iq", "custom_agent"],
+      "description": "Which system generated this event"
+    },
+    "actor_type": {
+      "type": "string",
+      "enum": ["HUMAN", "AGENT", "HYBRID"],
+      "description": "Whether the activity was performed by a human, an AI agent, or a combination"
+    },
+    "actor_id": {
+      "type": "string",
+      "description": "User principal name or agent identifier"
+    },
+    "application": {
+      "type": "string",
+      "description": "Application where the activity occurred (e.g. 'SAP GUI', 'Microsoft Word', 'Outlook')"
+    },
+    "url": {
+      "type": ["string", "null"],
+      "format": "uri",
+      "description": "Resource URL (populated for browser events and Work IQ document actions)"
+    },
+    "title": {
+      "type": ["string", "null"],
+      "description": "Page title, document name, or email subject"
+    },
+    "context": {
+      "type": "object",
+      "description": "Flexible payload — contains source-specific details (DOM path for TM, prompts/completions for Work IQ, tool calls for agents)",
+      "additionalProperties": true
+    },
+    "case_correlation_id": {
+      "type": ["string", "null"],
+      "description": "Business case identifier for linking to process instances (e.g. 'LOAN-4872'). Extracted via heuristics or configuration."
+    },
+    "dom_path": {
+      "type": ["string", "null"],
+      "description": "DOM path of the target element (populated for browser/desktop events, null for agent events)"
+    }
+  },
+  "examples": [
+    {
+      "_comment": "Task Mining desktop event → normalized",
+      "event_id": "tm-ev-4872-001",
+      "timestamp": "2026-03-28T09:01:12Z",
+      "event_type": "Left click",
+      "source": "celonis_desktop",
+      "actor_type": "HUMAN",
+      "actor_id": "sarah.chen@contoso.com",
+      "application": "SAP GUI",
+      "url": null,
+      "title": "VA01 - Create Sales Order",
+      "context": {
+        "elementType": "input",
+        "elementId": "orderType"
+      },
+      "case_correlation_id": "LOAN-4872",
+      "dom_path": "body > sap-frame > input#orderType"
+    },
+    {
+      "_comment": "Work IQ Copilot invocation → normalized",
+      "event_id": "wiq-a1b2c3d4-1001",
+      "timestamp": "2026-03-28T09:05:00Z",
+      "event_type": "CopilotInvocation",
+      "source": "work_iq",
+      "actor_type": "AGENT",
+      "actor_id": "sarah.chen@contoso.com",
+      "application": "Microsoft Word",
+      "url": "https://contoso.sharepoint.com/sites/lending/docs/Loan_Summary_4872.docx",
+      "title": "Loan_Summary_4872.docx",
+      "context": {
+        "prompt": "Summarize the credit risk assessment for applicant John Smith on loan application LOAN-4872"
+      },
+      "case_correlation_id": "LOAN-4872",
+      "dom_path": null
+    },
+    {
+      "_comment": "Work IQ agent tool call → normalized",
+      "event_id": "wiq-a1b2c3d4-1002",
+      "timestamp": "2026-03-28T09:05:08Z",
+      "event_type": "AgentToolCall",
+      "source": "work_iq",
+      "actor_type": "AGENT",
+      "actor_id": "sarah.chen@contoso.com",
+      "application": "Microsoft Word",
+      "url": "https://contoso.sharepoint.com/sites/lending/docs/Loan_Summary_4872.docx",
+      "title": "Loan_Summary_4872.docx",
+      "context": {
+        "tool": "RAG_search",
+        "tool_calls": "[{\"pluginName\": \"RAG_search\", \"inputQuery\": \"credit score history John Smith\"}]"
+      },
+      "case_correlation_id": "LOAN-4872",
+      "dom_path": null
+    },
+    {
+      "_comment": "Work IQ agent completion → normalized",
+      "event_id": "wiq-a1b2c3d4-1003",
+      "timestamp": "2026-03-28T09:05:15Z",
+      "event_type": "AgentCompletion",
+      "source": "work_iq",
+      "actor_type": "AGENT",
+      "actor_id": "sarah.chen@contoso.com",
+      "application": "Microsoft Word",
+      "url": "https://contoso.sharepoint.com/sites/lending/docs/Loan_Summary_4872.docx",
+      "title": "Loan_Summary_4872.docx",
+      "context": {
+        "output": "Risk assessment: Medium. FICO 720. DTI ratio 34%. Recommendation: Approve with conditions."
+      },
+      "case_correlation_id": "LOAN-4872",
+      "dom_path": null
+    },
+    {
+      "_comment": "Work IQ human click (sending agent-drafted email) → normalized",
+      "event_id": "wiq-a1b2c3d4-1006",
+      "timestamp": "2026-03-28T09:07:00Z",
+      "event_type": "Left click",
+      "source": "work_iq",
+      "actor_type": "HUMAN",
+      "actor_id": "sarah.chen@contoso.com",
+      "application": "Microsoft Outlook",
+      "url": null,
+      "title": "RE: Loan App LOAN-4872 - Approval Recommendation",
+      "context": {},
+      "case_correlation_id": "LOAN-4872",
+      "dom_path": null
+    }
+  ]
+}
