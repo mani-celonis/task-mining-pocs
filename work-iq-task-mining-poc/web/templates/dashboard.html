@@ -141,6 +141,26 @@
   .schema-section-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:8px}
   .schema-section-sub{font-size:12px;color:var(--t2);margin-bottom:16px}
   .mapping-arrow{display:flex;align-items:center;justify-content:center;padding:16px 0;font-size:24px;color:var(--t2);opacity:.4}
+
+  /* Sub-tabs */
+  .subtabs{display:flex;gap:3px;margin-bottom:24px;background:rgba(0,0,0,.25);border:1px solid var(--border);
+    border-radius:10px;padding:3px;width:fit-content}
+  .subtab{padding:8px 18px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;
+    color:var(--t2);transition:all .2s;border:none;background:none}
+  .subtab:hover{color:var(--t1)}
+  .subtab.active{color:var(--ms);background:rgba(0,120,212,.1)}
+  .subtab.st-green.active{color:var(--green);background:rgba(0,212,126,.1)}
+  .subtab.st-purple.active{color:var(--purple);background:rgba(139,92,246,.1)}
+  .subpanel{display:none}
+  .subpanel.active{display:block}
+
+  /* Authenticity badge */
+  .auth-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.3px}
+  .auth-real{background:rgba(0,212,126,.1);border:1px solid rgba(0,212,126,.2);color:var(--green)}
+  .auth-spec{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--orange)}
+  .auth-note{font-size:12px;color:var(--t2);line-height:1.6;padding:12px 16px;background:rgba(0,0,0,.2);
+    border-left:3px solid var(--orange);border-radius:0 8px 8px 0;margin-bottom:20px}
+  .auth-note.real-note{border-left-color:var(--green)}
 </style>
 </head>
 <body>
@@ -239,47 +259,76 @@
 <!-- ===== SCHEMAS & SAMPLES ===== -->
 <div class="panel" id="panel-schemas">
 
-  <!-- Work IQ Schema -->
-  <div class="card">
-    <div class="card-header">
-      <h3><span style="color:var(--ms)">&#9632;</span> &nbsp;Microsoft Work IQ &mdash; Signal Schema</h3>
-      <span style="font-size:12px;color:var(--t2)">Microsoft Graph beta / MCP Context Layer</span>
-    </div>
-    <div class="card-body">
-      <div class="schema-section-sub">Fields captured from the Work IQ / Copilot analytics layer for each activity signal</div>
-      <div class="scroll-table" style="max-height:420px"><table class="schema-prop-table" id="wiqSchemaTable"></table></div>
+  <div class="subtabs" id="schemaSubtabs">
+    <button class="subtab active" onclick="switchSubtab('wiq-schema')">Work IQ Schema</button>
+    <button class="subtab" onclick="switchSubtab('wiq-samples')">Work IQ Samples</button>
+    <button class="subtab st-green" onclick="switchSubtab('tm-samples')">Task Mining Samples</button>
+    <button class="subtab st-purple" onclick="switchSubtab('unified')">Unified Schema</button>
+  </div>
+
+  <!-- Sub: Work IQ Schema -->
+  <div class="subpanel active" id="sub-wiq-schema">
+    <div class="card">
+      <div class="card-header">
+        <h3><span style="color:var(--ms)">&#9632;</span> &nbsp;Microsoft Work IQ &mdash; Signal Schema</h3>
+        <span class="auth-badge auth-spec">Speculative / Projected</span>
+      </div>
+      <div class="card-body">
+        <div class="auth-note">This schema is <strong>speculative</strong> &mdash; it is modeled after real Microsoft Graph API patterns (<code>/beta/reports/userInsights/</code>, Viva Insights, Copilot telemetry), but Microsoft has not published an official "Work IQ Activity Signal" schema. Field names, enum values, and structure represent our best projection of what such an API would expose based on existing M365 telemetry patterns and Copilot integration points.</div>
+        <div class="schema-section-sub">Projected fields for Work IQ / Copilot activity signals &mdash; 25 properties across identity, action, resource, agent, and metadata dimensions</div>
+        <div class="scroll-table" style="max-height:520px"><table class="schema-prop-table" id="wiqSchemaTable"></table></div>
+      </div>
     </div>
   </div>
 
-  <!-- Sample Work IQ Events -->
-  <div class="card">
-    <div class="card-header">
-      <h3><span style="color:var(--ms)">&#9632;</span> &nbsp;Work IQ Sample Events &mdash; LOAN-4872</h3>
-      <span style="font-size:12px;color:var(--t2)" id="wiqSampleCount"></span>
+  <!-- Sub: Work IQ Samples -->
+  <div class="subpanel" id="sub-wiq-samples">
+    <div class="card">
+      <div class="card-header">
+        <h3><span style="color:var(--ms)">&#9632;</span> &nbsp;Work IQ Sample Events &mdash; LOAN-4872</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span class="auth-badge auth-spec">Simulated Data</span>
+          <span style="font-size:12px;color:var(--t2)" id="wiqSampleCount"></span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="auth-note">These sample events simulate what Microsoft Work IQ would return for Copilot-assisted loan processing. The data structure follows projected Graph API response formats. All applicant data is fictional.</div>
+        <div id="wiqSampleEvents"></div>
+      </div>
     </div>
-    <div class="card-body" id="wiqSampleEvents"></div>
   </div>
 
-  <!-- Sample Task Mining Events -->
-  <div class="card">
-    <div class="card-header">
-      <h3><span style="color:var(--green)">&#9632;</span> &nbsp;Task Mining Sample Events &mdash; LOAN-4872</h3>
-      <span style="font-size:12px;color:var(--t2)" id="tmSampleCount"></span>
+  <!-- Sub: Task Mining Samples -->
+  <div class="subpanel" id="sub-tm-samples">
+    <div class="card">
+      <div class="card-header">
+        <h3><span style="color:var(--green)">&#9632;</span> &nbsp;Celonis Task Mining Sample Events &mdash; LOAN-4872</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span class="auth-badge auth-real">Real Schema</span>
+          <span style="font-size:12px;color:var(--t2)" id="tmSampleCount"></span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="auth-note real-note">This schema matches the <strong>real</strong> Celonis Task Mining <code>UiEvent</code> format from the Chrome/Edge extension and desktop client. Fields like <code>eventType</code>, <code>domPath</code>, <code>clipboardText</code>, <code>context</code>, and <code>extensionName</code> are based on the actual production codebase. Only the customer data is fictional.</div>
+        <div id="tmSampleEvents"></div>
+      </div>
     </div>
-    <div class="card-body" id="tmSampleEvents"></div>
   </div>
 
-  <!-- Unified Schema Mapping -->
-  <div class="card">
-    <div class="card-header">
-      <h3><span style="color:var(--purple)">&#9632;</span> &nbsp;Unified Activity Schema &mdash; Normalization Target</h3>
-      <span style="font-size:12px;color:var(--t2)">Source-agnostic format for AI clustering</span>
-    </div>
-    <div class="card-body">
-      <div class="schema-section-sub">Both Work IQ and Task Mining events normalize into this schema before entering the clustering engine</div>
-      <div class="scroll-table" style="max-height:350px"><table class="schema-prop-table" id="unifiedSchemaTable"></table></div>
-      <div class="mapping-arrow">&#9660; Normalized Examples &#9660;</div>
-      <div id="unifiedExamples"></div>
+  <!-- Sub: Unified Schema -->
+  <div class="subpanel" id="sub-unified">
+    <div class="card">
+      <div class="card-header">
+        <h3><span style="color:var(--purple)">&#9632;</span> &nbsp;Unified Activity Schema &mdash; Normalization Target</h3>
+        <span class="auth-badge auth-spec">POC Design</span>
+      </div>
+      <div class="card-body">
+        <div class="auth-note">This is the <strong>proposed</strong> source-agnostic schema that both Work IQ and Task Mining events normalize into before AI clustering. Designed to be extensible to any agent infrastructure (LangChain, CrewAI, AutoGen). The <code>actor_type</code> field is the key extension over the current Task Mining schema.</div>
+        <div class="schema-section-sub">Canonical schema for the clustering engine &mdash; any source adapter maps into this format</div>
+        <div class="scroll-table" style="max-height:350px"><table class="schema-prop-table" id="unifiedSchemaTable"></table></div>
+        <div class="mapping-arrow">&#9660; Normalized Examples &mdash; same event from different sources &#9660;</div>
+        <div id="unifiedExamples"></div>
+      </div>
     </div>
   </div>
 
@@ -297,6 +346,14 @@ function switchTab(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById('panel-' + name).classList.add('active');
+}
+
+function switchSubtab(name) {
+  const parent = event.target.closest('.panel');
+  parent.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.subpanel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  parent.querySelector('#sub-' + name).classList.add('active');
 }
 
 function actorBadge(type) {
