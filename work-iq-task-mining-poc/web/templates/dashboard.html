@@ -161,12 +161,45 @@
   .auth-note{font-size:12px;color:var(--t2);line-height:1.6;padding:12px 16px;background:rgba(0,0,0,.2);
     border-left:3px solid var(--orange);border-radius:0 8px 8px 0;margin-bottom:20px}
   .auth-note.real-note{border-left-color:var(--green)}
+
+  /* Password gate */
+  .gate-overlay{position:fixed;inset:0;z-index:9999;background:var(--dark);display:flex;align-items:center;justify-content:center}
+  .gate-overlay.hidden{display:none}
+  .gate-box{text-align:center;max-width:400px;padding:48px;border-radius:20px;background:var(--glass);
+    border:1px solid var(--border);backdrop-filter:blur(20px)}
+  .gate-box h2{font-size:22px;font-weight:700;margin-bottom:6px}
+  .gate-box h2 span{color:var(--green)}
+  .gate-box p{font-size:13px;color:var(--t2);margin-bottom:24px}
+  .gate-input{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);
+    background:rgba(0,0,0,.3);color:var(--t1);font-size:14px;font-family:'Inter',sans-serif;outline:none;
+    transition:border-color .2s}
+  .gate-input:focus{border-color:var(--green)}
+  .gate-input.error{border-color:var(--red);animation:shake .4s}
+  .gate-btn{margin-top:16px;padding:12px 32px;border-radius:10px;border:none;background:var(--green);
+    color:var(--dark);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s}
+  .gate-btn:hover{opacity:.85}
+  .gate-err{color:var(--red);font-size:12px;margin-top:10px;min-height:18px}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 </style>
 </head>
 <body>
+
+<!-- Password Gate -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="bg"></div>
+  <div class="grid-bg"></div>
+  <div class="gate-box">
+    <h2><span>Work IQ</span> × Task Mining</h2>
+    <p>This POC contains internal demo content.<br>Enter the access code to continue.</p>
+    <input type="password" class="gate-input" id="gateInput" placeholder="Access code" autocomplete="off">
+    <div class="gate-err" id="gateErr"></div>
+    <button class="gate-btn" id="gateBtn" onclick="checkGate()">Enter</button>
+  </div>
+</div>
+
 <div class="bg"></div>
 <div class="grid-bg"></div>
-<div class="app">
+<div class="app" id="mainApp" style="display:none">
 
 <header>
   <div>
@@ -181,16 +214,16 @@
 </header>
 
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab" onclick="switchTab('overview')">Overview</button>
   <button class="tab" onclick="switchTab('process')">Process Flow</button>
   <button class="tab" onclick="switchTab('tasks')">Task Instances</button>
   <button class="tab" onclick="switchTab('variants')">Variants</button>
   <button class="tab" onclick="switchTab('raw')">Raw Events</button>
-  <button class="tab" onclick="switchTab('schemas')">Schemas &amp; Samples</button>
+  <button class="tab active" onclick="switchTab('schemas')">Schemas &amp; Samples</button>
 </div>
 
 <!-- ===== OVERVIEW ===== -->
-<div class="panel active" id="panel-overview">
+<div class="panel" id="panel-overview">
   <div class="kpis" id="kpi-row"></div>
   <div class="charts-row">
     <div class="card">
@@ -257,7 +290,7 @@
 </div>
 
 <!-- ===== SCHEMAS & SAMPLES ===== -->
-<div class="panel" id="panel-schemas">
+<div class="panel active" id="panel-schemas">
 
   <div class="subtabs" id="schemaSubtabs">
     <button class="subtab active" onclick="switchSubtab('wiq-schema')">Work IQ Schema</button>
@@ -337,6 +370,41 @@
 </div>
 
 <script>
+const GATE_HASH = '91f9713b1297cb65fa46edb61d9c7d30d0eb8ac554db477697b6432034f13d24';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkGate() {
+  const inp = document.getElementById('gateInput');
+  const hash = await sha256(inp.value);
+  if (hash === GATE_HASH) {
+    sessionStorage.setItem('wiq_poc_auth', '1');
+    unlockDashboard();
+  } else {
+    inp.classList.add('error');
+    document.getElementById('gateErr').textContent = 'Incorrect access code';
+    setTimeout(() => inp.classList.remove('error'), 500);
+  }
+}
+
+function unlockDashboard() {
+  document.getElementById('gateOverlay').classList.add('hidden');
+  document.getElementById('mainApp').style.display = '';
+  initDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('gateInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkGate();
+  });
+  if (sessionStorage.getItem('wiq_poc_auth') === '1') {
+    unlockDashboard();
+  }
+});
+
 const DATA = {{ data_json | safe }};
 const pig = DATA.pig;
 const SAMPLES = {{ samples_json | safe }};
@@ -666,14 +734,18 @@ function renderSchemas() {
   }
 }
 
-// Initialize
-renderKPIs();
-renderCharts();
-renderProcessFlow();
-renderTasks();
-renderVariants();
-renderRaw();
-renderSchemas();
+let _initialized = false;
+function initDashboard() {
+  if (_initialized) return;
+  _initialized = true;
+  renderKPIs();
+  renderCharts();
+  renderProcessFlow();
+  renderTasks();
+  renderVariants();
+  renderRaw();
+  renderSchemas();
+}
 </script>
 </body>
 </html>
