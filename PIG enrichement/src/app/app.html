@@ -1,0 +1,68 @@
+<ce-main-layout [collapsible]="true">
+  <div ceMainLayoutHeader>
+    <ce-main-layout-logo-container>
+      <span class="app-header-wordmark" aria-label="Celonis">Celonis</span>
+    </ce-main-layout-logo-container>
+  </div>
+
+  <div ceMainLayoutLeftNav>
+    <ce-main-side-nav>
+      <div ceMainSideNavLinks>
+        <ce-main-side-nav-link label="Task Mining" ceRouterLink="/overview"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link
+          label="Analysis"
+          ceRouterLink="/task-mining/analysis?analysisTab=automation"
+        ></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Overview" ceRouterLink="/overview"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="TryCelonis" ceRouterLink="/try-celonis"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Quickstarts" ceRouterLink="/quickstarts"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Apps" ceRouterLink="/apps"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Celonis Gallery" ceRouterLink="/gallery"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="More" ceRouterLink="/more"></ce-main-side-nav-link>
+      </div>
+    </ce-main-side-nav>
+
+    <div class="nav-spacer"></div>
+
+    <ce-main-side-nav>
+      <div ceMainSideNavLinks>
+        <ce-main-side-nav-link label="Data" ceRouterLink="/data/pig-modeling"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link
+          label="Task Mining project"
+          ceRouterLink="/data/pig-modeling/task-mining-project"
+        ></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="PIG version 2" ceRouterLink="/data/pig-v2"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link
+          label="Studio"
+          ceRouterLink="/studio/process-task-mining-discovery"
+        ></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Marketplace" ceRouterLink="/marketplace"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Admin & Settings" ceRouterLink="/settings"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Search" ceRouterLink="/search"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Help Center" ceRouterLink="/help"></ce-main-side-nav-link>
+
+        <ce-main-side-nav-link label="Celonis Assistant" ceRouterLink="/assistant"></ce-main-side-nav-link>
+      </div>
+    </ce-main-side-nav>
+  </div>
+
+  <!-- Routed pages project here (default slot). Avoid wrapping in ce-main-content: its nested
+       height: 100% / flex chain can collapse to zero height with the router outlet. -->
+  <div class="app-outlet-shell">
+    <router-outlet />
+  </div>
+</ce-main-layout>

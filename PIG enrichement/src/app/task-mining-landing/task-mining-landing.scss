@@ -1,0 +1,76 @@
+@use '@celonis/emotion/styles/tokens' as t;
+@use '@celonis/emotion/styles/core' as c;
+
+.task-mining-landing {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-6;
+  width: 100%;
+}
+
+.landing-lead {
+  @include c.typeset(body-lg-regular);
+  color: t.$content;
+  margin: 0;
+  max-width: 60ch;
+}
+
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$space-3;
+  justify-content: flex-start;
+}
+
+.landing-actions--compact {
+  margin-top: calc(-1 * t.$space-2);
+}
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: t.$space-4;
+}
+
+.metric-panel {
+  margin: 0;
+}
+
+.metric-value {
+  @include c.typeset(h3);
+  color: t.$content;
+  display: block;
+}
+
+.metric-label {
+  @include c.typeset(body-sm-regular);
+  color: t.$content-subdued;
+  display: block;
+  margin-top: t.$space-1;
+}
+
+.landing-banner {
+  margin: 0;
+}
+
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: t.$space-4;
+}
+
+.highlight-panel {
+  margin: 0;
+}
+
+.highlight-title {
+  @include c.typeset(h4);
+  color: t.$content;
+  margin: 0 0 t.$space-2;
+}
+
+.highlight-body {
+  @include c.typeset(body-md-regular);
+  color: t.$content-subdued;
+  margin: 0;
+}

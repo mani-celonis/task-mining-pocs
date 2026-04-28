@@ -1,0 +1,179 @@
+<div class="paa-page">
+  <ce-info class="paa-page__intro" variant="neutral">
+    <span class="paa-page__intro-text">
+      Central analysis entry: prioritized manual work, modeled impact, and a direct path into PiG studio.
+    </span>
+    <div class="paa-page__intro-actions">
+      <button type="button" routerLink="/data/pig-modeling/task-mining-project" [ceButton]="true" variant="secondary">Task Mining project</button>
+      <button type="button" routerLink="/studio/process-task-mining-discovery" [ceButton]="true" variant="primary">Open PiG studio</button>
+      <button type="button" [ceButton]="true" variant="secondary" (click)="showDemoError()">Demo error state</button>
+    </div>
+  </ce-info>
+
+  <div class="paa-page__header">
+    <div class="paa-page__titles">
+      <ce-main-content-title>Procure-to-pay · Automation analysis</ce-main-content-title>
+      <p class="paa-page__subtitle">
+        Digital Twin combines discovered worker behavior with AP business-object flow so you can
+        target the highest automation opportunities first.
+      </p>
+    </div>
+  </div>
+
+  <section class="paa-page__section" aria-labelledby="paa-headline-metrics">
+    <h2 id="paa-headline-metrics" class="paa-page__section-title">Process health</h2>
+    <div class="paa-page__kpi-strip" role="list">
+      @for (m of headlineMetrics; track m.name) {
+        <div class="paa-page__kpi-cell" role="listitem">
+          <ce-kpi [name]="m.name" [value]="m.value"></ce-kpi>
+        </div>
+      }
+    </div>
+  </section>
+
+  <ce-tabs class="paa-page__tabs" [contentPadding]="true" tabQueryParam="analysisTab" name="Task mining analysis views">
+    <ce-tab label="Digital Twin" id="digital-twin">
+      <ce-tabs class="paa-page__digital-tabs" [contentPadding]="true" tabQueryParam="digitalTwinTab" name="Digital twin views">
+        <ce-tab label="Task discovery" id="task-discovery">
+          <section class="paa-page__section" aria-labelledby="paa-task-discovery">
+            <h2 id="paa-task-discovery" class="paa-page__section-title">Task Discovery Evaluation</h2>
+            <div class="paa-page__task-kpis" role="list">
+              @for (stat of taskDiscoveryStats; track stat.name) {
+                <div class="paa-page__task-kpi" role="listitem">
+                  <ce-kpi [name]="stat.name" [value]="stat.value"></ce-kpi>
+                </div>
+              }
+            </div>
+            <div class="paa-page__task-layout">
+              <div class="paa-page__task-panel">
+                <h3 class="paa-page__panel-title">task_name</h3>
+                <div class="paa-page__table-wrap">
+                  <ce-table-grid [striped]="true" [bordered]="true">
+                    <ce-table-grid-header [sticky]="true">
+                      <ce-table-grid-column>Task</ce-table-grid-column>
+                      <ce-table-grid-column>Count</ce-table-grid-column>
+                    </ce-table-grid-header>
+                    @for (row of taskDiscoveryRows; track row.id) {
+                      <ce-table-grid-item>
+                        <ce-table-grid-column>{{ row.taskName }}</ce-table-grid-column>
+                        <ce-table-grid-column>{{ row.count }}</ce-table-grid-column>
+                      </ce-table-grid-item>
+                    }
+                  </ce-table-grid>
+                </div>
+              </div>
+              <div class="paa-page__task-panel">
+                <h3 class="paa-page__panel-title">subtask_name</h3>
+                <div class="paa-page__bar-list">
+                  @for (row of taskDiscoveryRows; track row.id) {
+                    <div class="paa-page__bar-row">
+                      <span class="paa-page__bar-label">{{ row.subtaskName }}</span>
+                      <div class="paa-page__bar-track">
+                        <div class="paa-page__bar-fill" [style.inline-size.%]="row.coveragePct"></div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </section>
+        </ce-tab>
+        <ce-tab label="Process discovery" id="process-discovery">
+          <section class="paa-page__section" aria-labelledby="paa-process-discovery">
+            <h2 id="paa-process-discovery" class="paa-page__section-title">Process Discovery · Finance business objects</h2>
+            <div class="paa-page__process-controls">
+              <ce-select [(ngModel)]="selectedWorkerId" name="selectedWorker" placeholder="Select worker by name">
+                @for (worker of workerOptions; track worker.id) {
+                  <ce-option [value]="worker.id">{{ worker.label }}</ce-option>
+                }
+              </ce-select>
+            </div>
+            <div class="paa-page__process-graph">
+              @for (object of financeBusinessObjects; track object.id) {
+                <article class="paa-page__object-lane">
+                  <h3 class="paa-page__object-title">{{ object.label }}</h3>
+                  @if (processStepsFor(object).length === 0) {
+                    <p class="paa-page__lane-empty">No steps for {{ workerLabel(selectedWorkerId) }} in this object.</p>
+                  } @else {
+                    <ol class="paa-page__step-list">
+                      @for (step of processStepsFor(object); track step.id) {
+                        <li class="paa-page__step-item">
+                          <span class="paa-page__step-node"></span>
+                          <span class="paa-page__step-label">{{ step.label }}</span>
+                        </li>
+                      }
+                    </ol>
+                  }
+                </article>
+              }
+            </div>
+          </section>
+        </ce-tab>
+      </ce-tabs>
+    </ce-tab>
+    <ce-tab label="Task & bottleneck analysis" id="bottlenecks">
+      <ce-placeholder size="md" [fullHeight]="false">
+        <ce-placeholder-title>Prototype</ce-placeholder-title>
+        <ce-placeholder-description>Bottleneck analysis is not wired here yet.</ce-placeholder-description>
+      </ce-placeholder>
+    </ce-tab>
+    <ce-tab label="Automation analysis" id="automation">
+      @if (loadState() === 'loading') {
+        <div class="paa-page__loading">
+          <ce-skeleton>
+            <ce-skeleton-title [width]="'55%'"></ce-skeleton-title>
+            <ce-skeleton-description-line [width]="'90%'"></ce-skeleton-description-line>
+          </ce-skeleton>
+        </div>
+      } @else if (loadState() === 'error') {
+        <ce-placeholder size="md" [fullHeight]="false">
+          <ce-placeholder-title>Could not load analysis</ce-placeholder-title>
+          <ce-placeholder-description>
+            Retry to reload the mock dataset. In production this would surface an API/data issue.
+          </ce-placeholder-description>
+          <button type="button" [ceButton]="true" variant="primary" cePlaceholderButton (click)="retryLoad()">Retry</button>
+        </ce-placeholder>
+      } @else {
+        <section class="paa-page__section" aria-labelledby="paa-automation-summary">
+          <h2 class="paa-page__section-title">Automation summary</h2>
+          <div class="paa-page__summary-kpis" role="list">
+            @for (k of summaryKpis; track k.name) {
+              <div class="paa-page__summary-kpi" role="listitem">
+                <ce-kpi [name]="k.name" [value]="k.value"></ce-kpi>
+              </div>
+            }
+          </div>
+        </section>
+        <section class="paa-page__section" aria-labelledby="paa-prioritized-activities">
+          <h2 class="paa-page__section-title">Prioritized activities</h2>
+          <div class="paa-page__table-wrap">
+            <ce-table-grid [striped]="true" [bordered]="true">
+              <ce-table-grid-header [sticky]="true">
+                <ce-table-grid-column>Activity</ce-table-grid-column>
+                <ce-table-grid-column># Manual executions (automation rate)</ce-table-grid-column>
+                <ce-table-grid-column>Effort / activity</ce-table-grid-column>
+                <ce-table-grid-column># Tasks / # Subtasks</ce-table-grid-column>
+                <ce-table-grid-column>AI potential</ce-table-grid-column>
+                <ce-table-grid-column>KPI impact</ce-table-grid-column>
+                <ce-table-grid-column>Potential business impact</ce-table-grid-column>
+                <ce-table-grid-column [shrink]="true">AI opportunity</ce-table-grid-column>
+              </ce-table-grid-header>
+              @for (row of activities; track row.id) {
+                <ce-table-grid-item>
+                  <ce-table-grid-column><span class="paa-page__activity-name">{{ row.activity }}</span></ce-table-grid-column>
+                  <ce-table-grid-column>{{ manualWithRate(row) }}</ce-table-grid-column>
+                  <ce-table-grid-column>{{ row.effortLabel }}</ce-table-grid-column>
+                  <ce-table-grid-column>{{ tasksSubtasks(row) }}</ce-table-grid-column>
+                  <ce-table-grid-column><ce-status-indicator [variant]="aiVariant(row.aiPotential)" [label]="aiLabel(row.aiPotential)"></ce-status-indicator></ce-table-grid-column>
+                  <ce-table-grid-column>{{ row.kpiImpact }}</ce-table-grid-column>
+                  <ce-table-grid-column>{{ row.businessImpactLabel }}</ce-table-grid-column>
+                  <ce-table-grid-column><button type="button" routerLink="/studio/process-task-mining-discovery" [ceButton]="true" variant="secondary">Set up agent</button></ce-table-grid-column>
+                </ce-table-grid-item>
+              }
+            </ce-table-grid>
+          </div>
+        </section>
+      }
+    </ce-tab>
+  </ce-tabs>
+</div>

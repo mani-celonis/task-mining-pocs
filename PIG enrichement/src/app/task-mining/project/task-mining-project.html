@@ -1,0 +1,94 @@
+<div class="tm-project">
+  <ce-info class="tm-project__nav-hint" variant="neutral">
+    <span class="tm-project__nav-hint-text">
+      Explore how clustering connects to PiG semantics and dual-lane analysis:
+    </span>
+    <div class="tm-project__nav-hint-actions">
+      <button
+        type="button"
+        routerLink="/task-mining/analysis"
+        [queryParams]="{ analysisTab: 'automation' }"
+        [ceButton]="true"
+        variant="secondary"
+      >
+        Automation analysis
+      </button>
+      <button type="button" routerLink="/data/pig-modeling" [ceButton]="true" variant="secondary">
+        PiG modeling (Data)
+      </button>
+      <button
+        type="button"
+        routerLink="/studio/process-task-mining-discovery"
+        [ceButton]="true"
+        variant="secondary"
+      >
+        Task Mining Discovery (Studio)
+      </button>
+    </div>
+  </ce-info>
+
+  <div class="tm-project__header">
+    <div class="tm-project__titles">
+      <ce-main-content-title>{{ flow.projectName() }}</ce-main-content-title>
+      <p class="tm-project__subtitle">
+        AI task clustering runs for this project. Each run is tied to an object/event from your
+        model and a data window from this Task Mining project.
+      </p>
+    </div>
+    <div class="tm-project__actions">
+      <button
+        type="button"
+        routerLink="/data/pig-modeling/task-mining-project"
+        fragment="clustering-runs"
+        [ceButton]="true"
+        variant="secondary"
+      >
+        Task clustering
+      </button>
+      <button type="button" [ceButton]="true" variant="primary" (click)="createNew()">
+        Create new
+      </button>
+    </div>
+  </div>
+
+  <div id="clustering-runs" class="tm-project__table-region">
+  <ce-table-grid [striped]="true" [bordered]="true">
+    <ce-table-grid-header [sticky]="true">
+      <ce-table-grid-column>Name</ce-table-grid-column>
+      <ce-table-grid-column>Status</ce-table-grid-column>
+      <ce-table-grid-column># Tasks</ce-table-grid-column>
+      <ce-table-grid-column># Subtasks</ce-table-grid-column>
+      <ce-table-grid-column>Date</ce-table-grid-column>
+      <ce-table-grid-column [shrink]="true">Actions</ce-table-grid-column>
+    </ce-table-grid-header>
+    @for (run of flow.runs(); track run.id) {
+      <ce-table-grid-item>
+        <ce-table-grid-column>
+          <span class="tm-project__run-name">{{ run.name }}</span>
+          <span class="tm-project__run-meta"
+            >{{ run.objectEventLabel }} · {{ run.dataRangeLabel }}</span
+          >
+        </ce-table-grid-column>
+        <ce-table-grid-column>
+          <ce-status-indicator
+            [variant]="flow.statusVariant(run.status)"
+            [label]="flow.statusLabel(run.status)"
+            [animated]="run.status === 'running'"
+          >
+          </ce-status-indicator>
+        </ce-table-grid-column>
+        <ce-table-grid-column>{{ run.status === 'complete' ? run.taskCount : '—' }}</ce-table-grid-column>
+        <ce-table-grid-column>{{ run.status === 'complete' ? run.subtaskCount : '—' }}</ce-table-grid-column>
+        <ce-table-grid-column>{{ formatDate(run.createdAt) }}</ce-table-grid-column>
+        <ce-table-grid-column>
+          @if (run.status === 'complete') {
+            <button type="button" [ceButton]="true" variant="secondary" (click)="openRun(run)">
+              Open
+            </button>
+          }
+        </ce-table-grid-column>
+      </ce-table-grid-item>
+    }
+  </ce-table-grid>
+  </div>
+</div>

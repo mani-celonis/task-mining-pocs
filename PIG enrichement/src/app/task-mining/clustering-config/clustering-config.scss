@@ -1,0 +1,31 @@
+@use '@celonis/emotion/styles/tokens' as t;
+@use '@celonis/emotion/styles/core' as c;
+
+.tm-config {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-5;
+  width: 100%;
+  max-width: min(100%, 40rem);
+}
+
+.tm-config__lead {
+  @include c.typeset(body-md-regular);
+  color: t.$content-subdued;
+  margin: 0;
+}
+
+.tm-config__hint {
+  margin: 0;
+}
+
+.tm-config__form {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-4;
+}
+
+.tm-config__footer {
+  display: flex;
+  justify-content: flex-end;
+}

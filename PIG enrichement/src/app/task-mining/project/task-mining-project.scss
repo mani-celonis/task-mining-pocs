@@ -1,0 +1,65 @@
+@use '@celonis/emotion/styles/tokens' as t;
+@use '@celonis/emotion/styles/core' as c;
+
+.tm-project {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-6;
+  width: 100%;
+}
+
+.tm-project__nav-hint {
+  margin: 0;
+}
+
+.tm-project__nav-hint-text {
+  @include c.typeset(body-sm-regular);
+  display: block;
+  margin-bottom: t.$space-3;
+  color: t.$content-subdued;
+}
+
+.tm-project__nav-hint-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$space-2;
+}
+
+.tm-project__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: t.$space-4;
+}
+
+.tm-project__titles {
+  flex: 1 1 min(100%, 40rem);
+}
+
+.tm-project__subtitle {
+  @include c.typeset(body-md-regular);
+  color: t.$content-subdued;
+  margin: t.$space-2 0 0;
+  max-width: 60ch;
+}
+
+.tm-project__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$space-3;
+  justify-content: flex-end;
+}
+
+.tm-project__run-name {
+  @include c.typeset(body-md-medium);
+  color: t.$content;
+  display: block;
+}
+
+.tm-project__run-meta {
+  @include c.typeset(body-sm-regular);
+  color: t.$content-subdued;
+  display: block;
+  margin-top: t.$space-1;
+}

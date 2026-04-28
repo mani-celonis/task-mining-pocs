@@ -1,0 +1,44 @@
+@use '@celonis/emotion/styles/tokens' as t;
+@use '@celonis/emotion/styles/core' as c;
+
+.tm-preview {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-6;
+  width: 100%;
+}
+
+.tm-preview__header {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-2;
+}
+
+.tm-preview__intro {
+  @include c.typeset(body-md-regular);
+  color: t.$content-subdued;
+  margin: 0;
+  max-width: 70ch;
+}
+
+.tm-preview__banner {
+  margin: 0;
+}
+
+.tm-preview__kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$space-6;
+}
+
+.tm-preview__subtasks {
+  @include c.typeset(body-sm-regular);
+  color: t.$content;
+}
+
+.tm-preview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$space-3;
+  justify-content: flex-end;
+}

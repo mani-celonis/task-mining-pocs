@@ -1,0 +1,67 @@
+<div class="tm-config">
+  <ce-main-content-title>Configure AI task clustering</ce-main-content-title>
+  <p class="tm-config__lead">
+    Name this run, describe what you want the model to find, and scope object/event plus data from
+    this project. Your goal text is appended to the LLM user prompt (system prompt is fixed by the
+    product).
+  </p>
+
+  @if (showGoalHint) {
+    <ce-info class="tm-config__hint" variant="warning">
+      Empty goal: you can still run a sample, but a short process description usually improves
+      clustering quality.
+    </ce-info>
+  }
+
+  <div class="tm-config__form">
+    <ce-input-group>
+      <input
+        ceInput
+        placeholder="Run name"
+        name="runName"
+        [(ngModel)]="name"
+        autocomplete="off"
+      />
+    </ce-input-group>
+
+    <ce-input-group>
+      <textarea
+        ceInput
+        placeholder="Describe the goal for this clustering run…"
+        name="runGoal"
+        [(ngModel)]="goal"
+        rows="5"
+      ></textarea>
+    </ce-input-group>
+
+    <ce-input-group>
+      <ce-select
+        [(ngModel)]="objectEventId"
+        name="objectEvent"
+        placeholder="Related object / event (from PiG)"
+      >
+        @for (opt of flow.objectOptions; track opt.id) {
+          <ce-option [value]="opt.id">{{ opt.label }}</ce-option>
+        }
+      </ce-select>
+    </ce-input-group>
+
+    <ce-input-group>
+      <ce-select
+        [(ngModel)]="dataRangeId"
+        name="dataRange"
+        placeholder="Data input range (this project)"
+      >
+        @for (opt of flow.dataRangeOptions; track opt.id) {
+          <ce-option [value]="opt.id">{{ opt.label }}</ce-option>
+        }
+      </ce-select>
+    </ce-input-group>
+  </div>
+
+  <div class="tm-config__footer">
+    <button type="button" [ceButton]="true" variant="primary" (click)="runAiClustering()">
+      Run AI task clustering
+    </button>
+  </div>
+</div>

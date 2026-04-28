@@ -1,0 +1,60 @@
+<div class="task-mining-landing">
+  <ce-main-content-title>Task Mining</ce-main-content-title>
+  <p class="landing-lead">
+    Turn raw business data into a living map of how work flows—so you can measure reality, not
+    assumptions.
+  </p>
+
+  <div class="landing-actions">
+    <button
+      type="button"
+      routerLink="/data/pig-modeling/task-mining-project"
+      [ceButton]="true"
+      variant="primary"
+    >
+      Open Task Mining project
+    </button>
+    <button type="button" [ceButton]="true" variant="secondary">Review data requirements</button>
+  </div>
+
+  <div class="landing-actions landing-actions--compact">
+    <button type="button" routerLink="/data/pig-modeling" [ceButton]="true" variant="tertiary">
+      PiG modeling (Data)
+    </button>
+    <button
+      type="button"
+      routerLink="/studio/process-task-mining-discovery"
+      [ceButton]="true"
+      variant="tertiary"
+    >
+      Task Mining Discovery (Studio)
+    </button>
+  </div>
+
+  <div class="metrics-row" role="group" aria-label="Task mining highlights">
+    @for (m of metrics; track m.label) {
+      <ce-panel class="metric-panel">
+        <div cePanelContent>
+          <span class="metric-value">{{ m.value }}</span>
+          <span class="metric-label">{{ m.label }}</span>
+        </div>
+      </ce-panel>
+    }
+  </div>
+
+  <ce-info class="landing-banner" variant="neutral">
+    Prototype landing—wire these actions to your Task Mining entry points, Studio views, or
+    onboarding flows when you connect backend services.
+  </ce-info>
+
+  <div class="highlights-grid">
+    @for (h of highlights; track h.title) {
+      <ce-panel class="highlight-panel">
+        <div cePanelContent>
+          <h2 class="highlight-title">{{ h.title }}</h2>
+          <p class="highlight-body">{{ h.body }}</p>
+        </div>
+      </ce-panel>
+    }
+  </div>
+</div>

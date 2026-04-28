@@ -1,0 +1,46 @@
+@if (flow.preview(); as p) {
+  <div class="tm-preview">
+    <div class="tm-preview__header">
+      <ce-main-content-title>{{ flow.draft().name.trim() || 'Untitled run' }}</ce-main-content-title>
+      <p class="tm-preview__intro">
+        You are looking at a <strong>sample</strong> of results based on your configuration and a
+        fast subsample of the data. Review and either refine the instruction or confirm to run on
+        the full dataset for time coverage.
+      </p>
+    </div>
+
+    <ce-info class="tm-preview__banner" variant="neutral">
+      Iteration loop: <strong>Improve instruction</strong> returns you to the form with your prior
+      inputs preserved so you can amend—not restart. Repeat until you are ready to confirm.
+    </ce-info>
+
+    <div class="tm-preview__kpis">
+      <ce-kpi name="# Tasks (sample)" [value]="p.taskCount"></ce-kpi>
+      <ce-kpi name="# Subtasks (sample)" [value]="p.subtaskCount"></ce-kpi>
+    </div>
+
+    <ce-table-grid [striped]="true" [bordered]="true">
+      <ce-table-grid-header [sticky]="true">
+        <ce-table-grid-column>Task</ce-table-grid-column>
+        <ce-table-grid-column>Subtasks</ce-table-grid-column>
+      </ce-table-grid-header>
+      @for (row of p.rows; track row.taskName) {
+        <ce-table-grid-item>
+          <ce-table-grid-column>{{ row.taskName }}</ce-table-grid-column>
+          <ce-table-grid-column>
+            <span class="tm-preview__subtasks">{{ row.subtasks.join(', ') }}</span>
+          </ce-table-grid-column>
+        </ce-table-grid-item>
+      }
+    </ce-table-grid>
+
+    <div class="tm-preview__actions">
+      <button type="button" [ceButton]="true" variant="secondary" (click)="improveInstruction()">
+        Improve instruction
+      </button>
+      <button type="button" [ceButton]="true" variant="primary" (click)="confirmAndRun()">
+        Confirm and run
+      </button>
+    </div>
+  </div>
+}

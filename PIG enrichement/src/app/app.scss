@@ -1,0 +1,50 @@
+@use '@celonis/emotion/styles/tokens' as t;
+@use '@celonis/emotion/styles/core' as c;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.app-header-wordmark {
+  @include c.typeset(body-md-medium);
+  color: t.$content-primary;
+}
+
+::ng-deep .ce-main-layout__nav__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+::ng-deep .ce-main-layout__nav__items {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+::ng-deep .ce-main-layout__nav__items > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.nav-spacer {
+  flex: 1 1 auto;
+}
+
+.app-outlet-shell {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.app-outlet-shell > router-outlet + * {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}

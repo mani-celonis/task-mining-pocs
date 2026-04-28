@@ -1,0 +1,85 @@
+<div class="tmd-page">
+  <div class="tmd-page__crossnav">
+    <a routerLink="/task-mining/project" class="tmd-page__crosslink">Task Mining project</a>
+    <span class="tmd-page__crosssep" aria-hidden="true">·</span>
+    <a routerLink="/data/pig-modeling" class="tmd-page__crosslink">PiG — Objects (Data)</a>
+  </div>
+
+  <p class="tmd-page__crumb">Studio · AI Discovery · Process — Task Mining Discovery</p>
+
+  <div class="tmd-page__head">
+    <ce-main-content-title>Process — Task Mining Discovery</ce-main-content-title>
+    <div class="tmd-page__head-actions">
+      <button type="button" [ceButton]="true" variant="secondary">Create version</button>
+      <button type="button" [ceButton]="true" variant="primary">Deploy</button>
+    </div>
+  </div>
+
+  <div class="tmd-page__layout">
+    <aside class="tmd-page__kpis" aria-label="Process discovery summary">
+      <ce-panel>
+        <div cePanelContent>
+          <p class="tmd-page__kpi-title">Process Discovery</p>
+          <div class="tmd-page__kpi-grid">
+            <ce-kpi name="Sales orders" value="40.7K"></ce-kpi>
+            <ce-kpi name="# Task Mining activities" value="61,724"></ce-kpi>
+            <ce-kpi name="Automation rate" value="70.4%"></ce-kpi>
+            <ce-kpi name="# AI opportunities" value="23"></ce-kpi>
+          </div>
+          <button type="button" [ceButton]="true" variant="primary" class="tmd-page__ai-btn">
+            AI Discovery
+          </button>
+        </div>
+      </ce-panel>
+    </aside>
+
+    <div class="tmd-page__explorer" role="region" aria-label="Dual process explorer">
+      <div class="tmd-page__lanes">
+        <div class="tmd-page__lane tmd-page__lane--tm">
+          <div class="tmd-page__lane-header">
+            <span class="tmd-page__lane-badge">Task mining</span>
+            <span class="tmd-page__lane-count">32.1K activities</span>
+          </div>
+          <div class="tmd-page__nodes">
+            @for (step of taskMiningSteps; track step; let i = $index) {
+              <div
+                class="tmd-page__node"
+                [class.tmd-page__node--bridge]="i === bridgeTaskIndex"
+              >
+                {{ step }}
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="tmd-page__bridge" aria-hidden="true">
+          <span class="tmd-page__bridge-line"></span>
+          <span class="tmd-page__bridge-label">Object linkage</span>
+        </div>
+
+        <div class="tmd-page__lane tmd-page__lane--so">
+          <div class="tmd-page__lane-header">
+            <span class="tmd-page__lane-badge tmd-page__lane-badge--so">Sales order</span>
+            <span class="tmd-page__lane-count">10K objects</span>
+          </div>
+          <div class="tmd-page__nodes">
+            @for (step of salesOrderSteps; track step; let j = $index) {
+              <div
+                class="tmd-page__node"
+                [class.tmd-page__node--bridge-so]="j === bridgeOrderIndex"
+              >
+                {{ step }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <ce-info class="tmd-page__footnote" variant="neutral">
+        Teal lane: clustered subtasks from Worker / task mining. Orange lane: PiG object events from
+        source systems. The bridge models successful Case ID extraction linking human work to
+        <strong>Create Sales Order Item</strong> (40–60% of events may remain Worker-only per PRD).
+      </ce-info>
+    </div>
+  </div>
+</div>

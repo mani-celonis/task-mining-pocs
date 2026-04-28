@@ -1,0 +1,68 @@
+{
+  "name": "emotion-playground",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "node ./node_modules/@angular/cli/bin/ng.js",
+    "setup": "bash ./scripts/setup-github-token.sh",
+    "start": "node ./node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4200",
+    "start:clean": "rm -rf .angular/cache && node ./node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4200",
+    "start:4201": "rm -rf .angular/cache && node ./node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4201",
+    "kill:4200": "sh -c 'p=$(lsof -ti :4200 2>/dev/null); [ -n \"$p\" ] && kill -9 $p || true'",
+    "start:fresh": "npm run kill:4200 && npm run start:clean",
+    "build": "node ./node_modules/@angular/cli/bin/ng.js build",
+    "watch": "node ./node_modules/@angular/cli/bin/ng.js build --watch --configuration development",
+    "test": "node ./node_modules/@angular/cli/bin/ng.js test"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "dependencies": {
+    "@angular/animations": "^21.2.1",
+    "@angular/cdk": "^21.2.1",
+    "@angular/common": "^21.2.1",
+    "@angular/compiler": "^21.2.1",
+    "@angular/core": "^21.2.1",
+    "@angular/forms": "^21.2.1",
+    "@angular/platform-browser": "^21.2.1",
+    "@angular/router": "^21.2.1",
+    "@celonis/emotion": "8.2.35",
+    "@celonis/emotion-core": "^2.0.6",
+    "@celonis/icons": "^1.0.64",
+    "@ngx-translate/core": "^17.0.0",
+    "autosize": "^6.0.1",
+    "codemirror": "5",
+    "d3-format": "^3.1.2",
+    "d3-selection": "^3.0.0",
+    "d3-time-format": "^4.1.0",
+    "d3-zoom": "^3.0.0",
+    "es-toolkit": "^1.45.1",
+    "filesize": "^11.0.13",
+    "moment": "^2.30.1",
+    "ng2-file-upload": "^9.0.0",
+    "ngx-infinite-scroll": "^21.0.0",
+    "rxjs": "~7.8.0",
+    "shave": "^5.1.0",
+    "tslib": "^2.3.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.1",
+    "@angular/cli": "^21.2.1",
+    "@angular/compiler-cli": "^21.2.1",
+    "jsdom": "^28.1.0",
+    "playwright": "^1.58.2",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,0 +1,6 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* PiG prototype: legacy detail toolbar removed from template; hide if an old cached bundle still renders it. */
+app-pig-modeling .pig-page__detail-toolbar {
+  display: none !important;
+}

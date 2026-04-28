@@ -1,0 +1,1324 @@
+<div class="pig-page" data-pig-layout="ocpm-clean">
+  <div class="pig-page__shell">
+    <aside class="pig-page__rail" aria-label="PiG data model navigation">
+      @for (item of navItems; track item.id) {
+        <button
+          type="button"
+          class="pig-page__rail-item"
+          [class.pig-page__rail-item--active]="isNavActive(item.id)"
+          [disabled]="item.disabled === true"
+          (click)="selectNav(item.id)"
+        >
+          {{ item.label }}
+        </button>
+      }
+    </aside>
+
+    <div class="pig-page__main">
+      @switch (activeNav()) {
+        @case ('objects') {
+          <p class="pig-page__crumb">
+            OCPM Data Pool · Objects and Events · Objects · Model from scratch (mock)
+          </p>
+          <div class="pig-page__toolbar">
+            <ce-main-content-title>Objects</ce-main-content-title>
+            <div class="pig-page__toolbar-actions">
+              <button
+                type="button"
+                [ceButton]="true"
+                variant="primary"
+                (click)="onCreate()"
+                aria-label="Create: add object type, worker, and event to this prototype"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+
+          <div class="pig-page__ocpm pig-page__ocpm--objects pig-page__ocpm--objects-preview">
+            <aside class="pig-page__ocpm-filters" aria-label="Filters">
+              <ce-panel>
+                <div cePanelContent>
+                  <button
+                    type="button"
+                    [ceButton]="true"
+                    variant="primary"
+                    class="pig-page__create"
+                    (click)="onCreate()"
+                    aria-label="Create: add object type, worker, and event to this prototype"
+                  >
+                    Create
+                  </button>
+                  <p class="pig-page__filter-heading">Process</p>
+                  <div class="pig-page__filter-buttons" role="group" aria-label="Filter object types by process">
+                    <button
+                      type="button"
+                      class="pig-page__filter-btn"
+                      [class.pig-page__filter-btn--active]="isObjectProcessFilter('all')"
+                      (click)="selectObjectProcessFilter('all')"
+                    >
+                      All processes
+                    </button>
+                    @for (proc of objectProcessOptions(); track proc) {
+                      <button
+                        type="button"
+                        class="pig-page__filter-btn"
+                        [class.pig-page__filter-btn--active]="isObjectProcessFilter(proc)"
+                        (click)="selectObjectProcessFilter(proc)"
+                      >
+                        {{ proc }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </ce-panel>
+            </aside>
+
+            <div class="pig-page__ocpm-list" role="list">
+              <div class="pig-page__object-search">
+                <input
+                  ceInput
+                  type="search"
+                  placeholder="Search object types"
+                  [value]="objectSearchQuery()"
+                  (input)="onObjectSearchInput($event)"
+                />
+              </div>
+              <div class="pig-page__list-title-row">
+                <p class="pig-page__list-title">
+                  Object types ({{ filteredObjects().length }}/{{ objects().length }})
+                </p>
+                <button
+                  type="button"
+                  [ceButton]="true"
+                  variant="primary"
+                  size="sm"
+                  (click)="onCreate()"
+                  aria-label="Create: add object type, worker, and event to this prototype"
+                >
+                  Create
+                </button>
+              </div>
+              @if (filteredObjects().length === 0) {
+                <div class="pig-page__list-empty-block">
+                  <p class="pig-page__list-empty">No object types match this filter.</p>
+                  <button
+                    type="button"
+                    [ceButton]="true"
+                    variant="primary"
+                    size="sm"
+                    (click)="onCreate()"
+                    aria-label="Create: add object type, worker, and event to this prototype"
+                  >
+                    Create
+                  </button>
+                </div>
+              } @else {
+                @for (obj of filteredObjects(); track obj.id) {
+                  <button
+                    type="button"
+                    class="pig-page__list-row pig-page__object-row"
+                    [class.pig-page__list-row--selected]="selectedObjectId() === obj.id"
+                    (click)="selectObject(obj.id)"
+                    role="listitem"
+                  >
+                    <span class="pig-page__object-row-main">
+                      <span class="pig-page__list-name">{{ obj.name }}</span>
+                      <span class="pig-page__worker-row-meta">
+                        {{ eventsForObject(obj).length }}
+                        {{ eventsForObject(obj).length === 1 ? 'related event' : 'related events' }}
+                        <span class="pig-page__worker-row-meta-sep" aria-hidden="true">·</span>
+                        {{ obj.customProcessLabel }}
+                      </span>
+                    </span>
+                    <span class="pig-page__text-tag">{{ obj.namespace }}</span>
+                  </button>
+                }
+              }
+            </div>
+
+            <ce-panel class="pig-page__ocpm-detail">
+              <div cePanelContent>
+                @if (selectedObject(); as o) {
+                  @switch (objectInspectorTab()) {
+                    @case ('details') {
+                      <div class="pig-page__detail-head">
+                        <h2 class="pig-page__detail-title">{{ o.name }}</h2>
+                        <p class="pig-page__detail-meta">
+                          Namespace · {{ o.namespace }} · Created April 2026 (mock) · Modified April 2026
+                          (mock)
+                        </p>
+                      </div>
+                      <p class="pig-page__detail-desc">{{ o.description }}</p>
+                      <h3 class="pig-page__detail-section">Tags</h3>
+                      <div class="pig-page__chips">
+                        @for (t of o.tags; track t) {
+                          <span class="pig-page__text-tag">{{ t }}</span>
+                        }
+                      </div>
+                      <h3 class="pig-page__detail-section">Attributes ({{ o.attributes.length }})</h3>
+                      <div class="pig-page__attrs">
+                        @for (a of o.attributes; track a.name) {
+                          <div class="pig-page__attr-row">
+                            <span class="pig-page__attr-name">
+                              {{ a.name }}
+                              @if (a.required) {
+                                <span class="pig-page__req">Required</span>
+                              }
+                              @if (a.primaryKey) {
+                                <span class="pig-page__pk">PK</span>
+                              }
+                            </span>
+                            <span class="pig-page__attr-type">{{ a.dataType }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @case ('related-workers') {
+                      <h2 class="pig-page__detail-title">{{ o.name }}</h2>
+                      <p class="pig-page__detail-label">Workers linked to this object type</p>
+                      @if (workersForObject(o.id).length === 0) {
+                        <p class="pig-page__detail-desc">None in this mock.</p>
+                      } @else {
+                        <div class="pig-page__attrs">
+                          @for (rw of workersForObject(o.id); track rw.id) {
+                            <div class="pig-page__attr-row">
+                              <span class="pig-page__attr-name">{{ rw.primaryRole }}</span>
+                              <span class="pig-page__attr-type">{{ workerKindLabel(rw.actor_type) }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                    }
+                    @case ('related-events') {
+                      <h2 class="pig-page__detail-title">{{ o.name }}</h2>
+                      <p class="pig-page__detail-label">
+                        Related events grouped by event source and mining stream
+                      </p>
+                      <div class="pig-page__source-switch" role="group" aria-label="Filter events by source">
+                        @for (sourceTab of objectEventSourceTabs; track sourceTab) {
+                          <button
+                            type="button"
+                            class="pig-page__filter-btn"
+                            [class.pig-page__filter-btn--active]="isObjectEventSourceTab(sourceTab)"
+                            (click)="selectObjectEventSourceTab(sourceTab)"
+                          >
+                            {{ objectEventSourceLabel(sourceTab) }}
+                            ({{ objectEventSourceCount(o, sourceTab) }})
+                          </button>
+                        }
+                      </div>
+                      @if (objectEventsForSelectedSource(o).length === 0) {
+                        @if (isObjectEventSourceTab('task-mining')) {
+                          <div class="pig-page__mining-cta">
+                            <p class="pig-page__mining-off-copy" [attr.id]="'pig-object-task-mining-empty-' + o.id">
+                              No Task Mining events are linked to this object yet. Start a Task Mining project to
+                              capture desktop and clickstream data and correlate it to this object.
+                            </p>
+                            <button
+                              type="button"
+                              [ceButton]="true"
+                              variant="primary"
+                              size="sm"
+                              [attr.aria-describedby]="'pig-object-task-mining-empty-' + o.id"
+                              (click)="onAddTaskMining()"
+                            >
+                              Add Task Mining project
+                            </button>
+                          </div>
+                        } @else if (isObjectEventSourceTab('agent-mining')) {
+                          <div class="pig-page__mining-cta">
+                            <p class="pig-page__mining-off-copy" [attr.id]="'pig-object-agent-mining-empty-' + o.id">
+                              No Agent Mining events are connected to this object yet. Connect an agent source to
+                              ingest cloud, code, or external tool agent events.
+                            </p>
+                            <button
+                              type="button"
+                              [ceButton]="true"
+                              variant="primary"
+                              size="sm"
+                              [attr.aria-describedby]="'pig-object-agent-mining-empty-' + o.id"
+                              (click)="onAddAgentMining()"
+                            >
+                              Connect agent mining source
+                            </button>
+                          </div>
+                        } @else {
+                          <p class="pig-page__detail-desc">None in this mock.</p>
+                        }
+                      } @else {
+                        <div class="pig-page__worker-events">
+                          @for (ev of objectEventsForSelectedSource(o); track ev.id) {
+                            <div
+                              class="pig-page__worker-event"
+                              [class.pig-page__worker-event--task-mining]="sourceCategoryForEvent(ev) === 'task-mining'"
+                              [class.pig-page__worker-event--agent-mining]="sourceCategoryForEvent(ev) === 'agent-mining'"
+                            >
+                              <div class="pig-page__event-top-row">
+                                <span [class]="eventSourceBadgeClass(ev)">{{ eventSourceBadgeLabel(ev) }}</span>
+                                <span class="pig-page__worker-event-meta">
+                                  {{ formatTs(ev.timestamp) }} · {{ ev.category }}
+                                </span>
+                              </div>
+                              <span class="pig-page__worker-event-label">{{ ev.label }}</span>
+                              @if (ev.workerLabel) {
+                                <p class="pig-page__worker-event-object">{{ ev.workerLabel }}</p>
+                              }
+                              @if (ev.metadata; as meta) {
+                                <div class="pig-page__event-cluster-summary" role="group" aria-label="Task and event clustering">
+                                  <p class="pig-page__event-metadata-heading">Task &amp; event clustering</p>
+                                  <div class="pig-page__event-cluster-rows">
+                                    <div class="pig-page__event-cluster-row">
+                                      <span class="pig-page__event-cluster-key">Parent task</span>
+                                      <span class="pig-page__event-cluster-val">{{ meta.hierarchy.clustered_task.label }}</span>
+                                    </div>
+                                    <div class="pig-page__event-cluster-row">
+                                      <span class="pig-page__event-cluster-key">Application</span>
+                                      <span class="pig-page__event-cluster-val">{{ meta.hierarchy.related_clickstream_event.application }}</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      class="pig-page__event-cluster-row pig-page__event-cluster-row--expand"
+                                      (click)="toggleClickstreamRows(ev.id)"
+                                      [attr.aria-expanded]="clickstreamRowsExpanded(ev.id)"
+                                    >
+                                      <span class="pig-page__event-cluster-key">Clickstream</span>
+                                      <span class="pig-page__event-cluster-val pig-page__event-cluster-val--expand">
+                                        {{ clickstreamEventCount(ev) }} {{ clickstreamEventCount(ev) === 1 ? 'event' : 'events' }}
+                                        <span class="pig-page__event-chevron" [class.pig-page__event-chevron--open]="clickstreamRowsExpanded(ev.id)">›</span>
+                                      </span>
+                                    </button>
+                                  </div>
+                                  @if (clickstreamRowsExpanded(ev.id)) {
+                                    <div class="pig-page__event-cluster-expand-body">
+                                      <p class="pig-page__event-clickstream-title">{{ clickstreamSectionTitle(ev) }}</p>
+                                      <div class="pig-page__event-clickstream-list" role="list">
+                                        @for (row of clickstreamEventRows(ev); track row.title + row.userAction) {
+                                          <div class="pig-page__event-clickstream-item" role="listitem">
+                                            <p class="pig-page__event-clickstream-item-title">{{ row.title }}</p>
+                                            <p class="pig-page__event-clickstream-item-meta">
+                                              {{ row.userAction }} · {{ row.applicationContext }}
+                                            </p>
+                                          </div>
+                                        }
+                                        @if (clickstreamOverflowCount(ev) > 0) {
+                                          <p class="pig-page__event-clickstream-overflow" role="listitem">
+                                            +{{ clickstreamOverflowCount(ev) }} more captured events
+                                          </p>
+                                        }
+                                      </div>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                              @if (ev.agentSignals && ev.agentSignals.length > 0) {
+                                <div class="pig-page__event-signals">
+                                  @for (signal of ev.agentSignals; track signal.name) {
+                                    <span class="pig-page__text-tag">{{ signal.name }}</span>
+                                  }
+                                </div>
+                              }
+                              <div class="pig-page__event-expand-row">
+                                <button type="button" [ceButton]="true" variant="tertiary" size="sm" (click)="toggleAttributeRows(ev.id)">
+                                  {{ attributeRowsExpanded(ev.id) ? 'Hide attributes' : 'Attributes (' + ev.attributes.length + ')' }}
+                                </button>
+                              </div>
+                              @if (attributeRowsExpanded(ev.id)) {
+                                <div class="pig-page__event-expanded-section">
+                                  <div class="pig-page__event-attr-layout">
+                                    <div class="pig-page__event-attr-col">
+                                      @if (hasAgentConnectionDetails(ev)) {
+                                        <p class="pig-page__event-metadata-heading pig-page__event-metadata-heading--spaced">Agent connection</p>
+                                        <div class="pig-page__event-cluster-rows pig-page__event-cluster-rows--spaced">
+                                          <div class="pig-page__event-cluster-row">
+                                            <span class="pig-page__event-cluster-key">Agent</span>
+                                            <span class="pig-page__event-cluster-val">{{ agentConnectionNameForEvent(ev) }}</span>
+                                          </div>
+                                          <div class="pig-page__event-cluster-row">
+                                            <span class="pig-page__event-cluster-key">Origin</span>
+                                            <span class="pig-page__event-cluster-val">{{ agentConnectionOriginForEvent(ev) }}</span>
+                                          </div>
+                                          <div class="pig-page__event-cluster-row">
+                                            <span class="pig-page__event-cluster-key">Via</span>
+                                            <span class="pig-page__event-cluster-val">{{ agentConnectionSystemForEvent(ev) }}</span>
+                                          </div>
+                                        </div>
+                                      }
+                                      <p class="pig-page__event-metadata-heading pig-page__event-metadata-heading--spaced">Attributes ({{ ev.attributes.length }})</p>
+                                      <div class="pig-page__attrs pig-page__attrs--dense">
+                                        @for (attr of ev.attributes; track attr.name) {
+                                          <div class="pig-page__attr-row">
+                                            <span class="pig-page__attr-name">
+                                              {{ attr.name }}
+                                              @if (attr.primaryKey) {
+                                                <span class="pig-page__pk">PK</span>
+                                              }
+                                            </span>
+                                            <span class="pig-page__attr-type">{{ attr.dataType }}</span>
+                                          </div>
+                                        }
+                                      </div>
+                                    </div>
+                                    @if (ev.metadata; as sm) {
+                                      <div class="pig-page__event-screenshot" role="img" [attr.aria-label]="'Application context: ' + sm.hierarchy.related_clickstream_event.application">
+                                        <div class="pig-page__event-screenshot-chrome">
+                                          <div class="pig-page__event-screenshot-dots">
+                                            <span></span><span></span><span></span>
+                                          </div>
+                                          <span class="pig-page__event-screenshot-app">{{ sm.hierarchy.related_clickstream_event.application }}</span>
+                                        </div>
+                                        <div class="pig-page__event-screenshot-body">
+                                          <div class="pig-page__event-screenshot-toolbar"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--header"></div>
+                                          <div class="pig-page__event-screenshot-line"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--active"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--short"></div>
+                                          <div class="pig-page__event-screenshot-line"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--short"></div>
+                                        </div>
+                                        <p class="pig-page__event-screenshot-caption">{{ sm.context }}</p>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    }
+                  }
+                }
+              </div>
+            </ce-panel>
+
+            <aside class="pig-page__ocpm-rail" aria-label="Object inspector">
+              <button
+                type="button"
+                class="pig-page__rail-tab"
+                [class.pig-page__rail-tab--active]="isObjectInspector('details')"
+                (click)="selectObjectInspectorTab('details')"
+              >
+                Object details
+              </button>
+              <button
+                type="button"
+                class="pig-page__rail-tab"
+                [class.pig-page__rail-tab--active]="isObjectInspector('related-workers')"
+                (click)="selectObjectInspectorTab('related-workers')"
+              >
+                Related workers
+              </button>
+              <button
+                type="button"
+                class="pig-page__rail-tab"
+                [class.pig-page__rail-tab--active]="isObjectInspector('related-events')"
+                (click)="selectObjectInspectorTab('related-events')"
+              >
+                Related events
+              </button>
+            </aside>
+          </div>
+        }
+        @case ('workers') {
+          <p class="pig-page__crumb">
+            OCPM Data Pool · Objects and Events · Workers · Model from scratch (mock)
+          </p>
+          <div class="pig-page__toolbar">
+            <ce-main-content-title>Workers</ce-main-content-title>
+            <div class="pig-page__toolbar-actions">
+              <button
+                type="button"
+                [ceButton]="true"
+                variant="primary"
+                (click)="onCreate()"
+                aria-label="Create: add object type, worker, and event to this prototype"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+
+          <ce-info class="pig-page__hint" variant="neutral">
+            Workers represent the people and agents executing activities across your processes
+          </ce-info>
+
+          <div class="pig-page__ocpm">
+            <aside class="pig-page__ocpm-filters" aria-label="Filters">
+              <ce-panel>
+                <div cePanelContent>
+                  <button
+                    type="button"
+                    [ceButton]="true"
+                    variant="primary"
+                    class="pig-page__create"
+                    (click)="onCreate()"
+                    aria-label="Create: add object type, worker, and event to this prototype"
+                  >
+                    Create
+                  </button>
+                  <p class="pig-page__filter-heading">Process</p>
+                  <div class="pig-page__filter-buttons" role="group" aria-label="Filter workers by process">
+                    <button
+                      type="button"
+                      class="pig-page__filter-btn"
+                      [class.pig-page__filter-btn--active]="isWorkerProcessFilter('all')"
+                      (click)="selectWorkerProcessFilter('all')"
+                    >
+                      All processes
+                    </button>
+                    @for (proc of workerProcessOptions(); track proc) {
+                      <button
+                        type="button"
+                        class="pig-page__filter-btn"
+                        [class.pig-page__filter-btn--active]="isWorkerProcessFilter(proc)"
+                        (click)="selectWorkerProcessFilter(proc)"
+                      >
+                        {{ proc }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </ce-panel>
+            </aside>
+
+            <div class="pig-page__ocpm-list" role="region" aria-labelledby="pig-workers-list-title">
+              <div class="pig-page__worker-list-head">
+                <div class="pig-page__worker-list-title-row">
+                  <p id="pig-workers-list-title" class="pig-page__list-title">Worker types</p>
+                  <div class="pig-page__list-title-actions">
+                    <p class="pig-page__results-count" aria-live="polite">
+                      {{ filteredWorkers().length }}
+                      {{ filteredWorkers().length === 1 ? 'result' : 'results' }}
+                    </p>
+                    <button
+                      type="button"
+                      [ceButton]="true"
+                      variant="primary"
+                      size="sm"
+                      (click)="onCreate()"
+                      aria-label="Create: add object type, worker, and event to this prototype"
+                    >
+                      Create
+                    </button>
+                  </div>
+                </div>
+                <div class="pig-page__actor-seg" role="group" aria-label="Filter workers by actor type">
+                  <button
+                    type="button"
+                    class="pig-page__actor-seg-btn"
+                    [class.pig-page__actor-seg-btn--active]="workerActorFilter() === 'all'"
+                    (click)="clearWorkerActorFilter()"
+                  >
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    class="pig-page__actor-seg-btn"
+                    [class.pig-page__actor-seg-btn--active]="isWorkerActorFilterActive('HUMAN')"
+                    (click)="toggleWorkerActorFilter('HUMAN')"
+                  >
+                    Human
+                  </button>
+                  <button
+                    type="button"
+                    class="pig-page__actor-seg-btn"
+                    [class.pig-page__actor-seg-btn--active]="isWorkerActorFilterActive('AGENT')"
+                    (click)="toggleWorkerActorFilter('AGENT')"
+                  >
+                    Agent
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="pig-page__worker-list-body"
+                [class.pig-page__worker-list-body--filter-cue]="workerFilterCueActive()"
+                role="list"
+              >
+                @if (filteredWorkers().length === 0) {
+                  <div class="pig-page__list-empty-block">
+                    <p class="pig-page__list-empty">No workers for this filter.</p>
+                    <button
+                      type="button"
+                      [ceButton]="true"
+                      variant="primary"
+                      size="sm"
+                      (click)="onCreate()"
+                      aria-label="Create: add object type, worker, and event to this prototype"
+                    >
+                      Create
+                    </button>
+                  </div>
+                }
+                @for (section of workerListSections(); track $index) {
+                  @if (section.subtitle) {
+                    <p class="pig-page__worker-list-group" role="presentation">{{ section.subtitle }}</p>
+                  }
+                  @for (w of section.workers; track w.id) {
+                    <button
+                      type="button"
+                      class="pig-page__list-row pig-page__worker-row"
+                      [class.pig-page__list-row--selected]="selectedWorkerId() === w.id"
+                      [class.pig-page__worker-row--cue]="workerFilterCueActive()"
+                      (click)="selectWorker(w.id)"
+                      role="listitem"
+                    >
+                      <span class="pig-page__worker-row-main">
+                        <span class="pig-page__list-name">{{ w.primaryRole }}</span>
+                        <span class="pig-page__worker-row-meta">
+                          {{ workerEventCount(w.id) }}
+                          {{ workerEventCount(w.id) === 1 ? 'event' : 'events' }}
+                          <span class="pig-page__worker-row-meta-sep" aria-hidden="true">·</span>
+                          {{ workerProcessTypeCount(w) }}
+                          {{ workerProcessTypeCount(w) === 1 ? 'process' : 'processes' }}
+                        </span>
+                      </span>
+                      <span class="pig-page__text-tag">{{ workerKindLabel(w.actor_type) }}</span>
+                    </button>
+                  }
+                }
+              </div>
+            </div>
+
+            <ce-panel
+              class="pig-page__ocpm-detail"
+              [class.pig-page__ocpm-detail--filter-cue]="workerFilterCueActive()"
+            >
+              <div cePanelContent>
+                @if (selectedWorker(); as w) {
+                  @if (w; as wMining) {
+                    @if (
+                      wMining.actor_type === 'HUMAN' ||
+                      (wMining.actor_type === 'AGENT' && wMining.agentMining)
+                    ) {
+                      <div
+                        class="pig-page__preview-mining"
+                        role="group"
+                        [attr.aria-label]="
+                          wMining.actor_type === 'HUMAN'
+                            ? 'Task mining for this human worker'
+                            : 'Active data ingestion for this worker'
+                        "
+                      >
+                        @if (wMining.actor_type === 'HUMAN') {
+                          @if (wMining.taskMining) {
+                            <span class="pig-page__mining-pill">
+                              <ce-icon
+                                class="pig-page__mining-icon--success"
+                                name="tap-double-filled"
+                                [size]="16"
+                                variant="primary"
+                                aria-hidden="true"
+                              ></ce-icon>
+                              <span class="pig-page__mining-pill-text">Task mining on</span>
+                            </span>
+                          } @else {
+                            <div class="pig-page__mining-cta pig-page__mining-cta--prominent">
+                              <div class="pig-page__mining-cta-body">
+                                <p class="pig-page__mining-cta-heading" [attr.id]="'pig-task-mining-off-' + wMining.id">
+                                  Task Mining is not yet enabled for this role
+                                </p>
+                                <p class="pig-page__mining-off-copy">
+                                  Connect a Task Mining project to start capturing desktop and application activity for <strong>{{ wMining.primaryRole }}</strong>.
+                                  Task Mining generates events that reveal how this role actually performs work — across SAP, email, spreadsheets, and collaboration tools —
+                                  giving you the data to explore task patterns, handoffs, and process deviations.
+                                </p>
+                                <button
+                                  type="button"
+                                  [ceButton]="true"
+                                  variant="primary"
+                                  size="sm"
+                                  [attr.aria-describedby]="'pig-task-mining-off-' + wMining.id"
+                                  (click)="onAddTaskMining()"
+                                >
+                                  Enable Task Mining project
+                                </button>
+                              </div>
+                            </div>
+                          }
+                        }
+                        @if (wMining.actor_type === 'AGENT' && wMining.agentMining) {
+                          <span class="pig-page__mining-pill">
+                            <ce-icon
+                              name="bot-filled"
+                              [size]="16"
+                              variant="primary"
+                              aria-hidden="true"
+                            ></ce-icon>
+                            <span class="pig-page__mining-pill-text">Agent mining on</span>
+                          </span>
+                        }
+                      </div>
+                    }
+                  }
+
+                  @switch (workerInspectorTab()) {
+                    @case ('details') {
+                      <div class="pig-page__detail-head">
+                        <h2 class="pig-page__detail-title">{{ w.primaryRole }}</h2>
+                        <p class="pig-page__detail-meta">
+                          {{ workerKindLabel(w.actor_type) }} · Namespace · {{ w.namespace }} · Created April 2026
+                          (mock) · Modified April 2026 (mock)
+                        </p>
+                      </div>
+                      <p class="pig-page__detail-desc">{{ w.description }}</p>
+                      <h3 class="pig-page__detail-section">Processes</h3>
+                      <div class="pig-page__chips">
+                        @for (pl of workerProcessLabels(w); track pl) {
+                          <span class="pig-page__text-tag">{{ pl }}</span>
+                        }
+                      </div>
+                      <h3 class="pig-page__detail-section">Tags</h3>
+                      <div class="pig-page__chips">
+                        @for (t of w.tags; track t) {
+                          <span class="pig-page__text-tag">{{ t }}</span>
+                        }
+                      </div>
+                      <h3 class="pig-page__detail-section">Attributes ({{ workerAttributes(w).length }})</h3>
+                      <div class="pig-page__attrs">
+                        @for (a of workerAttributes(w); track a.name + '-' + $index) {
+                          <div class="pig-page__attr-row">
+                            <span class="pig-page__attr-name pig-page__attr-name--row">
+                              <span class="pig-page__attr-name-text">{{ a.name }}</span>
+                              @if (a.required) {
+                                <span class="pig-page__req">Required</span>
+                              }
+                              @if (a.primaryKey) {
+                                <span class="pig-page__pk">PK</span>
+                              }
+                            </span>
+                            <span class="pig-page__attr-type">{{ a.dataType }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @case ('related-objects') {
+                      <h2 class="pig-page__detail-title">{{ w.primaryRole }}</h2>
+                      <p class="pig-page__detail-label">Related business objects</p>
+                      <div class="pig-page__attrs">
+                        @for (rel of w.relatedObjects; track rel.objectId) {
+                          <div class="pig-page__attr-row">
+                            <span class="pig-page__attr-name">{{ rel.label }}</span>
+                            <span class="pig-page__attr-type">{{ rel.objectId }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @case ('related-events') {
+                      <h2 class="pig-page__detail-title">{{ w.primaryRole }}</h2>
+                      <p class="pig-page__detail-label">Sample events mentioning this worker</p>
+                      @if (eventsForWorker(w.id).length === 0) {
+                        @if (canStartTaskMiningCapture(w)) {
+                          <p class="pig-page__detail-desc">Task Mining is not yet enabled for this role. Enable it from Worker details (above) to start capturing events.</p>
+                        } @else {
+                          <p class="pig-page__detail-desc">None in this mock.</p>
+                        }
+                      } @else {
+                        <div class="pig-page__worker-events">
+                          @for (ev of eventsForWorker(w.id); track ev.id) {
+                            <div
+                              class="pig-page__worker-event"
+                              [class.pig-page__worker-event--task-mining]="sourceCategoryForEvent(ev) === 'task-mining'"
+                              [class.pig-page__worker-event--agent-mining]="sourceCategoryForEvent(ev) === 'agent-mining'"
+                            >
+                              <div class="pig-page__event-top-row">
+                                <span [class]="eventSourceBadgeClass(ev)">{{ eventSourceBadgeLabel(ev) }}</span>
+                                <span class="pig-page__worker-event-meta">
+                                  {{ formatTs(ev.timestamp) }} · {{ ev.category }}
+                                </span>
+                              </div>
+                              <span class="pig-page__worker-event-label">{{ ev.label }}</span>
+                              @if (ev.objectLabel) {
+                                <p class="pig-page__worker-event-object">{{ ev.objectLabel }}</p>
+                              }
+                              @if (ev.metadata; as meta) {
+                                <div class="pig-page__event-cluster-summary" role="group" aria-label="Task and event clustering">
+                                  <p class="pig-page__event-metadata-heading">Task &amp; event clustering</p>
+                                  <div class="pig-page__event-cluster-rows">
+                                    <div class="pig-page__event-cluster-row">
+                                      <span class="pig-page__event-cluster-key">Parent task</span>
+                                      <span class="pig-page__event-cluster-val">{{ meta.hierarchy.clustered_task.label }}</span>
+                                    </div>
+                                    <div class="pig-page__event-cluster-row">
+                                      <span class="pig-page__event-cluster-key">Application</span>
+                                      <span class="pig-page__event-cluster-val">{{ meta.hierarchy.related_clickstream_event.application }}</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      class="pig-page__event-cluster-row pig-page__event-cluster-row--expand"
+                                      (click)="toggleClickstreamRows(ev.id)"
+                                      [attr.aria-expanded]="clickstreamRowsExpanded(ev.id)"
+                                    >
+                                      <span class="pig-page__event-cluster-key">Clickstream</span>
+                                      <span class="pig-page__event-cluster-val pig-page__event-cluster-val--expand">
+                                        {{ clickstreamEventCount(ev) }} {{ clickstreamEventCount(ev) === 1 ? 'event' : 'events' }}
+                                        <span class="pig-page__event-chevron" [class.pig-page__event-chevron--open]="clickstreamRowsExpanded(ev.id)">›</span>
+                                      </span>
+                                    </button>
+                                  </div>
+                                  @if (clickstreamRowsExpanded(ev.id)) {
+                                    <div class="pig-page__event-cluster-expand-body">
+                                      <p class="pig-page__event-clickstream-title">{{ clickstreamSectionTitle(ev) }}</p>
+                                      <div class="pig-page__event-clickstream-list" role="list">
+                                        @for (row of clickstreamEventRows(ev); track row.title + row.userAction) {
+                                          <div class="pig-page__event-clickstream-item" role="listitem">
+                                            <p class="pig-page__event-clickstream-item-title">{{ row.title }}</p>
+                                            <p class="pig-page__event-clickstream-item-meta">
+                                              {{ row.userAction }} · {{ row.applicationContext }}
+                                            </p>
+                                          </div>
+                                        }
+                                        @if (clickstreamOverflowCount(ev) > 0) {
+                                          <p class="pig-page__event-clickstream-overflow" role="listitem">
+                                            +{{ clickstreamOverflowCount(ev) }} more captured events
+                                          </p>
+                                        }
+                                      </div>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                              @if (ev.agentSignals && ev.agentSignals.length > 0) {
+                                <div class="pig-page__event-signals">
+                                  @for (signal of ev.agentSignals; track signal.name) {
+                                    <span class="pig-page__text-tag">{{ signal.name }}</span>
+                                  }
+                                </div>
+                              }
+                              <div class="pig-page__event-expand-row">
+                                <button type="button" [ceButton]="true" variant="tertiary" size="sm" (click)="toggleAttributeRows(ev.id)">
+                                  {{ attributeRowsExpanded(ev.id) ? 'Hide attributes' : 'Attributes (' + ev.attributes.length + ')' }}
+                                </button>
+                              </div>
+                              @if (attributeRowsExpanded(ev.id)) {
+                                <div class="pig-page__event-expanded-section">
+                                  <div class="pig-page__event-attr-layout">
+                                    <div class="pig-page__event-attr-col">
+                                      <p class="pig-page__event-metadata-heading pig-page__event-metadata-heading--spaced">Attributes ({{ ev.attributes.length }})</p>
+                                      <div class="pig-page__attrs pig-page__attrs--dense">
+                                        @for (attr of ev.attributes; track attr.name) {
+                                          <div class="pig-page__attr-row">
+                                            <span class="pig-page__attr-name">
+                                              {{ attr.name }}
+                                              @if (attr.primaryKey) {
+                                                <span class="pig-page__pk">PK</span>
+                                              }
+                                            </span>
+                                            <span class="pig-page__attr-type">{{ attr.dataType }}</span>
+                                          </div>
+                                        }
+                                      </div>
+                                    </div>
+                                    @if (ev.metadata; as sm) {
+                                      <div class="pig-page__event-screenshot" role="img" [attr.aria-label]="'Application context: ' + sm.hierarchy.related_clickstream_event.application">
+                                        <div class="pig-page__event-screenshot-chrome">
+                                          <div class="pig-page__event-screenshot-dots">
+                                            <span></span><span></span><span></span>
+                                          </div>
+                                          <span class="pig-page__event-screenshot-app">{{ sm.hierarchy.related_clickstream_event.application }}</span>
+                                        </div>
+                                        <div class="pig-page__event-screenshot-body">
+                                          <div class="pig-page__event-screenshot-toolbar"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--header"></div>
+                                          <div class="pig-page__event-screenshot-line"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--active"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--short"></div>
+                                          <div class="pig-page__event-screenshot-line"></div>
+                                          <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--short"></div>
+                                        </div>
+                                        <p class="pig-page__event-screenshot-caption">{{ sm.context }}</p>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    }
+                  }
+                }
+              </div>
+            </ce-panel>
+
+            <aside class="pig-page__ocpm-rail" aria-label="Worker inspector">
+              <button
+                type="button"
+                class="pig-page__rail-tab"
+                [class.pig-page__rail-tab--active]="isWorkerInspector('details')"
+                (click)="selectWorkerInspectorTab('details')"
+              >
+                Worker details
+              </button>
+              <button
+                type="button"
+                class="pig-page__rail-tab"
+                [class.pig-page__rail-tab--active]="isWorkerInspector('related-objects')"
+                (click)="selectWorkerInspectorTab('related-objects')"
+              >
+                Related objects
+              </button>
+              <button
+                type="button"
+                class="pig-page__rail-tab"
+                [class.pig-page__rail-tab--active]="isWorkerInspector('related-events')"
+                (click)="selectWorkerInspectorTab('related-events')"
+              >
+                Related events
+              </button>
+            </aside>
+          </div>
+        }
+        @case ('events') {
+          <p class="pig-page__crumb">
+            OCPM Data Pool · Objects and Events · Events · Model from scratch (mock)
+          </p>
+          <div class="pig-page__toolbar">
+            <ce-main-content-title>Events</ce-main-content-title>
+            <div class="pig-page__toolbar-actions">
+              <button type="button" [ceButton]="true" variant="secondary">Export sample</button>
+              <button
+                type="button"
+                [ceButton]="true"
+                variant="primary"
+                (click)="onCreate()"
+                aria-label="Create: add object type, worker, and event to this prototype"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+
+          @if (loadState() === 'loading') {
+            <ce-panel>
+              <div cePanelContent>
+                <p class="pig-page__detail-desc">Loading events…</p>
+              </div>
+            </ce-panel>
+          } @else if (loadState() === 'error') {
+            <ce-info variant="danger">Could not load events (prototype).</ce-info>
+          } @else if (events().length === 0) {
+            <ce-panel>
+              <div cePanelContent>
+                <p class="pig-page__detail-desc">No events in this mock dataset.</p>
+                <button
+                  type="button"
+                  [ceButton]="true"
+                  variant="primary"
+                  class="pig-page__create pig-page__create--inline"
+                  (click)="onCreate()"
+                  aria-label="Create: add object type, worker, and event to this prototype"
+                >
+                  Create
+                </button>
+              </div>
+            </ce-panel>
+          } @else {
+            <div class="pig-page__ocpm">
+
+              <!-- Left: filters -->
+              <aside class="pig-page__ocpm-filters" aria-label="Filters">
+                <ce-panel>
+                  <div cePanelContent>
+                    <button
+                      type="button"
+                      [ceButton]="true"
+                      variant="primary"
+                      class="pig-page__create"
+                      (click)="onCreate()"
+                      aria-label="Create: add object type, worker, and event to this prototype"
+                    >
+                      Create
+                    </button>
+                    <p class="pig-page__filter-heading">Process</p>
+                    <div class="pig-page__filter-buttons" role="group" aria-label="Filter events by process">
+                      <button
+                        type="button"
+                        class="pig-page__filter-btn"
+                        [class.pig-page__filter-btn--active]="isEventProcessFilter('all')"
+                        (click)="selectEventProcessFilter('all')"
+                      >
+                        All processes
+                      </button>
+                      @for (proc of eventProcessOptions(); track proc) {
+                        <button
+                          type="button"
+                          class="pig-page__filter-btn"
+                          [class.pig-page__filter-btn--active]="isEventProcessFilter(proc)"
+                          (click)="selectEventProcessFilter(proc)"
+                        >
+                          {{ proc }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </ce-panel>
+              </aside>
+
+              <!-- Middle: event list -->
+              <div class="pig-page__ocpm-list" role="region" aria-labelledby="pig-events-list-title">
+                <div class="pig-page__worker-list-head">
+                  <div class="pig-page__worker-list-title-row">
+                    <p id="pig-events-list-title" class="pig-page__list-title">Event types</p>
+                    <div class="pig-page__list-title-actions">
+                      <p class="pig-page__results-count" aria-live="polite">
+                        {{ filteredEvents().length }}
+                        {{ filteredEvents().length === 1 ? 'result' : 'results' }}
+                      </p>
+                      <button
+                        type="button"
+                        [ceButton]="true"
+                        variant="primary"
+                        size="sm"
+                        (click)="onCreate()"
+                        aria-label="Create: add object type, worker, and event to this prototype"
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pig-page__object-search">
+                  <input
+                    ceInput
+                    type="search"
+                    placeholder="Search event types"
+                    [value]="eventSearchQuery()"
+                    (input)="onEventSearchInput($event)"
+                  />
+                </div>
+
+                <div
+                  class="pig-page__worker-list-body"
+                  [class.pig-page__worker-list-body--filter-cue]="eventFilterCueActive()"
+                  role="list"
+                >
+                  @if (filteredEvents().length === 0) {
+                    <div class="pig-page__list-empty-block">
+                      <p class="pig-page__list-empty">No events match this filter.</p>
+                      <button
+                        type="button"
+                        [ceButton]="true"
+                        variant="primary"
+                        size="sm"
+                        (click)="onCreate()"
+                        aria-label="Create: add object type, worker, and event to this prototype"
+                      >
+                        Create
+                      </button>
+                    </div>
+                  }
+                  @for (section of eventListSections(); track $index) {
+                    @if (section.subtitle) {
+                      <p class="pig-page__worker-list-group" role="presentation">{{ section.subtitle }}</p>
+                    }
+                    @for (ev of section.events; track ev.id) {
+                      <button
+                        type="button"
+                        class="pig-page__list-row pig-page__worker-row"
+                        [class.pig-page__list-row--selected]="selectedEventId() === ev.id"
+                        (click)="selectEvent(ev.id)"
+                        role="listitem"
+                      >
+                        <span class="pig-page__worker-row-main">
+                          <span class="pig-page__list-name">{{ ev.label }}</span>
+                          <span class="pig-page__worker-row-meta">
+                            {{ eventObjectTypeName(ev) }}
+                            @if (eventObjectTypeName(ev)) {
+                              <span class="pig-page__worker-row-meta-sep" aria-hidden="true">·</span>
+                            }
+                            {{ ev.category }}
+                          </span>
+                        </span>
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
+
+              <!-- Detail panel -->
+              <ce-panel
+                class="pig-page__ocpm-detail"
+                [class.pig-page__ocpm-detail--filter-cue]="eventFilterCueActive()"
+              >
+                <div cePanelContent>
+                  @if (selectedEvent(); as ev) {
+                    @switch (eventInspectorTab()) {
+
+                      @case ('details') {
+                        <div class="pig-page__detail-head">
+                          <h2 class="pig-page__detail-title">{{ ev.label }}</h2>
+                          <p class="pig-page__detail-meta">
+                            {{ formatTs(ev.timestamp) }}
+                            <span class="pig-page__worker-row-meta-sep" aria-hidden="true">·</span>
+                            Namespace {{ eventNamespaceForEvent(ev) }}
+                          </p>
+                        </div>
+
+                        @if (ev.metadata?.description) {
+                          <p class="pig-page__detail-desc">{{ ev.metadata?.description }}</p>
+                        }
+
+                        <h3 class="pig-page__detail-section">Tags</h3>
+                        <p class="pig-page__detail-label">
+                          Celonis Processes ({{ eventCelonisProcessTags(ev).length }})
+                        </p>
+                        <div class="pig-page__chips" style="margin-bottom: 0.75rem">
+                          @for (tag of eventCelonisProcessTags(ev); track tag) {
+                            <span class="pig-page__text-tag">{{ tag }}</span>
+                          }
+                        </div>
+                        <p class="pig-page__detail-label">Custom Processes (0)</p>
+
+                        @if (ev.metadata; as meta) {
+                          <div class="pig-page__event-cluster-summary" role="group" aria-label="Task and event clustering">
+                            <p class="pig-page__event-metadata-heading">Task &amp; event clustering</p>
+                            <div class="pig-page__event-cluster-rows">
+                              <div class="pig-page__event-cluster-row">
+                                <span class="pig-page__event-cluster-key">Parent task</span>
+                                <span class="pig-page__event-cluster-val">{{ meta.hierarchy.clustered_task.label }}</span>
+                              </div>
+                              <div class="pig-page__event-cluster-row">
+                                <span class="pig-page__event-cluster-key">Application</span>
+                                <span class="pig-page__event-cluster-val">{{ meta.hierarchy.related_clickstream_event.application }}</span>
+                              </div>
+                              <button
+                                type="button"
+                                class="pig-page__event-cluster-row pig-page__event-cluster-row--expand"
+                                (click)="toggleClickstreamRows(ev.id)"
+                                [attr.aria-expanded]="clickstreamRowsExpanded(ev.id)"
+                              >
+                                <span class="pig-page__event-cluster-key">Clickstream</span>
+                                <span class="pig-page__event-cluster-val pig-page__event-cluster-val--expand">
+                                  {{ clickstreamEventCount(ev) }} {{ clickstreamEventCount(ev) === 1 ? 'event' : 'events' }}
+                                  <span class="pig-page__event-chevron" [class.pig-page__event-chevron--open]="clickstreamRowsExpanded(ev.id)">›</span>
+                                </span>
+                              </button>
+                            </div>
+                            @if (clickstreamRowsExpanded(ev.id)) {
+                              <div class="pig-page__event-cluster-expand-body">
+                                <p class="pig-page__event-clickstream-title">{{ clickstreamSectionTitle(ev) }}</p>
+                                <div class="pig-page__event-clickstream-list" role="list">
+                                  @for (row of clickstreamEventRows(ev); track row.title + row.userAction) {
+                                    <div class="pig-page__event-clickstream-item" role="listitem">
+                                      <p class="pig-page__event-clickstream-item-title">{{ row.title }}</p>
+                                      <p class="pig-page__event-clickstream-item-meta">
+                                        {{ row.userAction }} · {{ row.applicationContext }}
+                                      </p>
+                                    </div>
+                                  }
+                                  @if (clickstreamOverflowCount(ev) > 0) {
+                                    <p class="pig-page__event-clickstream-overflow" role="listitem">
+                                      +{{ clickstreamOverflowCount(ev) }} more captured events
+                                    </p>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        }
+
+                        @if (ev.metadata) {
+                          <div class="pig-page__event-expand-row">
+                            <button type="button" [ceButton]="true" variant="tertiary" size="sm" (click)="toggleAttributeRows(ev.id)">
+                              {{ attributeRowsExpanded(ev.id) ? 'Hide attributes' : 'Attributes (' + ev.attributes.length + ')' }}
+                            </button>
+                          </div>
+                          @if (attributeRowsExpanded(ev.id)) {
+                            <div class="pig-page__event-expanded-section">
+                              <div class="pig-page__event-attr-layout">
+                                <div class="pig-page__event-attr-col">
+                                  <div class="pig-page__attrs pig-page__attrs--dense">
+                                    @for (attr of ev.attributes; track attr.name) {
+                                      <div class="pig-page__attr-row">
+                                        <span class="pig-page__attr-name">
+                                          {{ attr.name }}
+                                          @if (attr.primaryKey) {
+                                            <span class="pig-page__pk">PK</span>
+                                          }
+                                        </span>
+                                        <span class="pig-page__attr-type">{{ attr.dataType }}</span>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+                                <div class="pig-page__event-screenshot" role="img" [attr.aria-label]="'Application context: ' + ev.metadata!.hierarchy.related_clickstream_event.application">
+                                  <div class="pig-page__event-screenshot-chrome">
+                                    <div class="pig-page__event-screenshot-dots">
+                                      <span></span><span></span><span></span>
+                                    </div>
+                                    <span class="pig-page__event-screenshot-app">{{ ev.metadata!.hierarchy.related_clickstream_event.application }}</span>
+                                  </div>
+                                  <div class="pig-page__event-screenshot-body">
+                                    <div class="pig-page__event-screenshot-toolbar"></div>
+                                    <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--header"></div>
+                                    <div class="pig-page__event-screenshot-line"></div>
+                                    <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--active"></div>
+                                    <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--short"></div>
+                                    <div class="pig-page__event-screenshot-line"></div>
+                                    <div class="pig-page__event-screenshot-line pig-page__event-screenshot-line--short"></div>
+                                  </div>
+                                  <p class="pig-page__event-screenshot-caption">{{ ev.metadata!.context }}</p>
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        } @else {
+                          <h3 class="pig-page__detail-section">Attributes ({{ ev.attributes.length }})</h3>
+                          <div class="pig-page__attrs">
+                            @for (attr of ev.attributes; track attr.name) {
+                              <div class="pig-page__attr-row">
+                                <span class="pig-page__attr-name">
+                                  {{ attr.name }}
+                                  @if (attr.primaryKey) {
+                                    <span class="pig-page__pk">PK</span>
+                                  }
+                                </span>
+                                <span class="pig-page__attr-type">{{ attr.dataType }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      }
+
+                      @case ('related-object') {
+                        <h2 class="pig-page__detail-title">{{ ev.label }}</h2>
+                        <p class="pig-page__detail-label">Linked object type</p>
+                        @if (!ev.objectLabel) {
+                          <p class="pig-page__detail-desc">No object linked to this event.</p>
+                        } @else {
+                          <div class="pig-page__attrs">
+                            <div class="pig-page__attr-row">
+                              <span class="pig-page__attr-name">Object</span>
+                              <span class="pig-page__attr-type">{{ ev.objectLabel }}</span>
+                            </div>
+                            <div class="pig-page__attr-row">
+                              <span class="pig-page__attr-name">Linkage</span>
+                              <span class="pig-page__attr-type pig-page__attr-type--inline">
+                                <ce-status-indicator
+                                  [variant]="linkageVariant(ev.linkage)"
+                                  [label]="linkageLabel(ev.linkage)"
+                                ></ce-status-indicator>
+                              </span>
+                            </div>
+                          </div>
+                        }
+                      }
+
+                      @case ('related-worker') {
+                        <h2 class="pig-page__detail-title">{{ ev.label }}</h2>
+                        <p class="pig-page__detail-label">Worker responsible for this event</p>
+                        @if (!ev.workerLabel) {
+                          <p class="pig-page__detail-desc">
+                            No worker linked — this event is system-generated.
+                          </p>
+                        } @else {
+                          <div class="pig-page__attrs">
+                            <div class="pig-page__attr-row">
+                              <span class="pig-page__attr-name">Worker</span>
+                              <span class="pig-page__attr-type">{{ ev.workerLabel }}</span>
+                            </div>
+                          </div>
+                          @if (eventActorTypeForEvent(ev) === 'HUMAN' && ev.metadata; as meta) {
+                            <h3 class="pig-page__detail-section">Task context</h3>
+                            <div class="pig-page__attrs">
+                              <div class="pig-page__attr-row">
+                                <span class="pig-page__attr-name">Parent task</span>
+                                <span class="pig-page__attr-type">{{ meta.hierarchy.clustered_task.label }}</span>
+                              </div>
+                              <div class="pig-page__attr-row">
+                                <span class="pig-page__attr-name">Application</span>
+                                <span class="pig-page__attr-type">{{ meta.hierarchy.related_clickstream_event.application }}</span>
+                              </div>
+                              <div class="pig-page__attr-row">
+                                <span class="pig-page__attr-name">Clickstream events</span>
+                                <span class="pig-page__attr-type">
+                                  {{ clickstreamEventCount(ev) }}
+                                  {{ clickstreamEventCount(ev) === 1 ? 'event' : 'events' }}
+                                </span>
+                              </div>
+                            </div>
+                            <div class="pig-page__event-expand-row">
+                              <button
+                                type="button"
+                                [ceButton]="true"
+                                variant="tertiary"
+                                size="sm"
+                                (click)="toggleClickstreamRows(ev.id)"
+                              >
+                                {{ clickstreamRowsExpanded(ev.id) ? 'Hide clickstream events' : 'Show clickstream events' }}
+                              </button>
+                            </div>
+                            @if (clickstreamRowsExpanded(ev.id)) {
+                              <p class="pig-page__event-clickstream-title">{{ clickstreamSectionTitle(ev) }}</p>
+                              <div class="pig-page__event-clickstream-list" role="list">
+                                @for (row of clickstreamEventRows(ev); track row.title + row.userAction) {
+                                  <div class="pig-page__event-clickstream-item" role="listitem">
+                                    <p class="pig-page__event-clickstream-item-title">{{ row.title }}</p>
+                                    <p class="pig-page__event-clickstream-item-meta">
+                                      {{ row.userAction }} · {{ row.applicationContext }}
+                                    </p>
+                                  </div>
+                                }
+                                @if (clickstreamOverflowCount(ev) > 0) {
+                                  <p class="pig-page__event-clickstream-overflow" role="listitem">
+                                    +{{ clickstreamOverflowCount(ev) }} more captured events
+                                  </p>
+                                }
+                              </div>
+                            }
+                          }
+                          @if (eventActorTypeForEvent(ev) === 'AGENT' && ev.agentSignals && ev.agentSignals.length > 0) {
+                            <h3 class="pig-page__detail-section">Agent signals</h3>
+                            <div class="pig-page__chips">
+                              @for (signal of ev.agentSignals; track signal.name) {
+                                <span class="pig-page__text-tag">{{ signal.name }}</span>
+                              }
+                            </div>
+                          }
+                        }
+                      }
+
+                    }
+                  }
+                </div>
+              </ce-panel>
+
+              <!-- Inspector tabs rail -->
+              <aside class="pig-page__ocpm-rail" aria-label="Event inspector">
+                <button
+                  type="button"
+                  class="pig-page__rail-tab"
+                  [class.pig-page__rail-tab--active]="isEventInspector('details')"
+                  (click)="selectEventInspectorTab('details')"
+                >
+                  Event details
+                </button>
+                <button
+                  type="button"
+                  class="pig-page__rail-tab"
+                  [class.pig-page__rail-tab--active]="isEventInspector('related-object')"
+                  (click)="selectEventInspectorTab('related-object')"
+                >
+                  Related object
+                </button>
+                <button
+                  type="button"
+                  class="pig-page__rail-tab"
+                  [class.pig-page__rail-tab--active]="isEventInspector('related-worker')"
+                  (click)="selectEventInspectorTab('related-worker')"
+                >
+                  Related worker
+                </button>
+              </aside>
+
+            </div>
+          }
+        }
+      }
+    </div>
+  </div>
+</div>

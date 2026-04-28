@@ -1,0 +1,230 @@
+@use '@celonis/emotion/styles/tokens' as t;
+@use '@celonis/emotion/styles/core' as c;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.paa-page {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-6;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  padding: t.$space-4;
+  box-sizing: border-box;
+}
+
+.paa-page__intro-text,
+.paa-page__subtitle {
+  @include c.typeset(body-sm-regular);
+  color: t.$content-subdued;
+}
+
+.paa-page__subtitle {
+  margin: t.$space-2 0 0;
+  max-width: 72ch;
+}
+
+.paa-page__intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$space-2;
+}
+
+.paa-page__intro-actions > button {
+  flex: 0 0 auto;
+}
+
+.paa-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-3;
+  min-width: 0;
+}
+
+.paa-page__section-title {
+  @include c.typeset(body-md-medium);
+  margin: 0;
+  color: t.$content;
+}
+
+.paa-page__kpi-strip,
+.paa-page__task-kpis,
+.paa-page__summary-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: t.$space-3;
+}
+
+.paa-page__kpi-cell,
+.paa-page__task-kpi,
+.paa-page__summary-kpi {
+  min-width: 0;
+}
+
+.paa-page__task-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: t.$space-4;
+  align-items: start;
+}
+
+.paa-page__task-panel,
+.paa-page__object-lane {
+  background: t.$surface-static;
+  border: 1px solid t.$border-subdued;
+  border-radius: t.$borderRadius-md;
+  padding: t.$space-3;
+  min-width: 0;
+}
+
+.paa-page__panel-title {
+  @include c.typeset(body-sm-medium);
+  color: t.$content-subdued;
+  margin: 0 0 t.$space-2;
+}
+
+.paa-page__bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-2;
+}
+
+.paa-page__bar-row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 16rem) 1fr;
+  gap: t.$space-3;
+  align-items: center;
+}
+
+.paa-page__bar-label {
+  @include c.typeset(body-sm-regular);
+  color: t.$content-subdued;
+}
+
+.paa-page__bar-track {
+  background: t.$surface-static-neutral;
+  border-radius: t.$borderRadius-sm;
+  block-size: t.$space-2;
+  inline-size: 100%;
+  overflow: hidden;
+}
+
+.paa-page__bar-fill {
+  background: t.$content-primary;
+  block-size: 100%;
+}
+
+.paa-page__process-controls {
+  max-inline-size: 18rem;
+}
+
+.paa-page__process-graph {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: t.$space-3;
+}
+
+.paa-page__object-title {
+  @include c.typeset(body-md-medium);
+  margin: 0 0 t.$space-2;
+  color: t.$content;
+}
+
+.paa-page__lane-empty {
+  @include c.typeset(body-sm-regular);
+  margin: 0;
+  color: t.$content-subdued;
+}
+
+.paa-page__step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-2;
+}
+
+.paa-page__step-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: t.$space-2;
+  align-items: start;
+}
+
+.paa-page__step-node {
+  inline-size: t.$space-2;
+  block-size: t.$space-2;
+  border-radius: t.$borderRadius-sm;
+  background: t.$border-primary;
+}
+
+.paa-page__activity-name {
+  @include c.typeset(body-md-medium);
+}
+
+.paa-page__table-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.paa-page__table-wrap ce-table-grid {
+  min-width: 52rem;
+}
+
+@media (max-width: 80rem) {
+  .paa-page {
+    padding: t.$space-3;
+  }
+
+  .paa-page__kpi-strip,
+  .paa-page__task-kpis,
+  .paa-page__summary-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .paa-page__task-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .paa-page__process-graph {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 64rem) {
+  .paa-page {
+    gap: t.$space-4;
+    padding: t.$space-2;
+  }
+
+  .paa-page__kpi-strip,
+  .paa-page__task-kpis,
+  .paa-page__summary-kpis,
+  .paa-page__process-graph {
+    grid-template-columns: 1fr;
+  }
+
+  .paa-page__bar-row {
+    grid-template-columns: 1fr;
+    gap: t.$space-1;
+  }
+
+  .paa-page__table-wrap ce-table-grid {
+    min-width: 40rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  .paa-page__intro-actions > button {
+    width: 100%;
+  }
+
+  .paa-page__table-wrap ce-table-grid {
+    min-width: 34rem;
+  }
+}
