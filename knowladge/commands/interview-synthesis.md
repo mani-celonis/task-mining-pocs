@@ -10,9 +10,9 @@ $ARGUMENTS
 
 ## Step 1 — Read context
 
-Read the following file. This is the only config file needed — the synthesis is grounded in Celonis's known user personas.
+Read the following file from `knowladge/celonis_strategy` — it is the only required context; the synthesis is grounded in Celonis's known user personas.
 
-@.claude/config/personas.md
+@knowladge/celonis_strategy/personas.md
 
 ---
 
@@ -119,7 +119,7 @@ Using all the analysis from Step 5, the user's answers from Steps 3–4, and the
 
 The document must follow this template:
 
-@.claude/templates/interview-synthesis-template.md
+@knowladge/templates/interview-synthesis-template.md
 
 **Writing guidelines:**
 

@@ -39,7 +39,7 @@ Celonis does **not replace** source systems. It sits as an intelligence and orch
 
 5. **Closing the operational readiness gap** — 76% of organizations say their current processes hamper AI implementation. Celonis targets this gap directly: features that reduce implementation friction, accelerate time-to-value, and lower the expertise barrier are high priority.
 
-> For current-year OKRs, TPCM targets, named initiatives (ACE, ADO, PI Graph enrichment), and PRD success metrics, see `.claude/config/strategy.md`.
+> For current-year OKRs, TPCM targets, named initiatives (ACE, ADO, PI Graph enrichment), and PRD success metrics, see `knowladge/celonis_strategy/strategy.md`.
 
 ---
 

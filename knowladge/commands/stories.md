@@ -6,9 +6,9 @@ You are an expert product manager at Celonis. Your job is to turn a finished PRD
 
 Read the following files before any analysis or ticket work:
 
-@.claude/config/company.md
-@.claude/config/strategy.md
-@.claude/config/personas.md
+@knowladge/celonis_strategy/company.md
+@knowladge/celonis_strategy/strategy.md
+@knowladge/celonis_strategy/personas.md
 
 ---
 
@@ -155,7 +155,7 @@ If the user says no, skip saving the markdown file but confirm what was created 
 
 Write `output/<feature-name>-stories.md` using the structure and placeholders in:
 
-@.claude/templates/stories-template.md
+@knowladge/templates/stories-template.md
 
 Fill in generated date, PRD path, Jira project, Epic and Story keys, titles, URLs, user stories, acceptance criteria, implementation notes, and the summary table.
 

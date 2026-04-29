@@ -2,8 +2,8 @@ You are an expert product strategist and market researcher at Celonis. Your job 
 
 Before starting, read the following context files:
 
-@.claude/config/company.md
-@.claude/config/strategy.md
+@knowladge/celonis_strategy/company.md
+@knowladge/celonis_strategy/strategy.md
 
 ---
 
@@ -17,14 +17,14 @@ If the input is invalid, tell the user exactly what's wrong and ask again. Repea
 
 ---
 
-## Step 2 — Load competitors from config
+## Step 2 — Load competitors from `knowladge/celonis_strategy`
 
-Read the file `.claude/config/competitors.md` using the Read tool.
+Read the file `knowladge/celonis_strategy/competitors.md` using the Read tool.
 
 If the file exists, parse out each competitor's name, homepage URL (if provided), and tier (Direct / Adjacent / Emerging / or any custom heading). Print a confirmation:
 
 ```
-Loaded [N] competitors from .claude/config/competitors.md:
+Loaded [N] competitors from knowladge/celonis_strategy/competitors.md:
 - Direct: [names]
 - Adjacent: [names]
 - Emerging: [names]
@@ -32,7 +32,7 @@ Loaded [N] competitors from .claude/config/competitors.md:
 
 If the file does not exist, print a notice:
 ```
-No competitor config found at .claude/config/competitors.md.
+No competitors file found at knowladge/celonis_strategy/competitors.md.
 You can create this file to pre-load your competitor list for future runs.
 For now, please provide competitors manually in the next step.
 ```
@@ -43,9 +43,9 @@ For now, please provide competitors manually in the next step.
 
 Ask the user to provide the following. Present it as a single structured prompt so they can answer everything at once.
 
-Pre-fill questions 1 and 2 from `.claude/config/company.md` (already loaded). Tell the user they can adjust if the research is scoped to a specific product area or sub-ICP.
+Pre-fill questions 1 and 2 from `knowladge/celonis_strategy/company.md` (already loaded). Tell the user they can adjust if the research is scoped to a specific product area or sub-ICP.
 
-If competitors were loaded from config, pre-fill them in question 3 and tell the user they can add more or remove any before proceeding.
+If competitors were loaded from `competitors.md`, pre-fill them in question 3 and tell the user they can add more or remove any before proceeding.
 
 ```
 To conduct your market research, please confirm or adjust the details below:
@@ -54,7 +54,7 @@ To conduct your market research, please confirm or adjust the details below:
 
 2. **Target customer / ICP** — [Pre-filled from company.md: "Large enterprises (Fortune 500 / Global 2000), primary sponsors in COO/CFO/CIO organisations, key industries: Automotive, Manufacturing, Banking, Life Sciences, Retail, Telco."] Adjust if this research targets a specific segment or persona.
 
-3. **Competitors to research** — [If loaded from config, list them here and say: "Loaded from .claude/config/competitors.md — add, remove, or adjust as needed.". If not loaded, say: "List at least 2–3 competitor names. You can also include URLs (e.g. their homepage, pricing page, or a specific page you want me to analyze)."]
+3. **Competitors to research** — [If loaded from `competitors.md`, list them here and say: "Loaded from knowladge/celonis_strategy/competitors.md — add, remove, or adjust as needed.". If not loaded, say: "List at least 2–3 competitor names. You can also include URLs (e.g. their homepage, pricing page, or a specific page you want me to analyze)."]
 
 4. **URLs to scrape** (optional) — Any specific pages you want me to read: competitor pricing pages, feature pages, comparison pages, review sites, job boards, blog posts, etc.
 
@@ -156,7 +156,7 @@ Using all research gathered, generate the complete report. Follow these guidelin
 
 The report must follow the structure defined in the template below:
 
-@.claude/templates/market-research-template.md
+@knowladge/templates/market-research-template.md
 
 ---
 

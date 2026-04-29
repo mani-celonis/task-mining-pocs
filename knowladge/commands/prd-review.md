@@ -20,11 +20,11 @@ Read the specified file using the Read tool. If the file does not exist, tell th
 
 Evaluate the PRD from each perspective in sequence using the criteria files below. For each check, assign ✅ / ⚠️ / ❌ with a brief inline note for any non-✅ result.
 
-@.claude/config/strategy.md
-@.claude/evals/prd-evals.md
-@.claude/evals/prd-evals-ceo.md
-@.claude/evals/prd-evals-eng.md
-@.claude/evals/prd-evals-ux.md
+@knowladge/celonis_strategy/strategy.md
+@knowladge/evals/prd-evals.md
+@knowladge/evals/prd-evals-ceo.md
+@knowladge/evals/prd-evals-eng.md
+@knowladge/evals/prd-evals-ux.md
 
 ---
 

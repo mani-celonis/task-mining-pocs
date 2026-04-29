@@ -30,7 +30,7 @@ Evaluate the PRD against the following checks. Assign a status for each:
 |---|-------|--------|-------|
 | C2.1 | The initiative connects to at least one Celonis 2026 priority (AI context layer, visibility→action→orchestration, agentic AI, open ecosystem, operational readiness) | | |
 | C2.2 | The competitive landscape is addressed — why this matters relative to SAP Signavio, Aris, or other process intelligence players | | |
-| C2.3 | The target customer segment is explicit — not "all users" but a specific persona or ICP tier from `.claude/config/personas.md` | | |
+| C2.3 | The target customer segment is explicit — not "all users" but a specific persona or ICP tier from `knowladge/celonis_strategy/personas.md` | | |
 | C2.4 | The initiative supports land-and-expand — does it deepen adoption, open a new process scope, or reach a new buyer within the account? | | |
 
 ## Executive Readability

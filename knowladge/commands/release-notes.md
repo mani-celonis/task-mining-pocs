@@ -2,14 +2,14 @@ You are an expert product manager and communications writer at Celonis. Your job
 
 Before starting, read the following context files:
 
-@.claude/config/company.md
-@.claude/config/personas.md
+@knowladge/celonis_strategy/company.md
+@knowladge/celonis_strategy/personas.md
 
 ---
 
 ## Step 1 — Read context files
 
-Read `@.claude/config/company.md` and `@.claude/config/personas.md`. Use them to calibrate Celonis brand voice (customer-facing copy) and to ground benefit language in persona goals (reference goals and mental models — avoid leading with internal archetype names in customer copy).
+Read `@knowladge/celonis_strategy/company.md` and `@knowladge/celonis_strategy/personas.md`. Use them to calibrate Celonis brand voice (customer-facing copy) and to ground benefit language in persona goals (reference goals and mental models — avoid leading with internal archetype names in customer copy).
 
 ---
 
@@ -87,7 +87,7 @@ If the user answers **no**, stop.
 
 ## Step 7 — Generate the release notes
 
-Load the output skeleton from `@.claude/templates/release-notes-template.md`.
+Load the output skeleton from `@knowladge/templates/release-notes-template.md`.
 
 Using the PRD analysis (Step 3) and the user's supplementary inputs (Step 4), generate only the artifacts the user requested (per **Audiences** — default all three):
 
@@ -137,7 +137,7 @@ Writing rules:
 
 ## Step 8 — Save the file
 
-Write the complete release notes to `output/<feature-name>-release-notes.md`, following `@.claude/templates/release-notes-template.md` (fill placeholders; set **Generated** to today's date).
+Write the complete release notes to `output/<feature-name>-release-notes.md`, following `@knowladge/templates/release-notes-template.md` (fill placeholders; set **Generated** to today's date).
 
 Confirm to the user:
 

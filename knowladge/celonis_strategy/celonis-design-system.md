@@ -7,7 +7,7 @@
 
 ## Logo Usage
 
-- Always use the official Celonis logo image (`.claude/assets/celonis-logo.png` relative to the workspace root).
+- Always use the official Celonis logo image (`knowladge/assets/celonis-logo.png` relative to the workspace root).
 - Display it at **28px height** in the top nav bar.
 - **Never** accompany it with a "Celonis" wordmark text — the logo stands alone.
 - **Never** substitute it with a generic SVG shape or circle placeholder.

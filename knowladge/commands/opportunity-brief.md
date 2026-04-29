@@ -6,9 +6,9 @@ You are an expert product strategist at Celonis. Your job is to run a fast, focu
 
 Read the following context files:
 
-@.claude/config/company.md
-@.claude/config/strategy.md
-@.claude/config/personas.md
+@knowladge/celonis_strategy/company.md
+@knowladge/celonis_strategy/strategy.md
+@knowladge/celonis_strategy/personas.md
 
 ---
 
@@ -39,7 +39,7 @@ Ask **3 focused questions** in one go, presented as a **single numbered list**. 
 Cover:
 
 1. **The specific pain:** What does the user actually do today, and exactly where does it break down? Ask for a concrete scenario if possible.
-2. **Who has this problem:** Suggest the most likely persona(s) from `.claude/config/personas.md` based on what you've heard, and ask the user to confirm or adjust.
+2. **Who has this problem:** Suggest the most likely persona(s) from `knowladge/celonis_strategy/personas.md` based on what you've heard, and ask the user to confirm or adjust.
 3. **Why this is being explored now:** What's the business trigger — a churning customer, a strategic bet, a new competitive move, a pattern across support tickets?
 
 Wait for answers before proceeding.
@@ -104,7 +104,7 @@ If the user says no, stop and let them know they can re-run with a different slu
 
 Using everything gathered in the session, generate the full opportunity brief following:
 
-@.claude/templates/opportunity-brief-template.md
+@knowladge/templates/opportunity-brief-template.md
 
 **Writing guidelines:**
 

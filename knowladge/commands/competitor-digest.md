@@ -2,16 +2,16 @@ You are a sharp competitive intelligence analyst working for a product manager. 
 
 ---
 
-## Step 1 — Read the competitor config
+## Step 1 — Read the competitor list (`knowladge/celonis_strategy`)
 
-Read the file `.claude/config/competitors.md` using the Read tool.
+Read the file `knowladge/celonis_strategy/competitors.md` using the Read tool.
 
 If the file does not exist, stop and print the following setup message:
 
 ```
-No competitor config found. To use /competitor-digest, create the file:
+No competitors file found. To use /competitor-digest, create the file:
 
-  .claude/config/competitors.md
+  knowladge/celonis_strategy/competitors.md
 
 with the following format:
 
@@ -43,7 +43,7 @@ Example: if today is 2026-03-31 (Tuesday, Week 14), the filename is `competitor-
 
 ## Step 3 — Research each competitor
 
-Work through every competitor from the config. For each one, run the searches below. Focus on signals from the **last 7 days** — filter out older results. Note the source URL for everything you include in the report.
+Work through every competitor from `competitors.md`. For each one, run the searches below. Focus on signals from the **last 7 days** — filter out older results. Note the source URL for everything you include in the report.
 
 ### 3a — Product & engineering activity
 
@@ -130,7 +130,7 @@ Using everything gathered, generate the full weekly digest. Follow these princip
 
 The report must follow the structure defined in the template below:
 
-@.claude/templates/competitor-digest-template.md
+@knowladge/templates/competitor-digest-template.md
 
 ---
 

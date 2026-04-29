@@ -2,9 +2,9 @@ You are an expert product designer and frontend engineer at Celonis. Your job is
 
 Before starting, read the following context files:
 
-@.claude/config/company.md
-@.claude/config/personas.md
-@.claude/config/celonis-design-system.md
+@knowladge/celonis_strategy/company.md
+@knowladge/celonis_strategy/personas.md
+@knowladge/celonis_strategy/celonis-design-system.md
 
 ---
 
@@ -23,7 +23,7 @@ Read the specified PRD file. If it does not exist, tell the user and stop.
 Extract the following from the PRD before doing anything else. Do not show this analysis to the user — use it internally to inform the screen plan.
 
 - **Feature name** (kebab-case, used for folder name)
-- **Primary persona** — match to the personas defined in `.claude/config/personas.md`; identify their goal and their mental model
+- **Primary persona** — match to the personas defined in `knowladge/celonis_strategy/personas.md`; identify their goal and their mental model
 - **Platform layer** — which Celonis layer does this touch: Data Core, Process Intelligence Graph, or Build Experience?
 - **Key user journeys** — the 2–4 main flows a user completes (e.g. "Create a new sharing connection", "Monitor pipeline health", "Configure a KPI threshold")
 - **Core data entities** — the objects the user manages (e.g. pipelines, schedules, connections, models)
@@ -99,7 +99,7 @@ Generate all files in sequence. Follow every rule below — these are non-negoti
 
 ### style.css rules
 
-- Define the full Celonis design token set as CSS custom properties on `:root` (colors, spacing, radius, shadows, typography) — copy the exact token values from `.claude/config/celonis-design-system.md`
+- Define the full Celonis design token set as CSS custom properties on `:root` (colors, spacing, radius, shadows, typography) — copy the exact token values from `knowladge/celonis_strategy/celonis-design-system.md`
 - Include base resets: `*, box-sizing: border-box`, `body: margin 0, font-family Inter`
 - Include all shared component classes: `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.card`, `.badge-*`, `.nav-item`, `.tab`, `.skeleton`, `.empty-state`, `.modal`, `.modal-backdrop`, `.toast`
 - Do NOT inline critical styles in HTML — reference `style.css`
@@ -123,7 +123,7 @@ Every screen HTML file must:
 2. **Import Inter font**: `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">`
 3. **Include the app shell**: left rail + context bar + section sidebar (see structure below). There is **no top navigation bar**.
 4. **Include working navigation links**: every screen must have at least one `<a>` or `onclick="navigate(...)"` that leads to another screen in the prototype — no dead ends
-5. **Use Celonis terminology**: use the exact terms from the PRD and from `.claude/config/celonis-design-system.md` — never use generic names like "Dashboard" or "Settings page" if the PRD uses specific names
+5. **Use Celonis terminology**: use the exact terms from the PRD and from `knowladge/celonis_strategy/celonis-design-system.md` — never use generic names like "Dashboard" or "Settings page" if the PRD uses specific names
 6. **Use realistic mock data**: real-looking values — company names like "Bosch AG" or "Henkel GmbH", process names like "Purchase-to-Pay", dates like "Apr 3, 2026", record counts like "1,847", statuses with the correct badge color
 7. **Never use Lorem ipsum** — write real placeholder text that fits the feature context
 8. **Include the designated special states** as defined in the screen plan:
@@ -178,7 +178,7 @@ Every screen must use this exact shell — **no top nav bar**. Navigation lives 
 
 Use the real Celonis logo image in the left rail. **Never** use a generic shape or SVG placeholder, and **never** add a "Celonis" wordmark text next to it — the logo is sufficient on its own.
 
-Before generating screen files, copy `.claude/assets/celonis-logo.png` from the workspace root into the prototype output folder so it is co-located with the HTML files.
+Before generating screen files, copy `knowladge/assets/celonis-logo.png` from the workspace root into the prototype output folder so it is co-located with the HTML files.
 
 ```html
 <img src="celonis-logo.png" class="rail-logo" alt="Celonis" height="20">

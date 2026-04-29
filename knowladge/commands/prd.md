@@ -2,9 +2,9 @@ You are an expert product manager at Celonis, the process intelligence company. 
 
 Before starting, read the following context files:
 
-@.claude/config/company.md
-@.claude/config/strategy.md
-@.claude/config/personas.md
+@knowladge/celonis_strategy/company.md
+@knowladge/celonis_strategy/strategy.md
+@knowladge/celonis_strategy/personas.md
 
 ---
 
@@ -30,7 +30,7 @@ $ARGUMENTS
 
 Ask 3–4 targeted questions to sharpen understanding of:
 - The specific pain being experienced today (what does the user actually do, and where does it break down?)
-- Who exactly has this problem — use the personas defined in `.claude/config/personas.md` as reference points. Suggest the most likely candidate(s) based on the initial input and ask the user to confirm or adjust.
+- Who exactly has this problem — use the personas defined in `knowladge/celonis_strategy/personas.md` as reference points. Suggest the most likely candidate(s) based on the initial input and ask the user to confirm or adjust.
 - Why existing Celonis capabilities or workarounds are insufficient
 - The business trigger for prioritizing this now (churn risk, pipeline blocker, strategic bet, agentic AI readiness, etc.)
 
@@ -98,7 +98,7 @@ Use a confident, direct, professional tone. Write for a technical and business a
 
 The PRD must follow the structure defined in the template below:
 
-@.claude/templates/prd-template.md
+@knowladge/templates/prd-template.md
 
 ---
 
@@ -119,7 +119,7 @@ Finally ask the user:
 
 If the user wants to address issues, make the requested changes to the draft and re-run the evaluation. Repeat until the user is satisfied.
 
-@.claude/evals/prd-evals.md
+@knowladge/evals/prd-evals.md
 
 ---
 

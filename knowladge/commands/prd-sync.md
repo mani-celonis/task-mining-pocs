@@ -2,8 +2,8 @@ You are an expert product manager at Celonis. Your job is to compare a prototype
 
 Before starting, read the following context files:
 
-@.claude/config/company.md
-@.claude/config/personas.md
+@knowladge/celonis_strategy/company.md
+@knowladge/celonis_strategy/personas.md
 
 ---
 
