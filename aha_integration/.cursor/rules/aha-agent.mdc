@@ -1,0 +1,99 @@
+---
+description: Teaches the AI assistant how to query and update the Aha! backlog via the AhaAgent. Use when writing Aha! API scripts, processing task lists, or working with epics/features/Ideas.
+alwaysApply: false
+globs:
+  - "**/scratchpad.py"
+  - "**/executors/*.py"
+  - "**/cli.py"
+  - "**/lib/*.py"
+  - "**/AhaAgent/intake/**"
+  - "data/intake/**"
+  - "docs/aha_api_notes.md"
+  - "docs/celonis_aha_rules.md"
+---
+
+# Aha! backlog access
+
+Use the Aha! API agent to query or update the backlog. See [AGENTS.md](AGENTS.md) for the project map.
+
+**Task lists for bulk update:** With `KNOWLEDGE_ROOT` set, place files under **`$KNOWLEDGE_ROOT/AhaAgent/intake/`**. If `KNOWLEDGE_ROOT` is unset, use **`data/intake/`** in the repo. See `src/pm_data_paths.py` (`intake_dir()`).
+
+## Quick reads via CLI (preferred for one-shot lookups)
+
+For any single GET or list-endpoint paginate, skip the scratchpad and use the read-only CLI:
+
+```bash
+python -m src.cli get /features/OPER-E-1234
+python -m src.cli get /products/OPER/ideas --param per_page=5
+python -m src.cli paginate /products/OPER/epics --collection epics
+```
+
+JSON goes to stdout, so it composes with `jq`, `>`, `| less`. The CLI is read-only by design — use the scratchpad pattern below for `POST`/`PUT`/`DELETE` and for any analytical loop.
+
+Always pass `required_permissions: ["all"]` when running these from a tool call (network access).
+
+## Shared helpers (use in scratchpads)
+
+Whenever a scratchpad needs to paginate, fetch the backlog, or match text, import from [src/lib/aha_helpers.py](src/lib/aha_helpers.py) instead of re-implementing:
+
+- `paginate(client, path, collection_key, extra_params=None)` — yield every record across pages
+- `fetch_backlog(client, product_key)` — epics + features + ideas, tagged with `type`
+- `fetch_all_ideas(client, product_key)` — list-endpoint Ideas (fast)
+- `fetch_ideas_with_categories(client, refs)` — second-pass detail fetch with auto-throttling
+- `build_idf(items)`, `keyword_match(text, items, idf)` — IDF-weighted token matching
+- `strip_html`, `tokenize`, `normalize_status`, `normalize_description`
+
+## How to run scratchpads (multi-step or write flows)
+
+1. Activate the venv: `source aha-agent-venv/bin/activate` (or `ahaAgent`, `.venv`, `venv` if present).
+2. Write a Python script to `src/executors/scratchpad.py` (overwrite each time).
+3. Run: `python src/executors/scratchpad.py` from the repo root.
+4. Use `required_permissions: ["all"]` for shell commands hitting the Aha! API.
+
+## Scratchpad script template
+
+```python
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+from dotenv import load_dotenv
+from src.api.client import AhaApiClient
+from src.lib.aha_helpers import paginate, fetch_backlog, keyword_match, build_idf
+
+load_dotenv()
+client = AhaApiClient(os.getenv("AHA_API_KEY"))
+# ... your logic here ...
+```
+
+## API client methods
+
+`client.get(path, params=)`, `client.put(path, data=)`, `client.post(path, data=)`, `client.delete(path)`. All handle rate-limit retries automatically.
+
+## Celonis taxonomy (CRITICAL)
+
+Celonis uses **inverted** Aha! naming:
+
+| When user says | Celonis term | `reference_num` | Aha! endpoint |
+|----------------|--------------|-----------------|---------------|
+| "features" | Feature (GTM, client-facing) | Contains `-E-` | `/epics` |
+| "epics" | Epic (internal) | No `-E-` | `/features` |
+
+Read [docs/aha_api_notes.md](docs/aha_api_notes.md) and [docs/celonis_aha_rules.md](docs/celonis_aha_rules.md) before writing update/create scripts.
+
+## Your workspace and Ideas
+
+Read `.aha-config.yml` at the workspace root for your product key, team, and Idea categories.
+
+- **Ideas endpoint:** `GET /products/{product_key}/ideas` (list), `GET /ideas/{ref}` (detail with categories/custom fields)
+- **Idea categories:** listed under each product's `category` field in `.aha-config.yml`
+- Categories and custom fields are only returned in the detail endpoint (`GET /ideas/{ref}`), not in the list endpoint. When filtering by category, fetch all refs from the list endpoint first, then fetch each idea's detail.
+- Rate-limit detail fetches at ~15/sec (`time.sleep(1.1)` every 15 requests).
+
+## Pagination
+
+Aha! paginates responses. Always check `pagination.total_pages` and loop when fetching lists. Use `?fields=` to select only needed fields for performance.
+
+## Safety
+
+- Never hardcode the API key. Always read from `.env` via `load_dotenv()`.
+- Before bulk PUT/DELETE, print a summary and ask user to confirm.
+- The `.env` file is gitignored. Never commit or display the API key.

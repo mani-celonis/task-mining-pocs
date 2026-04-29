@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "name": "AhaAgent",
+      "path": "."
+    },
+    {
+      "name": "PM knowledge (KNOWLEDGE_ROOT)",
+      "path": "/path/to/your/vault"
+    }
+  ],
+  "settings": {}
+}

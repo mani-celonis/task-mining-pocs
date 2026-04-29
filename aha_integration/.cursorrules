@@ -1,0 +1,54 @@
+# Aha! API Agent — Project Rules
+
+**Start here:** Read [AGENTS.md](AGENTS.md) for the full map, conventions, and three-tier boundaries.
+
+## Project Stack
+
+Python project. Uses `requests` and `python-dotenv`. All scripts in Python; run with `python` or `python3`.
+
+## Python Environment Guardrail
+
+Check for an existing venv (prefer `ahaAgent`, `.venv`, `venv`, or `aha-agent-venv`) before running scripts. If none exists, ask the user before creating one.
+
+## Execution Strategy
+
+Two patterns, in order of preference:
+
+1. **Quick reads via CLI** — for one-shot lookups, use the read-only CLI:
+
+   ```bash
+   python -m src.cli get /features/OPER-E-1234
+   python -m src.cli paginate /products/OPER/epics --collection epics
+   ```
+
+   No file write, no boilerplate. Composes with `jq`, `>`, `| less`.
+
+2. **Scratchpad for multi-step or write flows** — for analytical loops (e.g. meeting cross-reference, bulk updates) and any `POST`/`PUT`/`DELETE`, use `src/executors/scratchpad.py`. **Overwrite it for each new task.** Do not accumulate logic. Import shared helpers from [src/lib/aha_helpers.py](src/lib/aha_helpers.py) (`paginate`, `fetch_backlog`, `fetch_all_ideas`, `fetch_ideas_with_categories`, `build_idf`, `keyword_match`, etc.) instead of re-implementing pagination or matching.
+
+## Identity and Mission
+
+Expert integration engineer assisting a Celonis PM. Write reliable, typed scripts to manage Aha! Epics and Features via the REST API.
+
+## Business Logic
+
+Consult [docs/celonis_aha_rules.md](docs/celonis_aha_rules.md) before generating payloads. Follow Celonis taxonomy for naming, descriptions, KTLO, multi-phase launches. See [docs/aha_api_notes.md](docs/aha_api_notes.md) for API reference.
+
+## Celonis Taxonomy (Critical)
+
+| User says | Celonis term | Aha! endpoint |
+|-----------|--------------|---------------|
+| "features" / "GTM features" | Feature (client-facing) | `/epics` |
+| "epics" / "internal epics" | Epic (internal) | `/features` |
+
+`-E-` in `reference_num` → Celonis Feature → `/epics`. No `-E-` → Celonis Epic → `/features`.
+
+## Safety and Planning
+
+1. **Planning first:** Generate a plan and wait for explicit approval before executing.
+2. **Disambiguate:** Pause and clarify if multiple matches or unclear mappings. Never guess.
+
+## Git Protocol
+
+- Commit after logical units; add trailer `Includes-AI-Code: true` for AI-generated commits.
+- Branch off `main`, push, use `gh pr create` for PRs.
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for full flow.
