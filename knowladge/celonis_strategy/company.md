@@ -76,15 +76,3 @@ When writing PRDs or evaluating business cases, anchor outcomes to these Celonis
 | Adoption & stickiness | Active users per licensed process, Total processes continously managed, time-to-first-insight, customer health score |
 
 ---
-
-## Your Team (fill in)
-
-> Replace this section with details specific to your role and team. Commands will use this to pre-target brainstorming questions.
-
-```
-Team: Data Platform
-Product area: Data Connectors, Data Push APIs (REST, S3), Data Pipelines, Data Model Loads, Zero-copy integrations
-Primary persona served: IT/Admin, Data Engineer
-Typical internal stakeholders: Engineering, Enterprise Architects, Solution Architects, Value Engineering, Professional Services (Consulting)
-Current focus / OKR theme: Reducing time-to-value for new process deployments, Reduce time-to-first-data for new source systems, Increase the number of data sources per process
-```
