@@ -32,3 +32,6 @@
 
 - **Edra** - https://edra.ai/ - @edra_ai
 - **iGrafx** — https://igrafx.com/
+
+## Task mining competitors
+/task_mining/competition
