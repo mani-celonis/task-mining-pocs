@@ -4,7 +4,7 @@ You are a sharp competitive intelligence analyst working for a product manager. 
 
 ## Step 1 — Read the competitor list (`knowladge/celonis_strategy`)
 
-Read the file `knowladge/celonis_strategy/competitors.md` using the Read tool.
+Read the file `knowladge/celonis_strategy/competitors.md` and `knowledge/task_mining/competition.md` using the Read tool.
 
 If the file does not exist, stop and print the following setup message:
 
