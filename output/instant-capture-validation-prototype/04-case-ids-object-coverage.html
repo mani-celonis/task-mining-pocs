@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case IDs &amp; object coverage — Task Mining</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="left-rail">
+    <img src="celonis-logo.svg" class="rail-logo" alt="Celonis" height="20">
+    <div class="rail-nav">
+      <button class="rail-item active" data-label="Data" onclick="navigate('01-choose-capture-path.html')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><ellipse cx="9" cy="4.5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 4.5v9c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5v-9" stroke="currentColor" stroke-width="1.5"/><path d="M3 9c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <button class="rail-item" data-label="Studio"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="2.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="10.5" y="2.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="10.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="10.5" y="10.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <button class="rail-item" data-label="Apps"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="4" cy="4" r="1.5" fill="currentColor"/><circle cx="9" cy="4" r="1.5" fill="currentColor"/><circle cx="14" cy="4" r="1.5" fill="currentColor"/><circle cx="4" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/><circle cx="14" cy="9" r="1.5" fill="currentColor"/><circle cx="4" cy="14" r="1.5" fill="currentColor"/><circle cx="9" cy="14" r="1.5" fill="currentColor"/><circle cx="14" cy="14" r="1.5" fill="currentColor"/></svg></button>
+    </div>
+    <div class="rail-bottom">
+      <button class="rail-item" data-label="Settings"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="5" r="2" fill="var(--surface-card)" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="var(--surface-card)" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="13" r="2" fill="var(--surface-card)" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <button class="rail-item" data-label="Help"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M7.2 7a1.8 1.8 0 1 1 2.4 1.7c-.5.2-.9.6-.9 1.2v.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8.7" cy="12.4" r=".8" fill="currentColor"/></svg></button>
+      <div class="avatar">CK</div>
+    </div>
+  </nav>
+
+  <div class="app-right">
+    <div class="context-bar">
+      <div class="context-bar-left">
+        <span class="context-bar-title">Data</span>
+        <span class="breadcrumb-sep">›</span>
+        <div class="breadcrumb"><a href="01-choose-capture-path.html">Task Mining</a><span class="breadcrumb-sep">›</span><span style="color:var(--text-primary);">Case IDs &amp; objects</span></div>
+      </div>
+    </div>
+
+    <div class="body-layout">
+      <aside class="sidebar">
+        <div class="nav-group-label">Onboarding</div>
+        <a class="nav-item done" data-screen="01-choose-capture-path.html" onclick="navigate('01-choose-capture-path.html')"><span class="dot"></span> 1. Choose capture path</a>
+        <a class="nav-item done" data-screen="02-record-sample.html" onclick="navigate('02-record-sample.html')"><span class="dot"></span> 2. Record a sample</a>
+        <a class="nav-item done" data-screen="03-privacy-gdpr-scan.html" onclick="navigate('03-privacy-gdpr-scan.html')"><span class="dot"></span> 3. Privacy &amp; GDPR scan</a>
+        <a class="nav-item active" data-screen="04-case-ids-object-coverage.html"><span class="dot"></span> 4. Case IDs &amp; objects</a>
+        <a class="nav-item" data-screen="05-enrich-process-context.html" onclick="navigate('05-enrich-process-context.html')"><span class="dot"></span> 5. Enrich from process</a>
+        <a class="nav-item" data-screen="06-data-quality-summary.html" onclick="navigate('06-data-quality-summary.html')"><span class="dot"></span> 6. Validate &amp; scale</a>
+      </aside>
+
+      <main class="main-content">
+        <div class="stepper">
+          <div class="step done"><span class="step-num">✓</span><span class="step-label">Capture path</span></div>
+          <span class="step-line"></span>
+          <div class="step done"><span class="step-num">✓</span><span class="step-label">Record</span></div>
+          <span class="step-line"></span>
+          <div class="step done"><span class="step-num">✓</span><span class="step-label">Privacy</span></div>
+          <span class="step-line"></span>
+          <div class="step active"><span class="step-num">4</span><span class="step-label">Coverage</span></div>
+          <span class="step-line"></span>
+          <div class="step"><span class="step-num">5</span><span class="step-label">Enrich</span></div>
+          <span class="step-line"></span>
+          <div class="step"><span class="step-num">6</span><span class="step-label">Scale</span></div>
+        </div>
+
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">What case IDs &amp; objects did we find?</h1>
+            <p class="page-subtitle">This is your data-quality check. We detected the case IDs in your sample, which applications they came from, and how they map to business objects — so you know the data will join to your processes before you scale.</p>
+          </div>
+          <span class="badge badge-accent">Purchase-to-Pay</span>
+        </div>
+
+        <!-- Empty state (toggle this block if no case IDs are detected) -->
+        <!--
+        <div class="card"><div class="empty-state">
+          <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="22" cy="22" r="13" stroke="currentColor" stroke-width="2.5"/><path d="M32 32l9 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+          <h3 class="empty-state-title">No case IDs found yet</h3>
+          <p class="empty-state-desc">We couldn't detect a recognizable case ID in this sample. Try recording the app where you look up or enter records (e.g. the order or invoice screen).</p>
+          <button class="btn-primary" onclick="navigate('02-record-sample.html')">Record more</button>
+        </div></div>
+        -->
+
+        <div class="grid-3" style="margin-bottom:24px;">
+          <div class="card"><div class="kpi">4</div><div class="kpi-label">Case ID types detected</div></div>
+          <div class="card"><div class="kpi" style="color:var(--color-success)">2</div><div class="kpi-label">Objects fully covered</div></div>
+          <div class="card"><div class="kpi" style="color:var(--color-warning)">2</div><div class="kpi-label">Could be unlocked with more context</div></div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header"><div><span class="card-title">Detected case IDs</span><div class="card-sub">Which IDs were identified, and in which applications</div></div></div>
+          <table class="tbl">
+            <thead><tr><th>Case ID</th><th>Sample value</th><th>Found in</th><th>Occurrences</th><th>Maps to object</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Invoice number</strong></td>
+                <td><span class="mono">450021987</span></td>
+                <td><span class="app-chip"><span class="app-glyph" style="background:#217346;">XL</span>Web Excel</span></td>
+                <td class="mono">38</td>
+                <td><span class="badge badge-success">● Invoice</span></td>
+              </tr>
+              <tr>
+                <td><strong>Sales order</strong></td>
+                <td><span class="mono">ORD-88213</span></td>
+                <td><span class="app-chip"><span class="app-glyph" style="background:#1a73e8;">SF</span>Salesforce</span></td>
+                <td class="mono">21</td>
+                <td><span class="badge badge-success">● Sales Order</span></td>
+              </tr>
+              <tr>
+                <td><strong>Incident ticket</strong></td>
+                <td><span class="mono">INC0049182</span></td>
+                <td><span class="app-chip"><span class="app-glyph" style="background:#0a6ed1;">SN</span>ServiceNow</span></td>
+                <td class="mono">54</td>
+                <td><span class="badge badge-warning">▲ Ticket (partial)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Vendor reference</strong></td>
+                <td><span class="mono">Bosch AG</span></td>
+                <td><span class="app-chip"><span class="app-glyph" style="background:#1a73e8;">SF</span>Salesforce</span> <span class="app-chip"><span class="app-glyph" style="background:#217346;">XL</span>Excel</span></td>
+                <td class="mono">62</td>
+                <td><span class="badge badge-neutral">○ Vendor (unmatched)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:16px;font-weight:600;margin-bottom:4px;">Object coverage</h3>
+        <p class="hint" style="margin-bottom:16px;">How captured IDs map to the business objects your processes are built on.</p>
+        <div class="grid-3" style="grid-template-columns:repeat(2,1fr); margin-bottom:24px;">
+          <div class="cov-card covered">
+            <div class="row-between"><div class="cov-name">Invoice</div><span class="badge badge-success">● Covered</span></div>
+            <div class="cov-meta">Keyed by <span class="mono">Invoice number</span> · 38 cases in sample</div>
+            <div class="cov-meta" style="margin-top:8px;">Joins directly to your P2P process model.</div>
+          </div>
+          <div class="cov-card covered">
+            <div class="row-between"><div class="cov-name">Sales Order</div><span class="badge badge-success">● Covered</span></div>
+            <div class="cov-meta">Keyed by <span class="mono">ORD-#####</span> · 21 cases in sample</div>
+            <div class="cov-meta" style="margin-top:8px;">Joins directly to your O2C process model.</div>
+          </div>
+          <div class="cov-card partial">
+            <div class="row-between"><div class="cov-name">Service Ticket</div><span class="badge badge-warning">▲ Unlockable</span></div>
+            <div class="cov-meta">Ticket ID found, but not yet linked to a process case.</div>
+            <div class="cov-meta" style="margin-top:8px;">Add a <strong>ServiceNow process model</strong> to map tickets to cases.</div>
+          </div>
+          <div class="cov-card missing">
+            <div class="row-between"><div class="cov-name">Vendor / Supplier</div><span class="badge badge-neutral">○ Unlockable</span></div>
+            <div class="cov-meta">Names captured (“Bosch AG”) but no canonical vendor ID.</div>
+            <div class="cov-meta" style="margin-top:8px;">A <strong>vendor master</strong> from Process Mining would resolve these to IDs.</div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0;"><path d="M9 1.8 2.5 5v8L9 16.2 15.5 13V5L9 1.8Z" stroke="#264AFF" stroke-width="1.4" stroke-linejoin="round"/><path d="M9 1.8V16.2M2.5 5 15.5 5" stroke="#264AFF" stroke-width="1.2"/></svg>
+          <div><strong>2 objects could become fully covered.</strong> Connect the process context you already have in Process Mining to turn “unlockable” into “covered” — next step.</div>
+        </div>
+
+        <div class="wizard-footer">
+          <button class="btn-secondary" onclick="navigate('03-privacy-gdpr-scan.html')">‹ Back</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" onclick="navigate('06-data-quality-summary.html')">Skip — looks good</button>
+            <button class="btn-primary" onclick="navigate('05-enrich-process-context.html')">Unlock more objects ›</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+</body>
+</html>
