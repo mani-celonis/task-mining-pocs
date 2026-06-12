@@ -3,330 +3,315 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Work IQ Live Data — API Calls & Raw Responses</title>
+<title>Work IQ — Live API Extraction</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-  :root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#222;--bd:#2a2a2a;--t1:#e5e5e5;--t2:#888;--t3:#555;--ok:#4ade80;--err:#f87171;--warn:#fbbf24;--blue:#60a5fa;--mono:'JetBrains Mono',monospace}
+  :root{--bg:#050505;--s1:#0d0d0d;--s2:#141414;--bd:#1a1a1a;--g:#22c55e;--gd:#166534;--gl:rgba(34,197,94,.08);--t1:#e8e8e8;--t2:#666;--t3:#333;--r:#ef4444;--rl:rgba(239,68,68,.08);--mono:'JetBrains Mono',monospace}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);line-height:1.5}
-  .app{max-width:1200px;margin:0 auto;padding:40px 32px 80px}
-  header{margin-bottom:40px;border-bottom:1px solid var(--bd);padding-bottom:24px}
-  h1{font-size:20px;font-weight:700;margin-bottom:4px}
-  .sub{font-size:12px;color:var(--t2)}
-  .meta{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
-  .meta span{font-size:11px;color:var(--t2);font-family:var(--mono)}
-  .meta .val{color:var(--t1)}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);line-height:1.6}
+  .app{max-width:1100px;margin:0 auto;padding:48px 32px 80px}
+  header{margin-bottom:48px}
+  h1{font-size:18px;font-weight:700;color:#fff;margin-bottom:2px}
+  .sub{font-size:11px;color:var(--t2);font-family:var(--mono)}
+  .meta-row{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
+  .meta-item{font-size:10px;color:var(--t2)}
+  .meta-item .v{color:var(--g);font-family:var(--mono)}
+  h2{font-size:13px;font-weight:700;color:#fff;margin:40px 0 12px;text-transform:uppercase;letter-spacing:1px}
+  h2 .count{color:var(--t2);font-weight:400;text-transform:none;letter-spacing:0}
 
-  h2{font-size:15px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
-  h3{font-size:13px;font-weight:600;color:var(--t2);margin-bottom:8px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:32px}
+  .stat{padding:16px;background:var(--s1);text-align:center}
+  .stat .n{font-size:24px;font-weight:700;font-family:var(--mono);color:#fff}
+  .stat .n.green{color:var(--g)}
+  .stat .n.red{color:var(--r)}
+  .stat .l{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 
-  .call{border:1px solid var(--bd);border-radius:8px;margin-bottom:12px;overflow:hidden}
-  .call-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s1);cursor:pointer;user-select:none}
-  .call-header:hover{background:var(--s2)}
-  .method{font-family:var(--mono);font-size:11px;font-weight:500;padding:2px 6px;border-radius:3px;background:#1e3a1e;color:var(--ok);min-width:34px;text-align:center}
-  .method.err{background:#3a1e1e;color:var(--err)}
-  .call-path{font-family:var(--mono);font-size:12px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .call-status{font-family:var(--mono);font-size:11px;font-weight:500;min-width:28px;text-align:right}
-  .s-200{color:var(--ok)}.s-403{color:var(--err)}
-  .call-count{font-size:10px;color:var(--t2);min-width:60px;text-align:right}
-  .arrow{color:var(--t3);font-size:10px;transition:transform .2s;min-width:12px}
+  .scopes{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:32px}
+  .sc{font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:3px;border:1px solid}
+  .sc.ok{border-color:var(--gd);color:var(--g);background:var(--gl)}
+  .sc.no{border-color:#451a1a;color:var(--r);background:var(--rl)}
+
+  .call{border:1px solid var(--bd);border-radius:6px;margin-bottom:8px;overflow:hidden}
+  .call-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--s1);cursor:pointer;user-select:none}
+  .call-h:hover{background:var(--s2)}
+  .arrow{color:var(--t3);font-size:8px;transition:transform .15s;width:10px;flex-shrink:0}
   .call.open .arrow{transform:rotate(90deg)}
+  .badge{font-family:var(--mono);font-size:10px;font-weight:500;padding:1px 5px;border-radius:3px;min-width:28px;text-align:center}
+  .b200{background:var(--gl);color:var(--g)}.b403{background:var(--rl);color:var(--r)}.b401{background:var(--rl);color:var(--r)}
+  .call-path{font-family:var(--mono);font-size:11px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .call-info{font-size:10px;color:var(--t2);min-width:70px;text-align:right}
   .call-body{display:none;border-top:1px solid var(--bd)}
   .call.open .call-body{display:block}
-  .raw{font-family:var(--mono);font-size:11px;color:var(--t2);padding:14px;background:#0a0a0a;overflow-x:auto;white-space:pre;line-height:1.6;max-height:400px;overflow-y:auto}
-  .raw .k{color:var(--blue)}.raw .s{color:var(--ok)}.raw .n{color:var(--warn)}.raw .null{color:var(--t3)}
+  .call-note{padding:8px 12px;font-size:11px;color:var(--t2);background:var(--s2);border-bottom:1px solid var(--bd)}
+  .raw{font-family:var(--mono);font-size:10px;color:var(--t2);padding:12px;background:var(--bg);overflow-x:auto;white-space:pre;line-height:1.7;max-height:500px;overflow-y:auto}
+  .raw::-webkit-scrollbar{width:3px;height:3px}.raw::-webkit-scrollbar-thumb{background:var(--t3);border-radius:2px}
+  .raw .k{color:var(--t1)}.raw .s{color:var(--g)}.raw .n{color:#fff}.raw .nl{color:var(--t3)}
 
-  .timeline{margin-bottom:32px}
-  .tl-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
-  .tl-item:last-child{border:none}
-  .tl-time{font-family:var(--mono);font-size:11px;color:var(--t2);min-width:80px;flex-shrink:0}
-  .tl-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-  .tl-icon.word{background:#1b365d}.tl-icon.excel{background:#1d3a1d}.tl-icon.copilot{background:#2d1d3a}.tl-icon.mail{background:#1a2a3a}.tl-icon.system{background:#2a2a1a}
+  .tl{margin-bottom:32px}
+  .tl-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)}
+  .tl-row:last-child{border:none}
+  .tl-time{font-family:var(--mono);font-size:10px;color:var(--t2);min-width:70px;flex-shrink:0}
+  .tl-icon{width:24px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:var(--s2);border:1px solid var(--bd)}
   .tl-content{flex:1;min-width:0}
-  .tl-title{font-size:12px;font-weight:600}
-  .tl-detail{font-size:11px;color:var(--t2);margin-top:1px}
-  .tl-app{font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px;background:var(--s2);color:var(--t2);display:inline-block;margin-top:3px}
+  .tl-title{font-size:11px;font-weight:600;color:#fff}
+  .tl-meta{font-size:10px;color:var(--t2);margin-top:1px}
+  .tl-app{font-family:var(--mono);font-size:9px;color:var(--g)}
 
-  .stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1px;background:var(--bd);border-radius:8px;overflow:hidden;margin-bottom:24px}
-  .stat{padding:14px;background:var(--s1);text-align:center}
-  .stat .v{font-size:22px;font-weight:700;font-family:var(--mono)}
-  .stat .l{font-size:10px;color:var(--t2);margin-top:2px}
-
-  .scope-list{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px}
-  .scope{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;background:var(--s1);border:1px solid var(--bd);color:var(--t2)}
-  .scope.active{border-color:#2a3a2a;color:var(--ok)}
-  .scope.missing{border-color:#3a2a2a;color:var(--err)}
+  .note{padding:12px 14px;border:1px solid var(--bd);border-radius:6px;background:var(--s1);margin-bottom:8px}
+  .note p{font-size:11px;color:var(--t2);line-height:1.6}
+  .note strong{color:#fff}
+  .footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--bd);font-size:10px;color:var(--t3);text-align:center}
+  .footer a{color:var(--t2)}
 </style>
 </head>
 <body>
 <div class="app">
 
 <header>
-  <h1>Work IQ Live Data Extraction</h1>
-  <div class="sub">Real API calls to Microsoft Graph v1.0 via Work IQ cached OAuth token</div>
-  <div class="meta">
-    <span>account <span class="val">m.a@pneqatenant.onmicrosoft.com</span></span>
-    <span>tenant <span class="val">3ff1238b-4738-4daa</span></span>
-    <span>extracted <span class="val">2026-06-12T22:57:47Z</span></span>
-    <span>token <span class="val">Work IQ CLI MSAL Keychain</span></span>
+  <h1>Work IQ Live API Extraction</h1>
+  <div class="sub">m.a@pneqatenant.onmicrosoft.com &mdash; tenant 3ff1238b &mdash; 2026-06-12T23:16Z</div>
+  <div class="meta-row">
+    <div class="meta-item">token source <span class="v">MSAL Keychain &rarr; refresh_token</span></div>
+    <div class="meta-item">client <span class="v">ba081686 (Work IQ CLI)</span></div>
+    <div class="meta-item">graph <span class="v">v1.0</span></div>
+    <div class="meta-item">a2a <span class="v">workiq.svc.cloud.microsoft</span></div>
   </div>
 </header>
 
-<!-- STATS -->
-<div class="stat-row">
-  <div class="stat"><div class="v" style="color:var(--ok)">16</div><div class="l">API Calls</div></div>
-  <div class="stat"><div class="v" style="color:var(--ok)">8</div><div class="l">200 OK</div></div>
-  <div class="stat"><div class="v" style="color:var(--err)">6</div><div class="l">403 Denied</div></div>
-  <div class="stat"><div class="v">9</div><div class="l">OneDrive Files</div></div>
-  <div class="stat"><div class="v">1</div><div class="l">Sent Email</div></div>
-  <div class="stat"><div class="v">8</div><div class="l">Mail Folders</div></div>
-  <div class="stat"><div class="v">3</div><div class="l">App Interactions</div></div>
+<div class="stats">
+  <div class="stat"><div class="n">18</div><div class="l">API Calls</div></div>
+  <div class="stat"><div class="n green">8</div><div class="l">200 OK</div></div>
+  <div class="stat"><div class="n red">10</div><div class="l">Failed</div></div>
+  <div class="stat"><div class="n">9</div><div class="l">Files</div></div>
+  <div class="stat"><div class="n">8</div><div class="l">Folders</div></div>
+  <div class="stat"><div class="n">1</div><div class="l">Email</div></div>
+  <div class="stat"><div class="n">3</div><div class="l">Apps Detected</div></div>
 </div>
 
-<!-- TOKEN SCOPES -->
-<h3>Token Scopes</h3>
-<div class="scope-list">
-  <span class="scope active">Mail.Read</span>
-  <span class="scope active">Chat.Read</span>
-  <span class="scope active">Sites.Read.All</span>
-  <span class="scope active">People.Read.All</span>
-  <span class="scope active">ChannelMessage.Read.All</span>
-  <span class="scope active">ExternalItem.Read.All</span>
-  <span class="scope active">OnlineMeetingTranscript.Read.All</span>
-  <span class="scope missing">User.Read (missing)</span>
-  <span class="scope missing">Calendars.Read (missing)</span>
-  <span class="scope missing">Team.ReadBasic.All (missing)</span>
-  <span class="scope missing">Contacts.Read (missing)</span>
+<h2>Token Scopes</h2>
+<div class="scopes">
+  <span class="sc ok">Mail.Read</span>
+  <span class="sc ok">Chat.Read</span>
+  <span class="sc ok">Sites.Read.All</span>
+  <span class="sc ok">People.Read.All</span>
+  <span class="sc ok">ChannelMessage.Read.All</span>
+  <span class="sc ok">ExternalItem.Read.All</span>
+  <span class="sc ok">OnlineMeetingTranscript.Read.All</span>
+  <span class="sc no">User.Read</span>
+  <span class="sc no">Calendars.Read</span>
+  <span class="sc no">Team.ReadBasic.All</span>
+  <span class="sc no">Contacts.Read</span>
+  <span class="sc no">WorkIQAgent.Ask</span>
 </div>
 
-<!-- APP INTERACTIONS TIMELINE -->
-<h2>App Interactions (Word, Excel, Copilot)</h2>
-<p style="font-size:12px;color:var(--t2);margin:-8px 0 16px">Activity detected from <code style="font-family:var(--mono);font-size:11px">createdBy.application</code> metadata on OneDrive files.</p>
-
-<div class="timeline">
-  <div class="tl-item">
-    <div class="tl-time">10:25:37 PM</div>
-    <div class="tl-icon copilot">&#x1F916;</div>
+<h2>App Interactions <span class="count">&mdash; Word, Excel, Copilot, Outlook</span></h2>
+<div class="tl">
+  <div class="tl-row">
+    <div class="tl-time">10:25:37</div>
+    <div class="tl-icon">W</div>
     <div class="tl-content">
-      <div class="tl-title">Microsoft Copilot created "Microsoft Copilot Chat Files" folder</div>
-      <div class="tl-detail">Auto-provisioned folder for Copilot-generated content uploads</div>
-      <div class="tl-app">app: M365Chat (c0ab8ce9-e9a0-42e7-b064-33d422df41f1)</div>
+      <div class="tl-title">Created WorkIQ Test Doc.docx</div>
+      <div class="tl-meta">11.1 KB &middot; Word via SharePoint &middot; edited until 10:26:25</div>
+      <div class="tl-app">app:2821b473 SharePoint Extension</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:25:47 PM</div>
-    <div class="tl-icon system">&#x2699;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:25:47</div>
+    <div class="tl-icon">&#x2699;</div>
     <div class="tl-content">
-      <div class="tl-title">Office created "Attachments" folder</div>
-      <div class="tl-detail">System folder for email attachment storage</div>
-      <div class="tl-app">app: OfficeServicesManager (9e4a5442-a5c9-4f6f-b03f-5b9fcaaf24b1)</div>
+      <div class="tl-title">System created Attachments folder</div>
+      <div class="tl-meta">Auto-provisioned for email attachments</div>
+      <div class="tl-app">app:9e4a5442 OfficeServicesManager</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:25:37 PM</div>
-    <div class="tl-icon word">&#x1F4DD;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:25:53</div>
+    <div class="tl-icon">&#x2605;</div>
     <div class="tl-content">
-      <div class="tl-title">Word: Created "WorkIQ Test Doc.docx" (11.1 KB)</div>
-      <div class="tl-detail">Created via SharePoint extension, last edited at 10:26:25 PM</div>
-      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+      <div class="tl-title">Copilot created Microsoft Copilot Chat Files folder</div>
+      <div class="tl-meta">Auto-provisioned for Copilot uploads &middot; specialFolder: copilotuploads</div>
+      <div class="tl-app">app:c0ab8ce9 M365Chat</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:26:46 PM</div>
-    <div class="tl-icon excel">&#x1F4CA;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:26:46</div>
+    <div class="tl-icon">X</div>
     <div class="tl-content">
-      <div class="tl-title">Excel: Created "Book.xlsx" (6.5 KB)</div>
-      <div class="tl-detail">Created via SharePoint extension, edited until 10:27:07 PM</div>
-      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+      <div class="tl-title">Created Book.xlsx</div>
+      <div class="tl-meta">6.5 KB &middot; Excel via SharePoint &middot; edited until 10:27:07</div>
+      <div class="tl-app">app:2821b473 SharePoint Extension</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:28:31 PM</div>
-    <div class="tl-icon excel">&#x1F4CA;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:28:31</div>
+    <div class="tl-icon">X</div>
     <div class="tl-content">
-      <div class="tl-title">Excel: Created "Book 1.xlsx" (0 B &mdash; empty)</div>
-      <div class="tl-detail">Created via SharePoint extension</div>
-      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+      <div class="tl-title">Created Book 1.xlsx</div>
+      <div class="tl-meta">0 B (empty) &middot; Excel via SharePoint</div>
+      <div class="tl-app">app:2821b473 SharePoint Extension</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:28:32 PM</div>
-    <div class="tl-icon excel">&#x1F4CA;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:28:32</div>
+    <div class="tl-icon">X</div>
     <div class="tl-content">
-      <div class="tl-title">Excel: Created "Book 2.xlsx" (31.7 KB)</div>
-      <div class="tl-detail">Created via SharePoint extension, edited at 10:28:42 PM</div>
-      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+      <div class="tl-title">Created Book 2.xlsx</div>
+      <div class="tl-meta">31.7 KB &middot; Excel via SharePoint &middot; edited until 10:28:42</div>
+      <div class="tl-app">app:2821b473 SharePoint Extension</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:28:43 PM</div>
-    <div class="tl-icon excel">&#x1F4CA;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:28:43</div>
+    <div class="tl-icon">&#x270B;</div>
     <div class="tl-content">
-      <div class="tl-title">Excel: User copied "Book 2 - Copy.xlsx" (31.7 KB)</div>
-      <div class="tl-detail">Manual user action &mdash; no application in createdBy</div>
-      <div class="tl-app">actor: HUMAN (no app metadata &mdash; direct user action)</div>
+      <div class="tl-title">Copied Book 2 - Copy.xlsx</div>
+      <div class="tl-meta">31.7 KB &middot; Manual user action &middot; no application in createdBy</div>
+      <div class="tl-app">actor: HUMAN (direct file operation)</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:28:59 PM</div>
-    <div class="tl-icon word">&#x1F4DD;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:28:59</div>
+    <div class="tl-icon">W</div>
     <div class="tl-content">
-      <div class="tl-title">Word: Created "Document.docx" (94.2 KB)</div>
-      <div class="tl-detail">Created via SharePoint extension, edited at 10:29:01 PM</div>
-      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+      <div class="tl-title">Created Document.docx</div>
+      <div class="tl-meta">94.2 KB &middot; Word via SharePoint &middot; edited at 10:29:01</div>
+      <div class="tl-app">app:2821b473 SharePoint Extension</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:29:21 PM</div>
-    <div class="tl-icon word">&#x1F4DD;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:29:21</div>
+    <div class="tl-icon">&#x270B;</div>
     <div class="tl-content">
-      <div class="tl-title">Word: User copied "Document - Copy.docx" (94.2 KB)</div>
-      <div class="tl-detail">Manual user action &mdash; no application in createdBy</div>
-      <div class="tl-app">actor: HUMAN (no app metadata &mdash; direct user action)</div>
+      <div class="tl-title">Copied Document - Copy.docx</div>
+      <div class="tl-meta">94.2 KB &middot; Manual user action &middot; last accessed 10:29:23</div>
+      <div class="tl-app">actor: HUMAN (direct file operation)</div>
     </div>
   </div>
-  <div class="tl-item">
-    <div class="tl-time">10:33:00 PM</div>
-    <div class="tl-icon mail">&#x2709;</div>
+  <div class="tl-row">
+    <div class="tl-time">10:33:00</div>
+    <div class="tl-icon">&#x2709;</div>
     <div class="tl-content">
-      <div class="tl-title">Outlook: Sent "WorkIQ PoC Sync" to m.a@celonis.com</div>
-      <div class="tl-detail">Calendar meeting invite (eventMessageRequest type)</div>
+      <div class="tl-title">Sent email "WorkIQ PoC Sync"</div>
+      <div class="tl-meta">To: m.a@celonis.com &middot; eventMessageRequest (calendar invite)</div>
       <div class="tl-app">via: Outlook / Exchange</div>
     </div>
   </div>
 </div>
 
-<!-- API CALLS WITH RAW DATA -->
-<h2>A2A / Graph API Calls & Raw Responses</h2>
-<p style="font-size:12px;color:var(--t2);margin:-8px 0 16px">Each call shows the Graph endpoint, HTTP status, item count, and full JSON response. Click to expand.</p>
+<h2>API Calls &amp; Raw Responses <span class="count">&mdash; 18 calls</span></h2>
+
+<div class="note">
+  <p><strong>Graph API</strong> calls use the cached Work IQ CLI token (MSAL Keychain &rarr; refresh). <strong>A2A</strong> calls hit the Work IQ endpoint directly but fail with "Invalid audience" because the token is scoped for Graph, not <code style="font-family:var(--mono);font-size:10px">api://workiq.svc.cloud.microsoft</code>. The A2A endpoint requires a separate <code style="font-family:var(--mono);font-size:10px">WorkIQAgent.Ask</code> consent which is not yet granted on this tenant.</p>
+</div>
 
 <div id="calls"></div>
 
-<div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--bd);text-align:center">
-  <p style="font-size:11px;color:var(--t3)">Auth: macOS Keychain &rarr; MSAL refresh_token &rarr; Graph API v1.0 &mdash; <a href="workiq-mcp-explorer.html" style="color:var(--t2)">MCP Schema Explorer</a></p>
-</div>
+<div class="footer">
+  Auth: macOS Keychain (work-iq-cli/MSALCache) &rarr; refresh_token grant &rarr; Graph v1.0 + A2A &mdash; <a href="workiq-mcp-explorer.html">MCP Schema</a>
 </div>
 
+</div>
 <script>
-const CALLS = [
-  {
-    method: 'GET', path: '/me', status: 403, count: null,
-    note: 'Profile endpoint requires User.Read scope (not in Work IQ CLI token)',
-    raw: {"_error":"Authorization_RequestDenied","_msg":"Insufficient privileges to complete the operation.","_status":403}
-  },
-  {
-    method: 'GET', path: '/me/manager', status: 403, count: null,
-    note: 'Manager lookup requires User.Read.All scope',
-    raw: {"_error":"Authorization_RequestDenied","_msg":"Insufficient privileges to complete the operation.","_status":403}
-  },
-  {
-    method: 'GET', path: '/me/directReports', status: 403, count: null,
-    note: 'Direct reports requires User.Read.All scope',
-    raw: {"_error":"Authorization_RequestDenied","_msg":"Insufficient privileges to complete the operation.","_status":403}
-  },
-  {
-    method: 'GET', path: '/me/mailFolders', status: 200, count: 8,
-    note: '8 standard Outlook folders returned. Inbox has 192 KB size but 0 items (likely processed/moved).',
-    raw: {"value":[
-      {"displayName":"Archive","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
-      {"displayName":"Conversation History","totalItemCount":0,"unreadItemCount":0,"childFolderCount":1},
-      {"displayName":"Deleted Items","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
-      {"displayName":"Drafts","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
-      {"displayName":"Inbox","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":192671},
-      {"displayName":"Junk Email","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
-      {"displayName":"Outbox","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
-      {"displayName":"Sent Items","totalItemCount":1,"unreadItemCount":0,"sizeInBytes":6269}
-    ]}
-  },
-  {
-    method: 'GET', path: '/me/mailFolders/inbox/messages?$top=25&$orderby=receivedDateTime desc', status: 200, count: 0,
-    note: 'Inbox is empty. The 192 KB folder size suggests messages were previously received then deleted or moved.',
-    raw: {"@odata.context":".../$metadata#users('de914568-...')/mailFolders('inbox')/messages","value":[]}
-  },
-  {
-    method: 'GET', path: '/me/mailFolders/sentitems/messages?$top=25&$orderby=sentDateTime desc', status: 200, count: 1,
-    note: 'One sent email: a calendar meeting invite "WorkIQ PoC Sync" to m.a@celonis.com.',
-    raw: {"value":[{"@odata.type":"#microsoft.graph.eventMessageRequest","subject":"WorkIQ PoC Sync","sentDateTime":"2026-06-12T17:03:00Z","bodyPreview":"","toRecipients":[{"emailAddress":{"name":"m.a@celonis.com","address":"m.a@celonis.com"}}]}]}
-  },
-  {
-    method: 'GET', path: '/me/chats?$top=25', status: 200, count: 0,
-    note: 'No Teams chats found. Account has not participated in any Teams conversations.',
-    raw: {"@odata.context":".../$metadata#chats","@odata.count":0,"value":[]}
-  },
-  {
-    method: 'GET', path: '/me/joinedTeams', status: 403, count: null,
-    note: 'Requires Team.ReadBasic.All scope. Current scopes: ChannelMessage.Read.All, Chat.Read (insufficient).',
-    raw: {"_error":"Forbidden","_msg":"Missing scope permissions on the request. API requires one of 'Team.ReadBasic.All, TeamSettings.Read.All'. Scopes on the request: 'ChannelMessage.Read.All, Chat.Read, Mail.Read, People.Read.All, Sites.Read.All'","_status":403}
-  },
-  {
-    method: 'GET', path: '/me/people?$top=25', status: 200, count: 0,
-    note: 'No relevant people found. Insufficient interaction history to build people graph.',
-    raw: {"@odata.context":".../$metadata#users('de914568-...')/people","value":[]}
-  },
-  {
-    method: 'GET', path: '/me/drive', status: 200, count: '1 object',
-    note: 'OneDrive info: Business drive, 835 KB used of 1 TB. Created May 26, last modified today.',
-    raw: {"driveType":"business","name":"OneDrive","webUrl":"https://pneqatenant-my.sharepoint.com/personal/m_a_pneqatenant_onmicrosoft_com/Documents","createdDateTime":"2026-05-26T20:24:50Z","lastModifiedDateTime":"2026-06-12T16:59:21Z","owner":{"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com","id":"de914568-e6b3-47d0-bc24-ccf14149fb1b"}},"quota":{"total":1099511627776,"used":835465,"remaining":1099510792311,"deleted":0,"state":"normal"}}
-  },
-  {
-    method: 'GET', path: '/me/drive/root/children?$top=25', status: 200, count: 9,
-    note: '9 items: 4 xlsx, 3 docx, 2 folders (Attachments by OfficeServicesManager, Copilot Chat Files by M365Chat).',
-    raw: {"value":[
-      {"name":"Attachments","size":0,"folder":{"childCount":0},"createdDateTime":"2026-06-12T16:55:47Z","createdBy":{"application":{"displayName":"OfficeServicesManager","id":"9e4a5442-a5c9-4f6f-b03f-5b9fcaaf24b1"},"user":{"displayName":"Manikandan Annamalaisamy"}},"specialFolder":{"name":"attachments"}},
-      {"name":"Microsoft Copilot Chat Files","size":0,"folder":{"childCount":0},"createdDateTime":"2026-06-12T16:55:53Z","createdBy":{"application":{"displayName":"M365Chat","id":"c0ab8ce9-e9a0-42e7-b064-33d422df41f1"},"user":{"displayName":"Manikandan Annamalaisamy"}},"specialFolder":{"name":"copilotuploads"}},
-      {"name":"Book 1.xlsx","size":0,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:58:31Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
-      {"name":"Book 2 - Copy.xlsx","size":32442,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:58:43Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy"}}},
-      {"name":"Book 2.xlsx","size":32442,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:58:32Z","lastModifiedDateTime":"2026-06-12T16:58:42Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
-      {"name":"Book.xlsx","size":6652,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:56:46Z","lastModifiedDateTime":"2026-06-12T16:57:07Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
-      {"name":"Document - Copy.docx","size":96462,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"createdDateTime":"2026-06-12T16:59:21Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy"}}},
-      {"name":"Document.docx","size":96462,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"createdDateTime":"2026-06-12T16:58:59Z","lastModifiedDateTime":"2026-06-12T16:59:01Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
-      {"name":"WorkIQ Test Doc.docx","size":11396,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"createdDateTime":"2026-06-12T16:55:37Z","lastModifiedDateTime":"2026-06-12T16:56:25Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}}
-    ]}
-  },
-  {
-    method: 'GET', path: '/me/drive/recent?$top=25', status: 200, count: 1,
-    note: 'Most recent file: "Document - Copy.docx", last accessed at 10:29:23 PM IST.',
-    raw: {"value":[{"name":"Document - Copy.docx","size":96462,"lastModifiedDateTime":"2026-06-12T16:59:21Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com"}},"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"fileSystemInfo":{"lastAccessedDateTime":"2026-06-12T16:59:23Z"},"parentReference":{"driveType":"business"},"remoteItem":{"sharepointIds":{"siteUrl":"https://pneqatenant-my.sharepoint.com/personal/m_a_pneqatenant_onmicrosoft_com"}}}]}
-  },
-  {
-    method: 'GET', path: '/me/calendarview?startdatetime=2026-06-09T00:00:00Z&enddatetime=2026-06-16T00:00:00Z', status: 403, count: null,
-    note: 'Calendar requires Calendars.Read scope.',
-    raw: {"_error":"ErrorAccessDenied","_msg":"Access is denied. Check credentials and try again.","_status":403}
-  },
-  {
-    method: 'GET', path: '/me/contacts?$top=25', status: 403, count: null,
-    note: 'Contacts requires Contacts.Read scope.',
-    raw: {"_error":"ErrorAccessDenied","_msg":"Access is denied. Check credentials and try again.","_status":403}
-  },
+const CALLS=[
+{label:"Profile",method:"GET",path:"/me",status:403,count:null,
+note:"Requires User.Read scope. Work IQ CLI token does not include it.",
+raw:{"error":{"code":"Authorization_RequestDenied","message":"Insufficient privileges to complete the operation.","innerError":{"date":"2026-06-12T17:46:05","request-id":"e86f9a8b-5fef-4d03-b9c6-fcee65b03e45"}}}},
+
+{label:"Mail Folders",method:"GET",path:"/me/mailFolders",status:200,count:8,
+note:"8 standard Outlook folders. Inbox has 192 KB size (previously received mail) but 0 current items. Sent Items has 1 item.",
+raw:{"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users('de914568-e6b3-47d0-bc24-ccf14149fb1b')/mailFolders","value":[{"displayName":"Archive","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0,"childFolderCount":0,"isHidden":false},{"displayName":"Conversation History","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0,"childFolderCount":1},{"displayName":"Deleted Items","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},{"displayName":"Drafts","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},{"displayName":"Inbox","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":192671},{"displayName":"Junk Email","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},{"displayName":"Outbox","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},{"displayName":"Sent Items","totalItemCount":1,"unreadItemCount":0,"sizeInBytes":6269}]}},
+
+{label:"Inbox Messages",method:"GET",path:"/me/mailFolders/inbox/messages?$top=25&$orderby=receivedDateTime desc",status:200,count:0,
+note:"Empty inbox. The 192 KB folder size indicates previously received messages were deleted or moved.",
+raw:{"@odata.context":".../$metadata#mailFolders('inbox')/messages(subject,from,receivedDateTime,bodyPreview,importance,isRead,hasAttachments)","value":[]}},
+
+{label:"Sent Messages",method:"GET",path:"/me/mailFolders/sentitems/messages?$top=25&$orderby=sentDateTime desc",status:200,count:1,
+note:"One sent email: a calendar meeting invite to m.a@celonis.com.",
+raw:{"value":[{"@odata.type":"#microsoft.graph.eventMessageRequest","@odata.etag":"W/\"CwAAABYAAADZ9v+MK3l6QIUe/3J12IssAAABBWLz\"","id":"AAMkAGE0N2JkYWRhLTYwYWQtNDBkMC05NDE4LWQzMmRhYjk0ZGE4MABGAAAAAACi9oGFntSuRa1H9rRHOtXtBwDZ9v_MK3l6QIUe-3J12IssAAAAAAEJAADZ9v_MK3l6QIUe-3J12IssAAABBsv9AAA=","sentDateTime":"2026-06-12T17:03:00Z","subject":"WorkIQ PoC Sync","bodyPreview":"","toRecipients":[{"emailAddress":{"name":"m.a@celonis.com","address":"m.a@celonis.com"}}]}]}},
+
+{label:"Teams Chats",method:"GET",path:"/me/chats?$top=25&$expand=lastMessagePreview",status:200,count:0,
+note:"No Teams chats found. Account has not participated in any Teams conversations.",
+raw:{"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#chats","@odata.count":0,"value":[]}},
+
+{label:"Joined Teams",method:"GET",path:"/me/joinedTeams",status:403,count:null,
+note:"Requires Team.ReadBasic.All. Token only has Chat.Read and ChannelMessage.Read.All — insufficient.",
+raw:{"error":{"code":"Forbidden","message":"Missing scope permissions on the request. API requires one of 'Team.ReadBasic.All, TeamSettings.Read.All, TeamSettings.ReadWrite.All, User.Read.All, Directory.Read.All'. Scopes on the request: 'ChannelMessage.Read.All, Chat.Read, ExternalItem.Read.All, Mail.Read, OnlineMeetingTranscript.Read.All, People.Read.All, Sites.Read.All'"}}},
+
+{label:"People",method:"GET",path:"/me/people?$top=25",status:200,count:0,
+note:"No relevant people returned. Insufficient interaction history to build the people graph.",
+raw:{"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users('de914568-e6b3-47d0-bc24-ccf14149fb1b')/people","value":[]}},
+
+{label:"OneDrive Info",method:"GET",path:"/me/drive",status:200,count:"1 obj",
+note:"Business OneDrive. 835 KB used of 1 TB. Created May 26 2026, last modified today.",
+raw:{"driveType":"business","name":"OneDrive","webUrl":"https://pneqatenant-my.sharepoint.com/personal/m_a_pneqatenant_onmicrosoft_com/Documents","createdDateTime":"2026-05-26T20:24:50Z","lastModifiedDateTime":"2026-06-12T16:59:21Z","owner":{"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com","id":"de914568-e6b3-47d0-bc24-ccf14149fb1b"}},"quota":{"total":1099511627776,"used":835465,"remaining":1099510792311,"deleted":0,"state":"normal"}}},
+
+{label:"OneDrive Files",method:"GET",path:"/me/drive/root/children?$top=30",status:200,count:9,
+note:"9 items: 4 .xlsx (Excel), 3 .docx (Word), 2 folders (Copilot + OfficeServicesManager). createdBy.application reveals which app created each file.",
+raw:{"value":[{"name":"Attachments","size":0,"folder":{"childCount":0},"createdDateTime":"2026-06-12T16:55:47Z","createdBy":{"application":{"displayName":"OfficeServicesManager","id":"9e4a5442-a5c9-4f6f-b03f-5b9fcaaf24b1"},"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com"}},"specialFolder":{"name":"attachments"}},{"name":"Microsoft Copilot Chat Files","size":0,"folder":{"childCount":0},"createdDateTime":"2026-06-12T16:55:53Z","createdBy":{"application":{"displayName":"M365Chat","id":"c0ab8ce9-e9a0-42e7-b064-33d422df41f1"},"user":{"displayName":"Manikandan Annamalaisamy"}},"specialFolder":{"name":"copilotuploads"}},{"name":"Book 1.xlsx","size":0,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","fileExtension":".xlsx"},"createdDateTime":"2026-06-12T16:58:31Z","createdBy":{"application":{"displayName":"SharePoint Extension","id":"2821b473-fe24-4c86-ba16-62834d6e80c3"},"user":{"displayName":"Manikandan Annamalaisamy"}}},{"name":"Book 2 - Copy.xlsx","size":32442,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","fileExtension":".xlsx"},"createdDateTime":"2026-06-12T16:58:43Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com"}}},{"name":"Book 2.xlsx","size":32442,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","fileExtension":".xlsx"},"createdDateTime":"2026-06-12T16:58:32Z","lastModifiedDateTime":"2026-06-12T16:58:42Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},{"name":"Book.xlsx","size":6652,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","fileExtension":".xlsx"},"createdDateTime":"2026-06-12T16:56:46Z","lastModifiedDateTime":"2026-06-12T16:57:07Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},{"name":"Document - Copy.docx","size":96462,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","fileExtension":".docx"},"createdDateTime":"2026-06-12T16:59:21Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy"}}},{"name":"Document.docx","size":96462,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","fileExtension":".docx"},"createdDateTime":"2026-06-12T16:58:59Z","lastModifiedDateTime":"2026-06-12T16:59:01Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},{"name":"WorkIQ Test Doc.docx","size":11396,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","fileExtension":".docx"},"createdDateTime":"2026-06-12T16:55:37Z","lastModifiedDateTime":"2026-06-12T16:56:25Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}}]}},
+
+{label:"Recent Files",method:"GET",path:"/me/drive/recent",status:200,count:1,
+note:"Most recently accessed file: Document - Copy.docx, last accessed at 16:59:23Z.",
+raw:{"value":[{"name":"Document - Copy.docx","size":96462,"lastModifiedDateTime":"2026-06-12T16:59:21Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com"}},"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"fileSystemInfo":{"createdDateTime":"2026-06-12T16:59:21Z","lastAccessedDateTime":"2026-06-12T16:59:23Z","lastModifiedDateTime":"2026-06-12T16:59:21Z"},"parentReference":{"driveType":"business"},"remoteItem":{"sharepointIds":{"siteUrl":"https://pneqatenant-my.sharepoint.com/personal/m_a_pneqatenant_onmicrosoft_com","listItemId":"10"}}}]}},
+
+{label:"Calendar Events",method:"GET",path:"/me/calendarview?start=2026-06-09&end=2026-06-20",status:403,count:null,
+note:"Requires Calendars.Read scope. Not available in the Work IQ CLI token.",
+raw:{"error":{"code":"ErrorAccessDenied","message":"Access is denied. Check credentials and try again."}}},
+
+{label:"All Events",method:"GET",path:"/me/events?$top=25",status:403,count:null,
+note:"Same scope issue as calendarview. Calendars.Read not granted.",
+raw:{"error":{"code":"ErrorAccessDenied","message":"Access is denied. Check credentials and try again."}}},
+
+{label:"Manager",method:"GET",path:"/me/manager",status:403,count:null,
+note:"Requires User.Read.All or Directory.Read.All scope.",
+raw:{"error":{"code":"Authorization_RequestDenied","message":"Insufficient privileges to complete the operation."}}},
+
+{label:"Direct Reports",method:"GET",path:"/me/directReports",status:403,count:null,
+note:"Same scope issue as /me/manager.",
+raw:{"error":{"code":"Authorization_RequestDenied","message":"Insufficient privileges to complete the operation."}}},
+
+{label:"Contacts",method:"GET",path:"/me/contacts?$top=25",status:403,count:null,
+note:"Requires Contacts.Read scope.",
+raw:{"error":{"code":"ErrorAccessDenied","message":"Access is denied. Check credentials and try again."}}},
+
+{label:"A2A: Meetings",method:"POST",path:"https://workiq.svc.cloud.microsoft/a2a/",status:401,count:null,
+note:"A2A endpoint requires token with audience api://workiq.svc.cloud.microsoft. Our Graph token has audience graph.microsoft.com — wrong audience. Needs separate WorkIQAgent.Ask consent.",
+raw:{"error":{"code":"InvalidAuthenticationToken","message":"Access token validation failure. Invalid audience.","innerError":{"date":"2026-06-12T17:46:20","request-id":"44685004-a743-4313-97ee-33a415aa399c"}}},
+a2a_body:{"jsonrpc":"2.0","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"List my meetings this week"}],"metadata":{"Location":{"timeZone":"Asia/Kolkata"}}}}}},
+
+{label:"A2A: Teams Chats",method:"POST",path:"https://workiq.svc.cloud.microsoft/a2a/",status:401,count:null,
+note:"Same invalid audience error. The Work IQ CLI app (ba081686) needs admin consent for api://workiq.svc.cloud.microsoft/WorkIQAgent.Ask.",
+raw:{"error":{"code":"InvalidAuthenticationToken","message":"Access token validation failure. Invalid audience.","innerError":{"date":"2026-06-12T17:46:21","request-id":"4b201191-181a-414a-8c33-60d59b791325"}}},
+a2a_body:{"jsonrpc":"2.0","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"List my recent Teams chat messages"}]}}}},
+
+{label:"A2A: Emails Today",method:"POST",path:"https://workiq.svc.cloud.microsoft/a2a/",status:401,count:null,
+note:"Same invalid audience. All A2A calls fail until WorkIQAgent.Ask scope is consented by tenant admin.",
+raw:{"error":{"code":"InvalidAuthenticationToken","message":"Access token validation failure. Invalid audience.","innerError":{"date":"2026-06-12T17:46:22","request-id":"7f479b97-d6ac-40a8-8182-c73e763da593"}}},
+a2a_body:{"jsonrpc":"2.0","method":"SendMessage","params":{"message":{"role":"ROLE_USER","parts":[{"text":"What emails did I receive today?"}]}}}},
 ];
 
-function syntaxHighlight(obj) {
-  let json = JSON.stringify(obj, null, 2);
-  json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return json.replace(/"([^"]+)":/g,'<span class="k">"$1"</span>:')
-             .replace(/:(\s*)"([^"]*)"/g,':$1<span class="s">"$2"</span>')
-             .replace(/:(\s*)(\d+\.?\d*)/g,':$1<span class="n">$2</span>')
-             .replace(/:(\s*)(null)/g,':$1<span class="null">null</span>')
-             .replace(/:(\s*)(true|false)/g,':$1<span class="n">$2</span>');
+function hl(obj){
+  let j=JSON.stringify(obj,null,2);
+  j=j.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return j.replace(/"([^"]+)"(\s*):/g,'<span class="k">"$1"</span>$2:')
+    .replace(/:(\s*)"([^"]*)"/g,':$1<span class="s">"$2"</span>')
+    .replace(/:(\s*)(\d+\.?\d*)/g,':$1<span class="n">$2</span>')
+    .replace(/:(\s*)(null)/g,':$1<span class="nl">null</span>')
+    .replace(/:(\s*)(true|false)/g,':$1<span class="n">$2</span>');
 }
 
-const container = document.getElementById('calls');
-CALLS.forEach((c, i) => {
-  const isErr = c.status >= 400;
-  const countLabel = c.count === null ? 'denied' : typeof c.count === 'number' ? c.count + ' items' : c.count;
-  container.innerHTML += `
-    <div class="call" id="call-${i}" onclick="this.classList.toggle('open')">
-      <div class="call-header">
-        <span class="arrow">&#x25B6;</span>
-        <span class="method${isErr?' err':''}">${c.status}</span>
-        <span class="call-path">${c.method} ${c.path}</span>
-        <span class="call-count">${countLabel}</span>
-      </div>
-      <div class="call-body">
-        <div style="padding:10px 14px;font-size:11px;color:var(--t2);border-bottom:1px solid var(--bd)">${c.note}</div>
-        <div class="raw">${syntaxHighlight(c.raw)}</div>
-      </div>
-    </div>`;
+const el=document.getElementById('calls');
+CALLS.forEach((c,i)=>{
+  const bc=c.status===200?'b200':c.status===403?'b403':'b401';
+  const cnt=c.count===null?(c.status===401?'wrong audience':'no scope'):typeof c.count==='number'?c.count+' items':c.count;
+  let rawHtml=`<div class="call-note">${c.note}</div>`;
+  if(c.a2a_body){
+    rawHtml+=`<div style="padding:6px 12px;font-size:10px;color:var(--t2);border-bottom:1px solid var(--bd);background:var(--s1)">Request body (JSON-RPC 2.0, A2A-Version: 1.0):</div><div class="raw" style="border-bottom:1px solid var(--bd)">${hl(c.a2a_body)}</div>`;
+    rawHtml+=`<div style="padding:6px 12px;font-size:10px;color:var(--t2);border-bottom:1px solid var(--bd);background:var(--s1)">Response:</div>`;
+  } else {
+    rawHtml+=`<div style="padding:6px 12px;font-size:10px;color:var(--t2);border-bottom:1px solid var(--bd);background:var(--s1)">Response body:</div>`;
+  }
+  rawHtml+=`<div class="raw">${hl(c.raw)}</div>`;
+  el.innerHTML+=`<div class="call" id="c${i}" onclick="this.classList.toggle('open')"><div class="call-h"><span class="arrow">&#x25B6;</span><span class="badge ${bc}">${c.status}</span><span class="call-path">${c.method} ${c.path}</span><span class="call-info">${cnt}</span></div><div class="call-body">${rawHtml}</div></div>`;
 });
 </script>
 </body>
