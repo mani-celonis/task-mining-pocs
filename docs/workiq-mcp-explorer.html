@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work IQ MCP Explorer — Real API Schema</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  :root{--green:#00d47e;--dark:#0a1628;--navy:#111d33;--blue:#3b82f6;--purple:#8b5cf6;
+    --orange:#f59e0b;--red:#ef4444;--cyan:#06b6d4;--ms:#0078d4;--pink:#ec4899;
+    --t1:#f1f5f9;--t2:#94a3b8;--glass:rgba(17,29,51,.7);--border:rgba(255,255,255,.08)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--t1);min-height:100vh}
+  .bg{position:fixed;inset:0;z-index:0;
+    background:radial-gradient(800px 600px at 10% 15%,rgba(0,120,212,.06),transparent 70%),
+    radial-gradient(600px 500px at 90% 85%,rgba(139,92,246,.05),transparent 70%)}
+  .grid-bg{position:fixed;inset:0;z-index:0;
+    background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+    background-size:60px 60px}
+  .app{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:32px 40px 60px}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+  header h1{font-size:26px;font-weight:700;letter-spacing:-.5px}
+  header h1 span{color:var(--ms)}
+  .hbadge{padding:5px 14px;border-radius:7px;font-size:11px;font-weight:600;letter-spacing:.3px;display:inline-flex;align-items:center;gap:5px}
+  .hb-ms{background:rgba(0,120,212,.1);border:1px solid rgba(0,120,212,.2);color:var(--ms)}
+  .hb-green{background:rgba(0,212,126,.1);border:1px solid rgba(0,212,126,.2);color:var(--green)}
+  .hb-purple{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);color:var(--purple)}
+  .subtitle{font-size:13px;color:var(--t2);margin-top:4px}
+  .badge-row{display:flex;gap:8px;flex-wrap:wrap}
+
+  .tabs{display:flex;gap:3px;margin-bottom:24px;background:var(--glass);border:1px solid var(--border);
+    border-radius:11px;padding:3px;width:fit-content;backdrop-filter:blur(10px);flex-wrap:wrap}
+  .tab{padding:9px 18px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;
+    color:var(--t2);transition:all .2s;border:none;background:none}
+  .tab:hover{color:var(--t1)}
+  .tab.active{background:rgba(0,120,212,.12);color:var(--ms)}
+  .panel{display:none}.panel.active{display:block}
+
+  .card{border-radius:14px;background:var(--glass);border:1px solid var(--border);
+    backdrop-filter:blur(10px);overflow:hidden;margin-bottom:20px}
+  .card-header{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;
+    justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .card-header h3{font-size:15px;font-weight:600}
+  .card-body{padding:20px 22px}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+  .kpi{padding:20px;border-radius:14px;background:var(--glass);border:1px solid var(--border)}
+  .kpi .val{font-size:32px;font-weight:800;line-height:1;margin-bottom:3px}
+  .kpi .label{font-size:12px;color:var(--t2);font-weight:500}
+  .v-ms{color:var(--ms)}.v-green{color:var(--green)}.v-purple{color:var(--purple)}
+  .v-orange{color:var(--orange)}.v-cyan{color:var(--cyan)}.v-pink{color:var(--pink)}
+
+  .server-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:24px}
+  .server-card{padding:20px;border-radius:14px;background:var(--glass);border:1px solid var(--border);
+    cursor:pointer;transition:all .2s}
+  .server-card:hover{border-color:rgba(0,120,212,.3);transform:translateY(-2px)}
+  .server-card.active{border-color:var(--ms);box-shadow:0 0 20px rgba(0,120,212,.1)}
+  .server-card .sc-name{font-size:15px;font-weight:700;margin-bottom:4px}
+  .server-card .sc-id{font-size:11px;color:var(--ms);font-family:'Menlo',monospace;margin-bottom:8px}
+  .server-card .sc-desc{font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px}
+  .sc-tools{display:flex;flex-wrap:wrap;gap:4px}
+  .sc-tool{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;background:rgba(0,120,212,.08);
+    color:var(--ms);border:1px solid rgba(0,120,212,.15)}
+  .sc-count{font-size:11px;color:var(--t2);font-weight:600}
+
+  table{width:100%;border-collapse:collapse}
+  th{padding:9px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;
+    letter-spacing:.8px;color:var(--t2);background:rgba(255,255,255,.02);border-bottom:1px solid var(--border)}
+  td{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;color:var(--t2)}
+  td:first-child{font-family:'Menlo',monospace;font-size:11px;color:var(--cyan)}
+  .scroll-table{max-height:500px;overflow-y:auto}
+  .scroll-table::-webkit-scrollbar{width:5px}
+  .scroll-table::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+
+  .tbadge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .tb-read{background:rgba(0,212,126,.1);color:var(--green)}
+  .tb-write{background:rgba(239,68,68,.1);color:var(--red)}
+  .tb-action{background:rgba(139,92,246,.1);color:var(--purple)}
+  .tb-query{background:rgba(6,182,212,.1);color:var(--cyan)}
+  .tb-copilot{background:rgba(0,120,212,.1);color:var(--ms)}
+  .tb-schema{background:rgba(245,158,11,.1);color:var(--orange)}
+  .tb-req{color:var(--red);font-size:9px;font-weight:700}
+  .tb-opt{color:var(--t2);font-size:9px}
+
+  .proto-card{padding:20px;border-radius:14px;background:var(--glass);border:1px solid var(--border);margin-bottom:16px}
+  .proto-card h4{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .proto-card .code{font-family:'Menlo',monospace;font-size:11px;color:var(--cyan);background:rgba(0,0,0,.3);
+    padding:10px 14px;border-radius:8px;margin:8px 0;overflow-x:auto;white-space:pre}
+  .proto-card p{font-size:12px;color:var(--t2);line-height:1.6}
+
+  .flow-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .flow-node{padding:12px 18px;border-radius:10px;text-align:center;min-width:140px}
+  .flow-node .fn-label{font-size:12px;font-weight:700;margin-bottom:2px}
+  .flow-node .fn-sub{font-size:10px;color:var(--t2)}
+  .fn-tm{background:rgba(0,212,126,.08);border:2px solid rgba(0,212,126,.2)}
+  .fn-wiq{background:rgba(0,120,212,.08);border:2px solid rgba(0,120,212,.2)}
+  .fn-celonis{background:rgba(139,92,246,.08);border:2px solid rgba(139,92,246,.2)}
+  .fn-arrow{color:var(--t2);opacity:.3;font-size:18px;flex-shrink:0}
+
+  .usecase{padding:16px;border-radius:12px;background:rgba(0,0,0,.15);border:1px solid var(--border);margin-bottom:12px}
+  .usecase h4{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--t1)}
+  .usecase p{font-size:12px;color:var(--t2);line-height:1.6}
+  .usecase .uc-tools{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+
+  .search-box{width:100%;padding:10px 16px;border-radius:10px;border:1px solid var(--border);
+    background:rgba(0,0,0,.3);color:var(--t1);font-size:13px;font-family:'Inter',sans-serif;
+    outline:none;margin-bottom:16px;transition:border-color .2s}
+  .search-box:focus{border-color:var(--ms)}
+  a{color:var(--ms);text-decoration:none}
+  a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid-bg"></div>
+<div class="app">
+
+<header>
+  <div>
+    <h1><span>Work IQ</span> MCP Explorer</h1>
+    <div class="subtitle">Real API Schema &mdash; Extracted from Microsoft Learn docs &mdash; GA June 16, 2026</div>
+  </div>
+  <div class="badge-row">
+    <span class="hbadge hb-ms">Official Schema</span>
+    <span class="hbadge hb-green">Celonis Integration</span>
+    <span class="hbadge hb-purple">10 Generic Tools</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab" onclick="switchTab('servers')">MCP Servers</button>
+  <button class="tab" onclick="switchTab('tools')">All Tools</button>
+  <button class="tab" onclick="switchTab('protocols')">Protocols</button>
+  <button class="tab" onclick="switchTab('integration')">Task Mining Integration</button>
+</div>
+
+<!-- OVERVIEW -->
+<div class="panel active" id="panel-overview">
+  <div class="kpis" id="kpiRow"></div>
+  <div class="card">
+    <div class="card-header"><h3>Architecture: 10 Generic Tools + Resource Paths</h3></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Work IQ uses a fixed set of 10 tools that operate on resource paths. New workloads add paths, not tools &mdash; the tool surface never grows.</p>
+      <div class="scroll-table"><table id="genericToolsTable"></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Data Sources Accessible via Work IQ</h3></div>
+    <div class="card-body"><div id="dataSources"></div></div>
+  </div>
+</div>
+
+<!-- SERVERS -->
+<div class="panel" id="panel-servers">
+  <div class="server-grid" id="serverGrid"></div>
+  <div class="card" id="serverDetail" style="display:none">
+    <div class="card-header"><h3 id="serverDetailTitle"></h3><span class="sc-count" id="serverDetailCount"></span></div>
+    <div class="card-body"><div class="scroll-table"><table id="serverToolsTable"></table></div></div>
+  </div>
+</div>
+
+<!-- ALL TOOLS -->
+<div class="panel" id="panel-tools">
+  <input type="text" class="search-box" id="toolSearch" placeholder="Search tools by name, server, or description..." oninput="filterTools()">
+  <div class="card">
+    <div class="card-header"><h3>All MCP Tools</h3><span class="sc-count" id="totalToolCount"></span></div>
+    <div class="card-body"><div class="scroll-table" style="max-height:700px"><table id="allToolsTable"></table></div></div>
+  </div>
+</div>
+
+<!-- PROTOCOLS -->
+<div class="panel" id="panel-protocols">
+  <div id="protocolCards"></div>
+</div>
+
+<!-- INTEGRATION -->
+<div class="panel" id="panel-integration">
+  <div class="card">
+    <div class="card-header"><h3>Integration Architecture: Work IQ + Celonis Task Mining</h3></div>
+    <div class="card-body">
+      <div class="flow-row">
+        <div class="flow-node fn-tm"><div class="fn-label">Task Mining</div><div class="fn-sub">Desktop/Browser UiEvents</div></div>
+        <span class="fn-arrow">+</span>
+        <div class="flow-node fn-wiq"><div class="fn-label">Work IQ</div><div class="fn-sub">MCP / A2A / REST</div></div>
+        <span class="fn-arrow">&rarr;</span>
+        <div class="flow-node fn-celonis"><div class="fn-label">Unified Schema</div><div class="fn-sub">Source-Agnostic ETL</div></div>
+        <span class="fn-arrow">&rarr;</span>
+        <div class="flow-node fn-celonis"><div class="fn-label">AI Clustering</div><div class="fn-sub">TF-IDF + KMeans</div></div>
+        <span class="fn-arrow">&rarr;</span>
+        <div class="flow-node fn-celonis"><div class="fn-label">Process Intelligence</div><div class="fn-sub">Variants, KPIs, Agent ROI</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Actor Type Detection Matrix</h3></div>
+    <div class="card-body"><div class="scroll-table"><table id="actorMatrix"></table></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Use Cases: Agent Mining + Work IQ</h3></div>
+    <div class="card-body" id="useCases"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Work IQ Signals Only &mdash; What Task Mining Can't See</h3></div>
+    <div class="card-body"><div class="scroll-table"><table id="signalsTable"></table></div></div>
+  </div>
+</div>
+
+</div>
+<script>
+const SERVERS = [
+  {id:'mcp_MailTools',name:'Work IQ Mail',color:'#0078d4',
+   desc:'Email operations: send, draft, reply, search (KQL), CRUD messages.',
+   url:'https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/mcp_MailTools',
+   tools:[
+     {name:'graph_mail_sendMail',cat:'action',desc:'Send an email as the signed-in user',params:'message{subject,toRecipients,body}, ccRecipients?, bccRecipients?, saveToSentItems?'},
+     {name:'graph_mail_createMessage',cat:'write',desc:'Create a draft email',params:'subject, toRecipients, body, preferHtml?'},
+     {name:'graph_mail_getMessage',cat:'read',desc:'Get a message by ID',params:'id, select?, expand?, preferHtml?'},
+     {name:'graph_mail_listSent',cat:'read',desc:'List messages in sent items',params:'filter?, search?, orderby?, top?, select?'},
+     {name:'graph_mail_searchMessages',cat:'query',desc:'Search Outlook messages using KQL',params:'requests[]{entityTypes, query, from, size}'},
+     {name:'graph_mail_reply',cat:'action',desc:'Reply to an existing message',params:'id, comment?, message?, preferHtml?'},
+     {name:'graph_mail_replyAll',cat:'action',desc:'Reply-all to an existing message',params:'id, comment?, message?, preferHtml?'},
+     {name:'graph_mail_sendDraft',cat:'action',desc:'Send an existing draft message',params:'id'},
+     {name:'graph_mail_updateMessage',cat:'write',desc:'Update message properties',params:'id, subject?, body?, categories?, importance?'},
+     {name:'graph_mail_deleteMessage',cat:'action',desc:'Delete a message',params:'id, If-Match?'},
+   ]},
+  {id:'mcp_CalendarTools',name:'Work IQ Calendar',color:'#06b6d4',
+   desc:'Calendar operations: create/accept/decline events, find meeting times, free/busy schedules.',
+   url:'https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/mcp_CalendarTools',
+   tools:[
+     {name:'graph_createEvent',cat:'write',desc:'Create a new calendar event with attendees, online meeting support',params:'subject, start{dateTime,timeZone}, end{dateTime,timeZone}, attendees_addresses, body?, location?, isOnlineMeeting?, recurrence?'},
+     {name:'graph_listEvents',cat:'read',desc:'List events from user calendar',params:'startDateTime?, endDateTime?, top?, filter?, orderby?'},
+     {name:'graph_listCalendarView',cat:'read',desc:'Get calendar occurrences in time range',params:'startDateTime, endDateTime, top?, orderby?'},
+     {name:'graph_getEvent',cat:'read',desc:'Get a single event by ID',params:'eventId, select?, expand?'},
+     {name:'graph_updateEvent',cat:'write',desc:'Update an existing event',params:'eventId, subject?, body?, start?, end?, location?, attendees?'},
+     {name:'graph_deleteEvent',cat:'action',desc:'Delete an event',params:'eventId'},
+     {name:'graph_acceptEvent',cat:'action',desc:'Accept an event invitation',params:'eventId, comment?, sendResponse?'},
+     {name:'graph_declineEvent',cat:'action',desc:'Decline an event invitation',params:'eventId, comment?, sendResponse?'},
+     {name:'graph_cancelEvent',cat:'action',desc:'Cancel an event and notify attendees',params:'eventId, comment?'},
+     {name:'graph_findMeetingTimes',cat:'query',desc:'Suggest meeting times based on availability',params:'meetingDuration, attendees?, timeConstraint?, maxCandidates?'},
+     {name:'graph_getSchedule',cat:'query',desc:'Get free/busy schedule for users',params:'schedules[], startTime, endTime, availabilityViewInterval?'},
+   ]},
+  {id:'mcp_TeamsServer',name:'Work IQ Teams',color:'#8b5cf6',
+   desc:'Teams chat CRUD, channel management, post messages, member management.',
+   url:'https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/mcp_TeamsServer',
+   tools:[
+     {name:'graph_chat_createChat',cat:'write',desc:'Create a new Teams chat (1:1 or group)',params:'chatType, members[]'},
+     {name:'graph_chat_listChats',cat:'read',desc:'List chats for the caller',params:'$top?, $orderby?, $expand?, $filter?'},
+     {name:'graph_chat_getChat',cat:'read',desc:'Get a chat by ID',params:'chat-id'},
+     {name:'graph_chat_updateChat',cat:'write',desc:'Update chat topic (group only)',params:'chat-id, topic'},
+     {name:'graph_chat_deleteChat',cat:'action',desc:'Soft-delete a chat',params:'chat-id'},
+     {name:'graph_chat_postMessage',cat:'action',desc:'Post a message in a chat',params:'chat-id, body{content}'},
+     {name:'graph_chat_listChatMessages',cat:'read',desc:'List messages in a chat',params:'chat-id, $top?, $filter?, $orderby?'},
+     {name:'graph_chat_getChatMessage',cat:'read',desc:'Get a message by ID',params:'chat-id, message-id'},
+     {name:'graph_chat_updateChatMessage',cat:'write',desc:'Update a chat message',params:'chat-id, message-id'},
+     {name:'graph_chat_deleteChatMessage',cat:'action',desc:'Soft-delete a chat message',params:'user-id, chat-id, message-id'},
+     {name:'graph_chat_addChatMember',cat:'write',desc:'Add a member to a chat',params:'chat-id, @odata.type, user@odata.bind, roles'},
+     {name:'graph_chat_listChatMembers',cat:'read',desc:'List chat participants',params:'chat-id'},
+     {name:'graph_teams_createChannel',cat:'write',desc:'Create a channel in a team',params:'team-id, displayName, description?, membershipType?'},
+     {name:'graph_teams_listChannels',cat:'read',desc:'List channels in a team',params:'team-id, $select?, $filter?'},
+     {name:'graph_teams_getChannel',cat:'read',desc:'Get a channel by ID',params:'team-id, channel-id'},
+     {name:'graph_teams_updateChannel',cat:'write',desc:'Update channel name/description',params:'team-id, channel-id, displayName?, description?'},
+     {name:'graph_teams_postChannelMessage',cat:'action',desc:'Post a message to a channel',params:'team-id, channel-id, body{content}'},
+     {name:'graph_teams_listChannelMessages',cat:'read',desc:'List messages in a channel',params:'team-id, channel-id, $top?, $expand?'},
+     {name:'graph_teams_replyToChannelMessage',cat:'action',desc:'Reply to a channel message',params:'team-id, channel-id, message-id, body{content}'},
+     {name:'graph_teams_addChannelMember',cat:'write',desc:'Add member to private/shared channel',params:'team-id, channel-id, displayName, roles, user@odata.bind'},
+     {name:'graph_teams_listChannelMembers',cat:'read',desc:'List channel members',params:'team-id, channel-id'},
+     {name:'graph_teams_updateChannelMember',cat:'write',desc:'Update member role in channel',params:'team-id, channel-id, membership-id, roles'},
+     {name:'graph_teams_getTeam',cat:'read',desc:'Get team properties',params:'team-id, $select?, $expand?'},
+     {name:'graph_teams_listTeams',cat:'read',desc:'List joined teams for a user',params:'user-id'},
+     {name:'graph_teams_createPrivateChannel',cat:'write',desc:'Create a private channel with members',params:'team-id, displayName, members[]'},
+   ]},
+  {id:'mcp_SharePointRemoteServer',name:'Work IQ SharePoint',color:'#f59e0b',
+   desc:'SharePoint sites, document libraries, files (≤5MB), lists, columns, sharing, sensitivity labels.',
+   url:'https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/mcp_SharePointRemoteServer',
+   tools:[
+     {name:'findSite',cat:'query',desc:'Find SharePoint sites by search query',params:'searchQuery?'},
+     {name:'getSiteByPath',cat:'read',desc:'Resolve site by hostname and path',params:'hostname, serverRelativePath'},
+     {name:'listDocumentLibrariesInSite',cat:'read',desc:'List document libraries (drives) in a site',params:'siteId?'},
+     {name:'getFolderChildren',cat:'read',desc:'List files and folders in a folder (top 20)',params:'documentLibraryId, parentFolderId?'},
+     {name:'findFileOrFolder',cat:'query',desc:'Search files across all accessible sites',params:'searchQuery'},
+     {name:'getFileOrFolderMetadata',cat:'read',desc:'Get file/folder metadata by ID',params:'fileOrFolderId, documentLibraryId'},
+     {name:'readSmallTextFile',cat:'read',desc:'Read text file ≤5MB',params:'fileId, documentLibraryId'},
+     {name:'readSmallBinaryFile',cat:'read',desc:'Read binary file ≤5MB (base64)',params:'fileId, documentLibraryId'},
+     {name:'createSmallTextFile',cat:'write',desc:'Create/upload text file ≤5MB',params:'filename, contentText, documentLibraryId, parentFolderId?'},
+     {name:'createSmallBinaryFile',cat:'write',desc:'Create binary file ≤5MB',params:'filename, base64Content, documentLibraryId, parentFolderId?'},
+     {name:'createFolder',cat:'write',desc:'Create a folder in a document library',params:'folderName, documentLibraryId, parentFolderId?'},
+     {name:'deleteFileOrFolder',cat:'action',desc:'Delete a file or folder',params:'documentLibraryId, fileOrFolderId, etag?'},
+     {name:'renameFileOrFolder',cat:'write',desc:'Rename a file or folder',params:'documentLibraryId, fileOrFolderId, newFileOrFolderName, etag?'},
+     {name:'moveFileOrFolder',cat:'action',desc:'Move file/folder (async)',params:'sourcedoclibid, sourcefileid, destdoclibid, destfolderid, newfilename?'},
+     {name:'copyFileOrFolder',cat:'action',desc:'Copy file/folder (async)',params:'sourcedoclibid, sourcefileid, destdoclibid, destfolderid, newfilename?'},
+     {name:'shareFileOrFolder',cat:'action',desc:'Share file/folder with users',params:'documentLibraryId, fileOrFolderId, recipientEmails[], roles[]'},
+     {name:'setSensitivityLabelOnFile',cat:'action',desc:'Set sensitivity label on file',params:'documentLibraryId, fileId, sensitivityLabelId'},
+     {name:'createList',cat:'write',desc:'Create a new SharePoint list',params:'siteId, displayName, columns?, template?'},
+     {name:'listLists',cat:'read',desc:'Get all lists in a site',params:'siteId'},
+     {name:'listListItems',cat:'read',desc:'Get items from a SharePoint list',params:'siteId, listId'},
+     {name:'createListItem',cat:'write',desc:'Create new list item',params:'siteId, listId, fields[]'},
+     {name:'updateListItem',cat:'write',desc:'Update existing list item',params:'siteId, listId, itemId, fields[]'},
+     {name:'deleteListItem',cat:'action',desc:'Delete a list item',params:'siteId, listId, itemId'},
+     {name:'createColumn',cat:'write',desc:'Create column in SharePoint list',params:'siteId, listId, name, columnType, columnProperties?'},
+   ]},
+  {id:'mcp_OneDriveRemoteServer',name:'Work IQ OneDrive',color:'#3b82f6',
+   desc:'Personal OneDrive file/folder management, sharing, sensitivity labels.',
+   url:'https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/mcp_OneDriveRemoteServer',
+   tools:[
+     {name:'getOnedrive',cat:'read',desc:'Get OneDrive info, quota, owner',params:'(none)'},
+     {name:'getFolderChildrenInMyOnedrive',cat:'read',desc:'List files/folders (top 20)',params:'parentFolderId?'},
+     {name:'findFileOrFolderInMyOnedrive',cat:'query',desc:'Search files by name',params:'searchQuery'},
+     {name:'getFileOrFolderMetadataInMyOnedrive',cat:'read',desc:'Get file/folder metadata',params:'fileOrFolderId'},
+     {name:'readSmallTextFileFromMyOnedrive',cat:'read',desc:'Read text file ≤5MB',params:'fileId'},
+     {name:'createSmallTextFileInMyOnedrive',cat:'write',desc:'Create text file ≤5MB',params:'filename, contentText, parentFolderId?'},
+     {name:'createFolderInMyOnedrive',cat:'write',desc:'Create a folder',params:'folderName, parentFolderId?'},
+     {name:'deleteFileOrFolderInMyOnedrive',cat:'action',desc:'Delete file or folder',params:'fileOrFolderId, etag?'},
+     {name:'renameFileOrFolderInMyOnedrive',cat:'write',desc:'Rename file or folder',params:'fileOrFolderId, newFileOrFolderName, etag?'},
+     {name:'shareFileOrFolderInMyOnedrive',cat:'action',desc:'Share with users (read/write)',params:'fileOrFolderId, recipientEmails[], roles[]'},
+     {name:'setSensitivityLabelOnFileInMyOnedrive',cat:'action',desc:'Set sensitivity label',params:'fileId, sensitivityLabelId'},
+     {name:'copyFileOrFolderInMyOnedrive',cat:'action',desc:'Copy file/folder (async)',params:'sourcefileid, destfolderid, newfilename?'},
+     {name:'moveFileOrFolderInMyOnedrive',cat:'action',desc:'Move file/folder (async)',params:'sourcefileid, destfolderid, newfilename?'},
+   ]},
+  {id:'mcp_MeServer',name:'Work IQ User',color:'#ec4899',
+   desc:'User profiles, org hierarchy (manager, direct reports), user search.',
+   url:'https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/mcp_MeServer',
+   tools:[
+     {name:'graph_getMyProfile',cat:'read',desc:'Get signed-in user profile',params:'select?, expand?'},
+     {name:'graph_getMyManager',cat:'read',desc:'Get signed-in user manager',params:'select?'},
+     {name:'graph_getUserProfile',cat:'read',desc:'Get any user profile by ID/UPN',params:'userIdentifier, select?, expand?'},
+     {name:'graph_getUsersManager',cat:'read',desc:'Get any user manager',params:'userIdentifier, select?'},
+     {name:'graph_getDirectReports',cat:'read',desc:'List direct reports of a user',params:'userIdentifier, select?, top?'},
+     {name:'graph_listUsers',cat:'query',desc:'Search/list users in org with OData',params:'top?, select?, filter?, orderby?, search?, count?'},
+   ]},
+  {id:'mcp_Copilot',name:'Work IQ Copilot',color:'#0078d4',
+   desc:'Chat with M365 Copilot, multi-turn conversations, file-grounded reasoning, agent discovery.',
+   url:'workiq mcp (stdio) or A2A endpoint',
+   tools:[
+     {name:'ask',cat:'copilot',desc:'Ask Copilot a natural-language question about user data',params:'question, agentId?, fileUrls[]?, conversationId?, timeZone?'},
+     {name:'list_agents',cat:'copilot',desc:'List available agents for ask tool',params:'(none)'},
+     {name:'get_schema',cat:'schema',desc:'Get OpenAPI schema for a resource path at runtime',params:'operationIds? OR path?, operationType(fetch|create|update), format?(jsonschema|typescript)'},
+     {name:'search_paths',cat:'schema',desc:'Search available API paths by prefix or regex',params:'filter (e.g. "messages" or ".*calendar.*")'},
+     {name:'fetch',cat:'read',desc:'Read entities by resource path',params:'entityUrls[] (e.g. /me/messages)'},
+     {name:'create_entity',cat:'write',desc:'Create new entity',params:'parentUrl, jsonBody'},
+     {name:'update_entity',cat:'write',desc:'Update entity via PATCH',params:'entityUrl, jsonBody'},
+     {name:'delete_entity',cat:'action',desc:'Delete entity',params:'entityUrl'},
+     {name:'do_action',cat:'action',desc:'Execute side-effect (send mail, reply, etc.)',params:'actionUrl, jsonBody?'},
+     {name:'call_function',cat:'query',desc:'Call Graph function (search, calendar view, etc.)',params:'functionUrl'},
+   ]},
+];
+
+const PROTOCOLS = [
+  {name:'A2A (Agent-to-Agent)',endpoint:'https://workiq.svc.cloud.microsoft/a2a/',format:'JSON-RPC 2.0',
+   desc:'Structured agent-to-agent communication. Agents delegate tasks to Work IQ and get results back. Supports multi-turn via contextId.',
+   example:'{\n  "jsonrpc": "2.0",\n  "id": "<request-guid>",\n  "method": "SendMessage",\n  "params": {\n    "message": {\n      "role": "ROLE_USER",\n      "messageId": "<msg-guid>",\n      "parts": [{"text": "What meetings do I have today?"}],\n      "metadata": {"Location": {"timeZone": "Asia/Kolkata"}}\n    }\n  }\n}',
+   response:'{\n  "result": {\n    "task": {\n      "id": "<task-id>",\n      "contextId": "ctx-1",\n      "status": {"state": "TASK_STATE_COMPLETED"},\n      "artifacts": [{"parts": [{"text": "Today you have: 9 AM standup, 11 AM review..."}]}]\n    }\n  }\n}'},
+  {name:'Remote MCP',endpoint:'https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/{serverId}',format:'MCP (Model Context Protocol)',
+   desc:'Tool-based context access for AI assistants. Each M365 workload has its own MCP server. OAuth auto-discovery via .well-known.',
+   example:'// .mcp.json config\n{\n  "mcpServers": {\n    "WorkIQ-Mail": {\n      "type": "http",\n      "url": "https://agent365.svc.cloud.microsoft/agents/tenants/{tenantId}/servers/mcp_MailTools",\n      "oauth": {"clientId": "{clientId}", "callbackPort": 8080}\n    }\n  }\n}',
+   response:'// Tool call: mcp_MailTools_graph_mail_searchMessages\n// Returns: message objects with subject, body, from, receivedDateTime, etc.'},
+  {name:'Local MCP (stdio)',endpoint:'workiq mcp',format:'MCP over stdio',
+   desc:'For local dev environments. Starts an MCP server on stdin/stdout. Requires prior browser auth.',
+   example:'$ npx @microsoft/workiq mcp\n# Server listens on stdin for JSON-RPC MCP messages\n# Tools: ask, fetch, create_entity, do_action, get_schema, search_paths, etc.',
+   response:'// All 10 generic tools available\n// Auth token cached from prior `workiq ask` session'},
+  {name:'REST API',endpoint:'Coming GA June 16, 2026',format:'HTTP REST',
+   desc:'Conversational request/response API for service-hosted agents and orchestrators. Same capabilities as A2A but in a simpler REST binding.',
+   example:'POST /v1/message:send\nContent-Type: application/json\nAuthorization: Bearer {token}\n\n{"text": "What deals closed this quarter?"}',
+   response:'// Standard HTTP response with task result'},
+];
+
+const USECASES = [
+  {title:'Allianz: Agent ROI Calculation',desc:'Combine Task Mining desktop capture of manual claim processing with Work IQ Copilot reasoning traces. Calculate exact human time replaced by agents, map intervention points.',
+   tools:['ask','fetch /me/messages','graph_mail_searchMessages']},
+  {title:'ARM: Full Agentic AI Footprint',desc:'Use list_agents to inventory all active agents. Map agent activities (do_action, create_entity) against Task Mining UI events to measure process coverage.',
+   tools:['list_agents','do_action','fetch /me/events']},
+  {title:'Heineken: Autonomous Payment Resolution',desc:'Track agent-initiated actions (sendMail, Teams messages) alongside ServiceNow UI captures. Measure autonomous resolution rate vs human escalation.',
+   tools:['do_action /me/sendMail','graph_chat_postMessage','graph_teams_postChannelMessage']},
+  {title:'Task-to-Agent Transition',desc:'Before automation: only Task Mining events (many manual clicks). After: Work IQ events appear (ask, do_action). Quantify the shift from manual to automated.',
+   tools:['ask','fetch','create_entity','do_action']},
+  {title:'Meeting Intelligence + Process Mining',desc:'Connect calendar events and Copilot meeting summaries to the process steps they drive. Understand which meetings lead to which process outcomes.',
+   tools:['graph_listEvents','graph_getSchedule','ask (meeting summary)','graph_listCalendarView']},
+  {title:'Cross-App Process Discovery',desc:'Combine Outlook email chains, Teams discussions, SharePoint document edits, and desktop app usage into a single end-to-end process view.',
+   tools:['fetch /me/messages','graph_chat_listChatMessages','findFileOrFolder','readSmallTextFile']},
+];
+
+const ACTOR_MATRIX = [
+  {signal:'Task Mining click + No Work IQ',actor:'HUMAN',desc:'Pure manual work — user clicking through apps without any AI assistance'},
+  {signal:'Task Mining click + Work IQ ask',actor:'HYBRID',desc:'User initiated action, Copilot assisted — e.g. clicking "Copilot" in Word then reviewing suggestion'},
+  {signal:'Work IQ do_action, no Task Mining',actor:'AGENT',desc:'Autonomous agent action — e.g. agent sends email, no human UI interaction'},
+  {signal:'Work IQ ask + Task Mining "Accept"',actor:'HYBRID',desc:'Copilot generated content, human reviewed and accepted'},
+  {signal:'Work IQ create_entity, no Task Mining',actor:'AGENT',desc:'Agent created resource — e.g. auto-scheduled meeting, auto-filed document'},
+  {signal:'Work IQ fetch only',actor:'AGENT',desc:'Agent reading data for context — e.g. pulling emails to build summary'},
+  {signal:'Task Mining only (SAP, legacy apps)',actor:'HUMAN',desc:'Work in non-M365 apps that Work IQ cannot see'},
+];
+
+const SIGNALS = [
+  {signal:'Copilot reasoning traces',tool:'ask with conversationId',value:'Understand WHY an agent made a decision, not just what it did'},
+  {signal:'Agent tool invocations',tool:'do_action, create_entity',value:'Track all agent WRITE operations across M365 (send mail, create events, etc.)'},
+  {signal:'Semantic search patterns',tool:'call_function /search/query',value:'What information agents seek BEFORE acting — reveals decision context'},
+  {signal:'Meeting intelligence',tool:'fetch /me/events + transcripts',value:'Connect decisions to the meetings that drove them'},
+  {signal:'Org hierarchy context',tool:'graph_getMyManager, graph_getDirectReports',value:'Enrich process mining with organizational structure and approval chains'},
+  {signal:'Document grounding',tool:'ask with fileUrls',value:'Track which documents inform which decisions — full audit trail'},
+  {signal:'Agent inventory',tool:'list_agents',value:'Know exactly which AI agents are active in the tenant'},
+  {signal:'Free/busy availability',tool:'graph_getSchedule, graph_findMeetingTimes',value:'Understand scheduling bottlenecks in processes'},
+  {signal:'Sensitivity labels',tool:'setSensitivityLabelOnFile',value:'Track compliance actions by agents on sensitive documents'},
+];
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function catBadge(cat){
+  const m={read:'tb-read',write:'tb-write',action:'tb-action',query:'tb-query',copilot:'tb-copilot',schema:'tb-schema'};
+  return `<span class="tbadge ${m[cat]||'tb-read'}">${cat}</span>`;
+}
+
+function renderKPIs(){
+  const totalTools=SERVERS.reduce((s,sv)=>s+sv.tools.length,0);
+  const reads=SERVERS.reduce((s,sv)=>s+sv.tools.filter(t=>t.cat==='read').length,0);
+  const writes=SERVERS.reduce((s,sv)=>s+sv.tools.filter(t=>t.cat==='write'||t.cat==='action').length,0);
+  const kpis=[
+    {val:SERVERS.length,label:'MCP Servers',cls:'v-ms'},
+    {val:totalTools,label:'Total Tools',cls:'v-cyan'},
+    {val:'10',label:'Generic Tools',cls:'v-purple'},
+    {val:reads,label:'Read Operations',cls:'v-green'},
+    {val:writes,label:'Write/Action Ops',cls:'v-orange'},
+    {val:'4',label:'Protocols',cls:'v-pink'},
+    {val:'9',label:'Data Sources',cls:'v-ms'},
+  ];
+  document.getElementById('kpiRow').innerHTML=kpis.map(k=>`<div class="kpi"><div class="val ${k.cls}">${k.val}</div><div class="label">${k.label}</div></div>`).join('');
+}
+
+function renderGenericTools(){
+  const tools=[
+    {name:'fetch',cat:'read',desc:'Read entities by resource path. Parallel fetch supported.',paths:'/me/messages, /me/events/{id}, /me/chats/{id}/messages'},
+    {name:'create_entity',cat:'write',desc:'Create a new entity in a collection.',paths:'/me/events, /me/messages'},
+    {name:'update_entity',cat:'write',desc:'Update an existing entity via PATCH.',paths:'/me/messages/{id}, /me/events/{id}'},
+    {name:'delete_entity',cat:'action',desc:'Delete an entity. Returns 204.',paths:'/me/messages/{id}, /me/events/{id}'},
+    {name:'do_action',cat:'action',desc:'Execute side-effect: send mail, reply, copy, move.',paths:'/me/sendMail, /me/messages/{id}/reply'},
+    {name:'call_function',cat:'query',desc:'Graph function for computed data: search, calendar view, deltas.',paths:'/search/query, /me/calendarview?start=...&end=...'},
+    {name:'ask',cat:'copilot',desc:'Natural-language question to M365 Copilot. Multi-turn supported.',paths:'(natural language query)'},
+    {name:'list_agents',cat:'copilot',desc:'List available agents for the ask tool.',paths:'(returns agentId, name, provider)'},
+    {name:'get_schema',cat:'schema',desc:'Retrieve OpenAPI schema for any operation at runtime.',paths:'(operationIds or path + operationType)'},
+    {name:'search_paths',cat:'schema',desc:'Search available API paths by prefix or regex.',paths:'messages, .*calendar.*, events'},
+  ];
+  document.getElementById('genericToolsTable').innerHTML=
+    '<thead><tr><th>Tool</th><th>Type</th><th>Description</th><th>Example Paths</th></tr></thead><tbody>'+
+    tools.map(t=>`<tr><td>${t.name}</td><td>${catBadge(t.cat)}</td><td style="color:var(--t1)">${t.desc}</td><td style="font-family:Menlo;font-size:10px">${t.paths}</td></tr>`).join('')+'</tbody>';
+}
+
+function renderDataSources(){
+  const sources=[
+    {name:'Email (Outlook/Exchange)',server:'mcp_MailTools',paths:'/me/messages, /me/sendMail',icon:'📧'},
+    {name:'Calendar & Meetings',server:'mcp_CalendarTools',paths:'/me/events, /me/calendarview',icon:'📅'},
+    {name:'Teams Chats & Channels',server:'mcp_TeamsServer',paths:'/me/chats, /teams/{id}/channels',icon:'💬'},
+    {name:'SharePoint Sites & Lists',server:'mcp_SharePointRemoteServer',paths:'/sites/{id}/drive, /sites/{id}/lists',icon:'📂'},
+    {name:'OneDrive Files',server:'mcp_OneDriveRemoteServer',paths:'/me/drive/root/children',icon:'☁️'},
+    {name:'People & Org',server:'mcp_MeServer',paths:'/me, /me/manager, /me/directReports',icon:'👥'},
+    {name:'Copilot Intelligence',server:'mcp_Copilot (ask)',paths:'Natural language over all M365 data',icon:'🤖'},
+    {name:'Microsoft Search',server:'Generic (call_function)',paths:'/search/query (KQL, semantic)',icon:'🔍'},
+    {name:'Meeting Transcripts',server:'Graph permission',paths:'OnlineMeetingTranscript.Read.All',icon:'🎙️'},
+  ];
+  document.getElementById('dataSources').innerHTML=
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">'+
+    sources.map(s=>`<div style="padding:14px;border-radius:10px;background:rgba(0,0,0,.15);border:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.icon} ${s.name}</div>
+      <div style="font-size:11px;color:var(--ms);font-family:Menlo;margin-bottom:4px">${s.server}</div>
+      <div style="font-size:11px;color:var(--t2)">${s.paths}</div>
+    </div>`).join('')+'</div>';
+}
+
+function renderServers(){
+  const grid=document.getElementById('serverGrid');
+  grid.innerHTML=SERVERS.map((s,i)=>`<div class="server-card" onclick="showServerDetail(${i})" id="sc-${i}">
+    <div class="sc-name" style="color:${s.color}">${s.name}</div>
+    <div class="sc-id">${s.id}</div>
+    <div class="sc-desc">${s.desc}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="sc-tools">${s.tools.slice(0,4).map(t=>`<span class="sc-tool">${t.name.split('_').pop()}</span>`).join('')}${s.tools.length>4?`<span class="sc-tool">+${s.tools.length-4}</span>`:''}</div>
+      <span class="sc-count">${s.tools.length} tools</span>
+    </div>
+  </div>`).join('');
+}
+
+function showServerDetail(idx){
+  document.querySelectorAll('.server-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('sc-'+idx).classList.add('active');
+  const s=SERVERS[idx];
+  document.getElementById('serverDetailTitle').textContent=s.name+' — '+s.id;
+  document.getElementById('serverDetailCount').textContent=s.tools.length+' tools';
+  document.getElementById('serverToolsTable').innerHTML=
+    '<thead><tr><th>Tool Name</th><th>Type</th><th>Description</th><th>Parameters</th></tr></thead><tbody>'+
+    s.tools.map(t=>`<tr><td>${t.name}</td><td>${catBadge(t.cat)}</td><td style="color:var(--t1)">${t.desc}</td><td style="font-size:10px">${t.params}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('serverDetail').style.display='block';
+  document.getElementById('serverDetail').scrollIntoView({behavior:'smooth'});
+}
+
+let allToolsFlat=[];
+function renderAllTools(){
+  allToolsFlat=[];
+  SERVERS.forEach(s=>{s.tools.forEach(t=>{allToolsFlat.push({...t,server:s.name,serverId:s.id,color:s.color});});});
+  document.getElementById('totalToolCount').textContent=allToolsFlat.length+' tools across '+SERVERS.length+' servers';
+  renderToolTable(allToolsFlat);
+}
+
+function renderToolTable(tools){
+  document.getElementById('allToolsTable').innerHTML=
+    '<thead><tr><th>Server</th><th>Tool</th><th>Type</th><th>Description</th><th>Parameters</th></tr></thead><tbody>'+
+    tools.map(t=>`<tr><td style="color:${t.color};font-size:11px">${t.server}</td><td>${t.name}</td><td>${catBadge(t.cat)}</td><td style="color:var(--t1)">${t.desc}</td><td style="font-size:10px">${t.params}</td></tr>`).join('')+'</tbody>';
+}
+
+function filterTools(){
+  const q=document.getElementById('toolSearch').value.toLowerCase();
+  if(!q){renderToolTable(allToolsFlat);return;}
+  const f=allToolsFlat.filter(t=>(t.name+' '+t.server+' '+t.serverId+' '+t.desc+' '+t.cat+' '+t.params).toLowerCase().includes(q));
+  document.getElementById('totalToolCount').textContent=f.length+' of '+allToolsFlat.length+' tools';
+  renderToolTable(f);
+}
+
+function renderProtocols(){
+  document.getElementById('protocolCards').innerHTML=PROTOCOLS.map(p=>`<div class="proto-card">
+    <h4><span class="tbadge tb-copilot">${p.format}</span> ${p.name}</h4>
+    <p><b>Endpoint:</b> <code style="color:var(--cyan)">${p.endpoint}</code></p>
+    <p style="margin-top:8px">${p.desc}</p>
+    <div style="margin-top:12px;font-size:12px;color:var(--t2);font-weight:600">Request Example:</div>
+    <div class="code">${p.example}</div>
+    <div style="font-size:12px;color:var(--t2);font-weight:600">Response:</div>
+    <div class="code">${p.response}</div>
+  </div>`).join('');
+}
+
+function renderIntegration(){
+  document.getElementById('actorMatrix').innerHTML=
+    '<thead><tr><th>Signal Combination</th><th>Actor Type</th><th>Meaning</th></tr></thead><tbody>'+
+    ACTOR_MATRIX.map(a=>{
+      const cls=a.actor==='HUMAN'?'tb-read':a.actor==='AGENT'?'tb-action':'tb-copilot';
+      return `<tr><td style="color:var(--t1)">${a.signal}</td><td><span class="tbadge ${cls}">${a.actor}</span></td><td>${a.desc}</td></tr>`;
+    }).join('')+'</tbody>';
+
+  document.getElementById('useCases').innerHTML=USECASES.map(u=>`<div class="usecase">
+    <h4>${u.title}</h4>
+    <p>${u.desc}</p>
+    <div class="uc-tools">${u.tools.map(t=>`<span class="sc-tool">${t}</span>`).join('')}</div>
+  </div>`).join('');
+
+  document.getElementById('signalsTable').innerHTML=
+    '<thead><tr><th>Signal</th><th>Work IQ Tool</th><th>Value for Process Mining</th></tr></thead><tbody>'+
+    SIGNALS.map(s=>`<tr><td style="color:var(--t1);font-weight:600">${s.signal}</td><td style="font-family:Menlo;font-size:11px;color:var(--ms)">${s.tool}</td><td>${s.value}</td></tr>`).join('')+'</tbody>';
+}
+
+renderKPIs();
+renderGenericTools();
+renderDataSources();
+renderServers();
+renderAllTools();
+renderProtocols();
+renderIntegration();
+</script>
+</body>
+</html>
