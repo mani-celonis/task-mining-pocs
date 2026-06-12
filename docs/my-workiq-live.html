@@ -3,378 +3,331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Work IQ Live Data — Manikandan's M365 Account</title>
+<title>Work IQ Live Data — API Calls & Raw Responses</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-  :root{--g:#00d47e;--dk:#0a1628;--nv:#111d33;--bl:#3b82f6;--pr:#8b5cf6;--or:#f59e0b;--rd:#ef4444;--cy:#06b6d4;--ms:#0078d4;--pk:#ec4899;--t1:#f1f5f9;--t2:#94a3b8;--gl:rgba(17,29,51,.7);--bd:rgba(255,255,255,.08)}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#222;--bd:#2a2a2a;--t1:#e5e5e5;--t2:#888;--t3:#555;--ok:#4ade80;--err:#f87171;--warn:#fbbf24;--blue:#60a5fa;--mono:'JetBrains Mono',monospace}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Inter',sans-serif;background:var(--dk);color:var(--t1);min-height:100vh}
-  .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(900px at 20% 10%,rgba(0,120,212,.08),transparent),radial-gradient(600px at 80% 90%,rgba(0,212,126,.05),transparent)}
-  .grid-bg{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);background-size:60px 60px}
-  .app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 40px 80px}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);line-height:1.5}
+  .app{max-width:1200px;margin:0 auto;padding:40px 32px 80px}
+  header{margin-bottom:40px;border-bottom:1px solid var(--bd);padding-bottom:24px}
+  h1{font-size:20px;font-weight:700;margin-bottom:4px}
+  .sub{font-size:12px;color:var(--t2)}
+  .meta{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+  .meta span{font-size:11px;color:var(--t2);font-family:var(--mono)}
+  .meta .val{color:var(--t1)}
 
-  header{margin-bottom:32px}
-  .hdr-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-  h1{font-size:26px;font-weight:800;letter-spacing:-.5px}
-  h1 span{color:var(--ms)}
-  .sub{font-size:12px;color:var(--t2);margin-top:4px}
-  .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g);margin-right:6px;animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,212,126,.4)}50%{opacity:.7;box-shadow:0 0 0 8px rgba(0,212,126,0)}}
-  .badge{padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.4px;display:inline-flex;align-items:center;gap:4px}
-  .b-ms{background:rgba(0,120,212,.1);border:1px solid rgba(0,120,212,.2);color:var(--ms)}
-  .b-g{background:rgba(0,212,126,.1);border:1px solid rgba(0,212,126,.2);color:var(--g)}
-  .b-or{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--or)}
-  .b-rd{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--rd)}
+  h2{font-size:15px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+  h3{font-size:13px;font-weight:600;color:var(--t2);margin-bottom:8px}
 
-  .hero{display:flex;gap:28px;align-items:center;padding:28px 32px;border-radius:18px;background:linear-gradient(135deg,rgba(0,120,212,.08),rgba(139,92,246,.05));border:1px solid rgba(0,120,212,.15);margin-bottom:28px;flex-wrap:wrap}
-  .avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--ms),var(--pr));display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 30px rgba(0,120,212,.2)}
-  .pi{flex:1;min-width:200px}
-  .pi h2{font-size:22px;font-weight:800;margin-bottom:2px}
-  .pi .email{font-size:12px;color:var(--ms);font-family:'Menlo',monospace;margin-bottom:6px}
-  .tags{display:flex;gap:5px;flex-wrap:wrap}
-  .tag{padding:3px 9px;border-radius:5px;font-size:9px;font-weight:700;letter-spacing:.3px}
-  .t-g{background:rgba(0,212,126,.1);border:1px solid rgba(0,212,126,.2);color:var(--g)}
-  .t-ms{background:rgba(0,120,212,.1);border:1px solid rgba(0,120,212,.2);color:var(--ms)}
-  .t-pr{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);color:var(--pr)}
+  .call{border:1px solid var(--bd);border-radius:8px;margin-bottom:12px;overflow:hidden}
+  .call-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s1);cursor:pointer;user-select:none}
+  .call-header:hover{background:var(--s2)}
+  .method{font-family:var(--mono);font-size:11px;font-weight:500;padding:2px 6px;border-radius:3px;background:#1e3a1e;color:var(--ok);min-width:34px;text-align:center}
+  .method.err{background:#3a1e1e;color:var(--err)}
+  .call-path{font-family:var(--mono);font-size:12px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .call-status{font-family:var(--mono);font-size:11px;font-weight:500;min-width:28px;text-align:right}
+  .s-200{color:var(--ok)}.s-403{color:var(--err)}
+  .call-count{font-size:10px;color:var(--t2);min-width:60px;text-align:right}
+  .arrow{color:var(--t3);font-size:10px;transition:transform .2s;min-width:12px}
+  .call.open .arrow{transform:rotate(90deg)}
+  .call-body{display:none;border-top:1px solid var(--bd)}
+  .call.open .call-body{display:block}
+  .raw{font-family:var(--mono);font-size:11px;color:var(--t2);padding:14px;background:#0a0a0a;overflow-x:auto;white-space:pre;line-height:1.6;max-height:400px;overflow-y:auto}
+  .raw .k{color:var(--blue)}.raw .s{color:var(--ok)}.raw .n{color:var(--warn)}.raw .null{color:var(--t3)}
 
-  .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:28px}
-  .kpi{padding:18px;border-radius:14px;background:var(--gl);border:1px solid var(--bd);text-align:center}
-  .kpi .v{font-size:32px;font-weight:800;line-height:1;margin-bottom:3px}
-  .kpi .l{font-size:11px;color:var(--t2);font-weight:500}
+  .timeline{margin-bottom:32px}
+  .tl-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+  .tl-item:last-child{border:none}
+  .tl-time{font-family:var(--mono);font-size:11px;color:var(--t2);min-width:80px;flex-shrink:0}
+  .tl-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .tl-icon.word{background:#1b365d}.tl-icon.excel{background:#1d3a1d}.tl-icon.copilot{background:#2d1d3a}.tl-icon.mail{background:#1a2a3a}.tl-icon.system{background:#2a2a1a}
+  .tl-content{flex:1;min-width:0}
+  .tl-title{font-size:12px;font-weight:600}
+  .tl-detail{font-size:11px;color:var(--t2);margin-top:1px}
+  .tl-app{font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px;background:var(--s2);color:var(--t2);display:inline-block;margin-top:3px}
 
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
-  @media(max-width:900px){.g2{grid-template-columns:1fr}}
-  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px}
-  @media(max-width:900px){.g3{grid-template-columns:1fr}}
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1px;background:var(--bd);border-radius:8px;overflow:hidden;margin-bottom:24px}
+  .stat{padding:14px;background:var(--s1);text-align:center}
+  .stat .v{font-size:22px;font-weight:700;font-family:var(--mono)}
+  .stat .l{font-size:10px;color:var(--t2);margin-top:2px}
 
-  .card{border-radius:16px;background:var(--gl);border:1px solid var(--bd);backdrop-filter:blur(12px);overflow:hidden;margin-bottom:18px}
-  .ch{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
-  .ch h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
-  .cb{padding:18px 20px}
-
-  .source-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:24px}
-  .src{padding:14px;border-radius:12px;background:var(--gl);border:1px solid var(--bd);text-align:center;position:relative;overflow:hidden}
-  .src::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-  .src.ok::before{background:var(--g)}.src.no::before{background:var(--or)}.src.err::before{background:var(--rd)}
-  .src .si{font-size:24px;margin-bottom:4px}
-  .src .sn{font-size:11px;font-weight:700;margin-bottom:2px}
-  .src .ss{font-size:9px;font-weight:700}
-  .ss-ok{color:var(--g)}.ss-no{color:var(--or)}.ss-err{color:var(--rd)}
-
-  .file-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03)}
-  .file-row:last-child{border:none}
-  .file-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-  .fi-xlsx{background:rgba(0,212,126,.1)}
-  .fi-docx{background:rgba(0,120,212,.1)}
-  .fi-folder{background:rgba(139,92,246,.1)}
-  .fi-other{background:rgba(245,158,11,.1)}
-  .file-info{flex:1;min-width:0}
-  .file-name{font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .file-meta{font-size:10px;color:var(--t2)}
-  .file-size{font-size:11px;color:var(--t2);text-align:right;min-width:60px}
-
-  .mail-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.03)}
-  .mail-row:last-child{border:none}
-  .mail-icon{width:32px;height:32px;border-radius:8px;background:rgba(0,120,212,.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-  .mail-info{flex:1}
-  .mail-subj{font-size:12px;font-weight:600;color:var(--t1)}
-  .mail-from{font-size:10px;color:var(--ms)}
-  .mail-time{font-size:10px;color:var(--t2);min-width:80px;text-align:right}
-
-  .folder-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)}
-  .folder-row:last-child{border:none}
-  .folder-name{font-size:12px;font-weight:600;flex:1}
-  .folder-count{font-size:11px;color:var(--t2);min-width:40px;text-align:right}
-  .folder-unread{font-size:10px;font-weight:700;color:var(--ms);min-width:40px;text-align:right}
-
-  .quota-bar{height:12px;border-radius:6px;background:rgba(255,255,255,.05);overflow:hidden;margin:8px 0}
-  .quota-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--ms),var(--pr));transition:width .8s}
-
-  .insight{padding:14px 18px;border-radius:12px;border-left:4px solid;margin-bottom:12px}
-  .i-ms{background:rgba(0,120,212,.05);border-color:var(--ms)}
-  .i-g{background:rgba(0,212,126,.05);border-color:var(--g)}
-  .i-or{background:rgba(245,158,11,.05);border-color:var(--or)}
-  .insight h4{font-size:12px;font-weight:700;margin-bottom:3px}
-  .insight p{font-size:11px;color:var(--t2);line-height:1.5}
-
-  a{color:var(--ms);text-decoration:none}a:hover{text-decoration:underline}
-  .footer{margin-top:40px;text-align:center;padding:20px;border-top:1px solid var(--bd)}
-  .footer p{font-size:11px;color:var(--t2)}
-  .mono{font-family:'Menlo',monospace;font-size:10px;color:var(--cy)}
-  .scroll-y{max-height:400px;overflow-y:auto}
-  .scroll-y::-webkit-scrollbar{width:4px}
-  .scroll-y::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+  .scope-list{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px}
+  .scope{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;background:var(--s1);border:1px solid var(--bd);color:var(--t2)}
+  .scope.active{border-color:#2a3a2a;color:var(--ok)}
+  .scope.missing{border-color:#3a2a2a;color:var(--err)}
 </style>
 </head>
 <body>
-<div class="bg"></div>
-<div class="grid-bg"></div>
 <div class="app">
 
 <header>
-  <div class="hdr-row">
-    <div>
-      <h1><span class="live-dot"></span><span>Work IQ</span> Live Data</h1>
-      <div class="sub">Real data extracted via Microsoft Graph API using Work IQ cached OAuth token &mdash; June 12, 2026 10:57 PM IST</div>
-    </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <span class="badge b-g">LIVE DATA</span>
-      <span class="badge b-ms">Graph API v1.0</span>
-      <span class="badge b-or">QA Tenant</span>
-    </div>
+  <h1>Work IQ Live Data Extraction</h1>
+  <div class="sub">Real API calls to Microsoft Graph v1.0 via Work IQ cached OAuth token</div>
+  <div class="meta">
+    <span>account <span class="val">m.a@pneqatenant.onmicrosoft.com</span></span>
+    <span>tenant <span class="val">3ff1238b-4738-4daa</span></span>
+    <span>extracted <span class="val">2026-06-12T22:57:47Z</span></span>
+    <span>token <span class="val">Work IQ CLI MSAL Keychain</span></span>
   </div>
 </header>
 
-<!-- PROFILE HERO -->
-<div class="hero">
-  <div class="avatar">MA</div>
-  <div class="pi">
-    <h2>Manikandan Annamalaisamy</h2>
-    <div class="email">m.a@pneqatenant.onmicrosoft.com</div>
-    <div class="tags">
-      <span class="tag t-g">Account Enabled</span>
-      <span class="tag t-ms">Internal Member</span>
-      <span class="tag t-pr">pneqatenant</span>
-      <span class="tag t-ms">User ID: de914568</span>
+<!-- STATS -->
+<div class="stat-row">
+  <div class="stat"><div class="v" style="color:var(--ok)">16</div><div class="l">API Calls</div></div>
+  <div class="stat"><div class="v" style="color:var(--ok)">8</div><div class="l">200 OK</div></div>
+  <div class="stat"><div class="v" style="color:var(--err)">6</div><div class="l">403 Denied</div></div>
+  <div class="stat"><div class="v">9</div><div class="l">OneDrive Files</div></div>
+  <div class="stat"><div class="v">1</div><div class="l">Sent Email</div></div>
+  <div class="stat"><div class="v">8</div><div class="l">Mail Folders</div></div>
+  <div class="stat"><div class="v">3</div><div class="l">App Interactions</div></div>
+</div>
+
+<!-- TOKEN SCOPES -->
+<h3>Token Scopes</h3>
+<div class="scope-list">
+  <span class="scope active">Mail.Read</span>
+  <span class="scope active">Chat.Read</span>
+  <span class="scope active">Sites.Read.All</span>
+  <span class="scope active">People.Read.All</span>
+  <span class="scope active">ChannelMessage.Read.All</span>
+  <span class="scope active">ExternalItem.Read.All</span>
+  <span class="scope active">OnlineMeetingTranscript.Read.All</span>
+  <span class="scope missing">User.Read (missing)</span>
+  <span class="scope missing">Calendars.Read (missing)</span>
+  <span class="scope missing">Team.ReadBasic.All (missing)</span>
+  <span class="scope missing">Contacts.Read (missing)</span>
+</div>
+
+<!-- APP INTERACTIONS TIMELINE -->
+<h2>App Interactions (Word, Excel, Copilot)</h2>
+<p style="font-size:12px;color:var(--t2);margin:-8px 0 16px">Activity detected from <code style="font-family:var(--mono);font-size:11px">createdBy.application</code> metadata on OneDrive files.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-time">10:25:37 PM</div>
+    <div class="tl-icon copilot">&#x1F916;</div>
+    <div class="tl-content">
+      <div class="tl-title">Microsoft Copilot created "Microsoft Copilot Chat Files" folder</div>
+      <div class="tl-detail">Auto-provisioned folder for Copilot-generated content uploads</div>
+      <div class="tl-app">app: M365Chat (c0ab8ce9-e9a0-42e7-b064-33d422df41f1)</div>
     </div>
   </div>
-  <div style="text-align:right;min-width:200px">
-    <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Tenant</div>
-    <div style="font-size:13px;font-weight:700;color:var(--ms)">Celonis Labs GmbH</div>
-    <div class="mono" style="margin-top:2px">3ff1238b-4738-4daa-b938-8a7336ad3037</div>
-    <div style="font-size:10px;color:var(--t2);margin-top:6px">Auth: Work IQ CLI &rarr; MSAL Keychain &rarr; Graph</div>
-  </div>
-</div>
-
-<!-- KPIs -->
-<div class="kpis">
-  <div class="kpi"><div class="v" style="color:var(--g)">7</div><div class="l">Data Sources Queried</div></div>
-  <div class="kpi"><div class="v" style="color:var(--ms)">16</div><div class="l">Graph API Calls</div></div>
-  <div class="kpi"><div class="v" style="color:var(--cy)">9</div><div class="l">OneDrive Items</div></div>
-  <div class="kpi"><div class="v" style="color:var(--or)">8</div><div class="l">Mail Folders</div></div>
-  <div class="kpi"><div class="v" style="color:var(--pr)">1</div><div class="l">Sent Emails</div></div>
-  <div class="kpi"><div class="v" style="color:var(--pk)">1 TB</div><div class="l">OneDrive Quota</div></div>
-</div>
-
-<!-- DATA SOURCE STATUS -->
-<h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Data Source Connectivity (Live API Results)</h3>
-<div class="source-grid">
-  <div class="src ok"><div class="si">&#x1F4C1;</div><div class="sn">OneDrive</div><div class="ss ss-ok">9 files &bull; 835 KB used</div></div>
-  <div class="src ok"><div class="si">&#x1F4E7;</div><div class="sn">Mail Folders</div><div class="ss ss-ok">8 folders &bull; 192 KB</div></div>
-  <div class="src ok"><div class="si">&#x1F4E8;</div><div class="sn">Sent Items</div><div class="ss ss-ok">1 email sent</div></div>
-  <div class="src no"><div class="si">&#x1F4E5;</div><div class="sn">Inbox</div><div class="ss ss-no">0 messages</div></div>
-  <div class="src no"><div class="si">&#x1F4AC;</div><div class="sn">Teams Chats</div><div class="ss ss-no">0 chats</div></div>
-  <div class="src no"><div class="si">&#x1F465;</div><div class="sn">People</div><div class="ss ss-no">No contacts</div></div>
-  <div class="src err"><div class="si">&#x1F464;</div><div class="sn">Profile</div><div class="ss ss-err">403 &mdash; No User.Read</div></div>
-  <div class="src err"><div class="si">&#x1F4C5;</div><div class="sn">Calendar</div><div class="ss ss-err">403 &mdash; No Calendars.Read</div></div>
-  <div class="src err"><div class="si">&#x1F465;</div><div class="sn">Teams</div><div class="ss ss-err">403 &mdash; No Team.Read</div></div>
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="g2">
-  <!-- ONEDRIVE FILES -->
-  <div class="card">
-    <div class="ch"><h3>&#x1F4C1; OneDrive Files (Live)</h3><span class="badge b-g">9 ITEMS</span></div>
-    <div class="cb scroll-y" id="filesList"></div>
-  </div>
-
-  <!-- MAIL -->
-  <div class="card">
-    <div class="ch"><h3>&#x1F4E7; Email Activity (Live)</h3><span class="badge b-ms">1 SENT</span></div>
-    <div class="cb">
-      <div class="mail-row">
-        <div class="mail-icon">&#x2709;</div>
-        <div class="mail-info">
-          <div class="mail-subj">WorkIQ PoC Sync</div>
-          <div class="mail-from">To: m.a@celonis.com</div>
-        </div>
-        <div class="mail-time">Jun 12, 2026<br>10:33 PM IST</div>
-      </div>
-      <div style="margin-top:16px">
-        <h4 style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--t2)">Mail Folders</h4>
-        <div id="foldersList"></div>
-      </div>
+  <div class="tl-item">
+    <div class="tl-time">10:25:47 PM</div>
+    <div class="tl-icon system">&#x2699;</div>
+    <div class="tl-content">
+      <div class="tl-title">Office created "Attachments" folder</div>
+      <div class="tl-detail">System folder for email attachment storage</div>
+      <div class="tl-app">app: OfficeServicesManager (9e4a5442-a5c9-4f6f-b03f-5b9fcaaf24b1)</div>
     </div>
   </div>
-</div>
-
-<div class="g2">
-  <!-- ONEDRIVE QUOTA -->
-  <div class="card">
-    <div class="ch"><h3>&#x2601; OneDrive Storage</h3></div>
-    <div class="cb">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-        <span style="font-weight:700">835 KB used</span>
-        <span style="color:var(--t2)">of 1.00 TB</span>
-      </div>
-      <div class="quota-bar"><div class="quota-fill" style="width:0.00008%"></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
-        <div><div style="font-size:18px;font-weight:800;color:var(--ms)">3</div><div style="font-size:10px;color:var(--t2)">.docx files</div></div>
-        <div><div style="font-size:18px;font-weight:800;color:var(--g)">4</div><div style="font-size:10px;color:var(--t2)">.xlsx files</div></div>
-        <div><div style="font-size:18px;font-weight:800;color:var(--pr)">2</div><div style="font-size:10px;color:var(--t2)">folders</div></div>
-      </div>
-      <div style="margin-top:16px">
-        <div style="font-size:10px;color:var(--t2);margin-bottom:4px">Drive Type: <span style="color:var(--ms);font-weight:700">Business</span></div>
-        <div style="font-size:10px;color:var(--t2);margin-bottom:4px">Created: <span style="color:var(--t1)">May 26, 2026</span></div>
-        <div style="font-size:10px;color:var(--t2)">Last Modified: <span style="color:var(--t1)">June 12, 2026 10:29 PM IST</span></div>
-      </div>
+  <div class="tl-item">
+    <div class="tl-time">10:25:37 PM</div>
+    <div class="tl-icon word">&#x1F4DD;</div>
+    <div class="tl-content">
+      <div class="tl-title">Word: Created "WorkIQ Test Doc.docx" (11.1 KB)</div>
+      <div class="tl-detail">Created via SharePoint extension, last edited at 10:26:25 PM</div>
+      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
     </div>
   </div>
-
-  <!-- API CALL RESULTS -->
-  <div class="card">
-    <div class="ch"><h3>&#x1F4CA; API Call Results</h3></div>
-    <div class="cb scroll-y" id="apiResults"></div>
+  <div class="tl-item">
+    <div class="tl-time">10:26:46 PM</div>
+    <div class="tl-icon excel">&#x1F4CA;</div>
+    <div class="tl-content">
+      <div class="tl-title">Excel: Created "Book.xlsx" (6.5 KB)</div>
+      <div class="tl-detail">Created via SharePoint extension, edited until 10:27:07 PM</div>
+      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+    </div>
   </div>
-</div>
-
-<!-- INSIGHTS -->
-<div class="card">
-  <div class="ch"><h3>&#x1F4A1; Key Findings</h3></div>
-  <div class="cb">
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
-      <div class="insight i-g">
-        <h4>Real Data Successfully Extracted</h4>
-        <p>We authenticated via the Work IQ CLI's MSAL Keychain cache, refreshed the token, and made 16 Graph API calls. OneDrive returned 9 files, Mail returned 8 folders + 1 sent email. This proves the full Work IQ &rarr; Graph pipeline works.</p>
-      </div>
-      <div class="insight i-ms">
-        <h4>M365 Copilot Files Auto-Created</h4>
-        <p>The "Microsoft Copilot Chat Files" folder and "Attachments" folder were created by <strong>M365Chat</strong> and <strong>OfficeServicesManager</strong> apps &mdash; confirming Copilot is active on this tenant and creating artifacts tracked by Graph.</p>
-      </div>
-      <div class="insight i-or">
-        <h4>Scope Limitations Observed</h4>
-        <p>The Work IQ CLI token has Mail.Read, Chat.Read, Sites.Read.All, People.Read.All scopes but lacks User.Read, Calendars.Read, Team.ReadBasic.All. Profile, Calendar, and Teams endpoints return 403. Adding these scopes would unlock the full dashboard.</p>
-      </div>
-      <div class="insight i-ms">
-        <h4>Task Mining Integration Opportunity</h4>
-        <p>Every file has <strong>createdBy.application</strong> metadata showing WHICH app created it (M365Chat, OfficeServicesManager, manual). This is the exact signal needed to classify <strong>HUMAN vs AGENT</strong> activity in Task Mining.</p>
-      </div>
+  <div class="tl-item">
+    <div class="tl-time">10:28:31 PM</div>
+    <div class="tl-icon excel">&#x1F4CA;</div>
+    <div class="tl-content">
+      <div class="tl-title">Excel: Created "Book 1.xlsx" (0 B &mdash; empty)</div>
+      <div class="tl-detail">Created via SharePoint extension</div>
+      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">10:28:32 PM</div>
+    <div class="tl-icon excel">&#x1F4CA;</div>
+    <div class="tl-content">
+      <div class="tl-title">Excel: Created "Book 2.xlsx" (31.7 KB)</div>
+      <div class="tl-detail">Created via SharePoint extension, edited at 10:28:42 PM</div>
+      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">10:28:43 PM</div>
+    <div class="tl-icon excel">&#x1F4CA;</div>
+    <div class="tl-content">
+      <div class="tl-title">Excel: User copied "Book 2 - Copy.xlsx" (31.7 KB)</div>
+      <div class="tl-detail">Manual user action &mdash; no application in createdBy</div>
+      <div class="tl-app">actor: HUMAN (no app metadata &mdash; direct user action)</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">10:28:59 PM</div>
+    <div class="tl-icon word">&#x1F4DD;</div>
+    <div class="tl-content">
+      <div class="tl-title">Word: Created "Document.docx" (94.2 KB)</div>
+      <div class="tl-detail">Created via SharePoint extension, edited at 10:29:01 PM</div>
+      <div class="tl-app">app: SharePoint Extension (2821b473-fe24-4c86-ba16-62834d6e80c3)</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">10:29:21 PM</div>
+    <div class="tl-icon word">&#x1F4DD;</div>
+    <div class="tl-content">
+      <div class="tl-title">Word: User copied "Document - Copy.docx" (94.2 KB)</div>
+      <div class="tl-detail">Manual user action &mdash; no application in createdBy</div>
+      <div class="tl-app">actor: HUMAN (no app metadata &mdash; direct user action)</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">10:33:00 PM</div>
+    <div class="tl-icon mail">&#x2709;</div>
+    <div class="tl-content">
+      <div class="tl-title">Outlook: Sent "WorkIQ PoC Sync" to m.a@celonis.com</div>
+      <div class="tl-detail">Calendar meeting invite (eventMessageRequest type)</div>
+      <div class="tl-app">via: Outlook / Exchange</div>
     </div>
   </div>
 </div>
 
-<!-- RAW DATA SAMPLE -->
-<div class="card">
-  <div class="ch"><h3>&#x1F50D; Raw API Response Samples</h3></div>
-  <div class="cb">
-    <div style="font-size:10px;color:var(--t2);margin-bottom:8px">These are real JSON responses from Microsoft Graph API, accessed via the Work IQ cached token.</div>
-    <details style="margin-bottom:8px">
-      <summary style="font-size:12px;font-weight:600;color:var(--ms);cursor:pointer;padding:4px 0">OneDrive /me/drive (click to expand)</summary>
-      <pre style="font-size:10px;color:var(--cy);background:rgba(0,0,0,.3);padding:12px;border-radius:8px;overflow-x:auto;margin-top:6px">{
-  "driveType": "business",
-  "name": "OneDrive",
-  "webUrl": "https://pneqatenant-my.sharepoint.com/.../Documents",
-  "owner": { "user": { "displayName": "Manikandan Annamalaisamy", "email": "m.a@pneqatenant.onmicrosoft.com" } },
-  "quota": { "total": 1099511627776, "used": 835465, "remaining": 1099510792311, "state": "normal" },
-  "createdDateTime": "2026-05-26T20:24:50Z",
-  "lastModifiedDateTime": "2026-06-12T16:59:21Z"
-}</pre>
-    </details>
-    <details style="margin-bottom:8px">
-      <summary style="font-size:12px;font-weight:600;color:var(--ms);cursor:pointer;padding:4px 0">Sent Email: "WorkIQ PoC Sync" (click to expand)</summary>
-      <pre style="font-size:10px;color:var(--cy);background:rgba(0,0,0,.3);padding:12px;border-radius:8px;overflow-x:auto;margin-top:6px">{
-  "@odata.type": "#microsoft.graph.eventMessageRequest",
-  "subject": "WorkIQ PoC Sync",
-  "sentDateTime": "2026-06-12T17:03:00Z",
-  "toRecipients": [{ "emailAddress": { "name": "m.a@celonis.com", "address": "m.a@celonis.com" } }],
-  "bodyPreview": ""
-}</pre>
-    </details>
-    <details>
-      <summary style="font-size:12px;font-weight:600;color:var(--ms);cursor:pointer;padding:4px 0">File: "WorkIQ Test Doc.docx" with createdBy metadata (click to expand)</summary>
-      <pre style="font-size:10px;color:var(--cy);background:rgba(0,0,0,.3);padding:12px;border-radius:8px;overflow-x:auto;margin-top:6px">{
-  "name": "WorkIQ Test Doc.docx",
-  "size": 11396,
-  "createdDateTime": "2026-06-12T16:55:37Z",
-  "lastModifiedDateTime": "2026-06-12T16:56:25Z",
-  "createdBy": {
-    "application": { "id": "2821b473-...", "displayName": "SharePoint Extension" },
-    "user": { "email": "m.a@pneqatenant.onmicrosoft.com", "displayName": "Manikandan Annamalaisamy" }
-  },
-  "file": { "fileExtension": ".docx", "mimeType": "application/...wordprocessingml.document" },
-  "webUrl": "https://pneqatenant-my.sharepoint.com/...WorkIQ%20Test%20Doc.docx"
-}</pre>
-    </details>
-  </div>
+<!-- API CALLS WITH RAW DATA -->
+<h2>A2A / Graph API Calls & Raw Responses</h2>
+<p style="font-size:12px;color:var(--t2);margin:-8px 0 16px">Each call shows the Graph endpoint, HTTP status, item count, and full JSON response. Click to expand.</p>
+
+<div id="calls"></div>
+
+<div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--bd);text-align:center">
+  <p style="font-size:11px;color:var(--t3)">Auth: macOS Keychain &rarr; MSAL refresh_token &rarr; Graph API v1.0 &mdash; <a href="workiq-mcp-explorer.html" style="color:var(--t2)">MCP Schema Explorer</a></p>
+</div>
 </div>
 
-<div class="footer">
-  <p>Data extracted via <strong>Work IQ A2A pipeline</strong>: MSAL Keychain &rarr; Token Refresh &rarr; Microsoft Graph API v1.0 &mdash; <a href="workiq-mcp-explorer.html">Full MCP Schema &rarr;</a></p>
-</div>
-
-</div>
 <script>
-const FILES = [
-  {name:'WorkIQ Test Doc.docx',ext:'docx',size:11396,modified:'Jun 12, 10:26 PM',app:'SharePoint Extension'},
-  {name:'Document.docx',ext:'docx',size:96462,modified:'Jun 12, 10:29 PM',app:'SharePoint Extension'},
-  {name:'Document - Copy.docx',ext:'docx',size:96462,modified:'Jun 12, 10:29 PM',app:'User'},
-  {name:'Book.xlsx',ext:'xlsx',size:6652,modified:'Jun 12, 10:27 PM',app:'SharePoint Extension'},
-  {name:'Book 1.xlsx',ext:'xlsx',size:0,modified:'Jun 12, 10:28 PM',app:'SharePoint Extension'},
-  {name:'Book 2.xlsx',ext:'xlsx',size:32442,modified:'Jun 12, 10:28 PM',app:'SharePoint Extension'},
-  {name:'Book 2 - Copy.xlsx',ext:'xlsx',size:32442,modified:'Jun 12, 10:28 PM',app:'User'},
-  {name:'Attachments',ext:'folder',size:0,modified:'Jun 12, 10:25 PM',app:'OfficeServicesManager'},
-  {name:'Microsoft Copilot Chat Files',ext:'folder',size:0,modified:'Jun 12, 10:25 PM',app:'M365Chat'},
+const CALLS = [
+  {
+    method: 'GET', path: '/me', status: 403, count: null,
+    note: 'Profile endpoint requires User.Read scope (not in Work IQ CLI token)',
+    raw: {"_error":"Authorization_RequestDenied","_msg":"Insufficient privileges to complete the operation.","_status":403}
+  },
+  {
+    method: 'GET', path: '/me/manager', status: 403, count: null,
+    note: 'Manager lookup requires User.Read.All scope',
+    raw: {"_error":"Authorization_RequestDenied","_msg":"Insufficient privileges to complete the operation.","_status":403}
+  },
+  {
+    method: 'GET', path: '/me/directReports', status: 403, count: null,
+    note: 'Direct reports requires User.Read.All scope',
+    raw: {"_error":"Authorization_RequestDenied","_msg":"Insufficient privileges to complete the operation.","_status":403}
+  },
+  {
+    method: 'GET', path: '/me/mailFolders', status: 200, count: 8,
+    note: '8 standard Outlook folders returned. Inbox has 192 KB size but 0 items (likely processed/moved).',
+    raw: {"value":[
+      {"displayName":"Archive","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
+      {"displayName":"Conversation History","totalItemCount":0,"unreadItemCount":0,"childFolderCount":1},
+      {"displayName":"Deleted Items","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
+      {"displayName":"Drafts","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
+      {"displayName":"Inbox","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":192671},
+      {"displayName":"Junk Email","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
+      {"displayName":"Outbox","totalItemCount":0,"unreadItemCount":0,"sizeInBytes":0},
+      {"displayName":"Sent Items","totalItemCount":1,"unreadItemCount":0,"sizeInBytes":6269}
+    ]}
+  },
+  {
+    method: 'GET', path: '/me/mailFolders/inbox/messages?$top=25&$orderby=receivedDateTime desc', status: 200, count: 0,
+    note: 'Inbox is empty. The 192 KB folder size suggests messages were previously received then deleted or moved.',
+    raw: {"@odata.context":".../$metadata#users('de914568-...')/mailFolders('inbox')/messages","value":[]}
+  },
+  {
+    method: 'GET', path: '/me/mailFolders/sentitems/messages?$top=25&$orderby=sentDateTime desc', status: 200, count: 1,
+    note: 'One sent email: a calendar meeting invite "WorkIQ PoC Sync" to m.a@celonis.com.',
+    raw: {"value":[{"@odata.type":"#microsoft.graph.eventMessageRequest","subject":"WorkIQ PoC Sync","sentDateTime":"2026-06-12T17:03:00Z","bodyPreview":"","toRecipients":[{"emailAddress":{"name":"m.a@celonis.com","address":"m.a@celonis.com"}}]}]}
+  },
+  {
+    method: 'GET', path: '/me/chats?$top=25', status: 200, count: 0,
+    note: 'No Teams chats found. Account has not participated in any Teams conversations.',
+    raw: {"@odata.context":".../$metadata#chats","@odata.count":0,"value":[]}
+  },
+  {
+    method: 'GET', path: '/me/joinedTeams', status: 403, count: null,
+    note: 'Requires Team.ReadBasic.All scope. Current scopes: ChannelMessage.Read.All, Chat.Read (insufficient).',
+    raw: {"_error":"Forbidden","_msg":"Missing scope permissions on the request. API requires one of 'Team.ReadBasic.All, TeamSettings.Read.All'. Scopes on the request: 'ChannelMessage.Read.All, Chat.Read, Mail.Read, People.Read.All, Sites.Read.All'","_status":403}
+  },
+  {
+    method: 'GET', path: '/me/people?$top=25', status: 200, count: 0,
+    note: 'No relevant people found. Insufficient interaction history to build people graph.',
+    raw: {"@odata.context":".../$metadata#users('de914568-...')/people","value":[]}
+  },
+  {
+    method: 'GET', path: '/me/drive', status: 200, count: '1 object',
+    note: 'OneDrive info: Business drive, 835 KB used of 1 TB. Created May 26, last modified today.',
+    raw: {"driveType":"business","name":"OneDrive","webUrl":"https://pneqatenant-my.sharepoint.com/personal/m_a_pneqatenant_onmicrosoft_com/Documents","createdDateTime":"2026-05-26T20:24:50Z","lastModifiedDateTime":"2026-06-12T16:59:21Z","owner":{"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com","id":"de914568-e6b3-47d0-bc24-ccf14149fb1b"}},"quota":{"total":1099511627776,"used":835465,"remaining":1099510792311,"deleted":0,"state":"normal"}}
+  },
+  {
+    method: 'GET', path: '/me/drive/root/children?$top=25', status: 200, count: 9,
+    note: '9 items: 4 xlsx, 3 docx, 2 folders (Attachments by OfficeServicesManager, Copilot Chat Files by M365Chat).',
+    raw: {"value":[
+      {"name":"Attachments","size":0,"folder":{"childCount":0},"createdDateTime":"2026-06-12T16:55:47Z","createdBy":{"application":{"displayName":"OfficeServicesManager","id":"9e4a5442-a5c9-4f6f-b03f-5b9fcaaf24b1"},"user":{"displayName":"Manikandan Annamalaisamy"}},"specialFolder":{"name":"attachments"}},
+      {"name":"Microsoft Copilot Chat Files","size":0,"folder":{"childCount":0},"createdDateTime":"2026-06-12T16:55:53Z","createdBy":{"application":{"displayName":"M365Chat","id":"c0ab8ce9-e9a0-42e7-b064-33d422df41f1"},"user":{"displayName":"Manikandan Annamalaisamy"}},"specialFolder":{"name":"copilotuploads"}},
+      {"name":"Book 1.xlsx","size":0,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:58:31Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
+      {"name":"Book 2 - Copy.xlsx","size":32442,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:58:43Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy"}}},
+      {"name":"Book 2.xlsx","size":32442,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:58:32Z","lastModifiedDateTime":"2026-06-12T16:58:42Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
+      {"name":"Book.xlsx","size":6652,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},"createdDateTime":"2026-06-12T16:56:46Z","lastModifiedDateTime":"2026-06-12T16:57:07Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
+      {"name":"Document - Copy.docx","size":96462,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"createdDateTime":"2026-06-12T16:59:21Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy"}}},
+      {"name":"Document.docx","size":96462,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"createdDateTime":"2026-06-12T16:58:59Z","lastModifiedDateTime":"2026-06-12T16:59:01Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}},
+      {"name":"WorkIQ Test Doc.docx","size":11396,"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"createdDateTime":"2026-06-12T16:55:37Z","lastModifiedDateTime":"2026-06-12T16:56:25Z","createdBy":{"application":{"displayName":"SharePoint Extension"},"user":{"displayName":"Manikandan Annamalaisamy"}}}
+    ]}
+  },
+  {
+    method: 'GET', path: '/me/drive/recent?$top=25', status: 200, count: 1,
+    note: 'Most recent file: "Document - Copy.docx", last accessed at 10:29:23 PM IST.',
+    raw: {"value":[{"name":"Document - Copy.docx","size":96462,"lastModifiedDateTime":"2026-06-12T16:59:21Z","createdBy":{"user":{"displayName":"Manikandan Annamalaisamy","email":"m.a@pneqatenant.onmicrosoft.com"}},"file":{"mimeType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},"fileSystemInfo":{"lastAccessedDateTime":"2026-06-12T16:59:23Z"},"parentReference":{"driveType":"business"},"remoteItem":{"sharepointIds":{"siteUrl":"https://pneqatenant-my.sharepoint.com/personal/m_a_pneqatenant_onmicrosoft_com"}}}]}
+  },
+  {
+    method: 'GET', path: '/me/calendarview?startdatetime=2026-06-09T00:00:00Z&enddatetime=2026-06-16T00:00:00Z', status: 403, count: null,
+    note: 'Calendar requires Calendars.Read scope.',
+    raw: {"_error":"ErrorAccessDenied","_msg":"Access is denied. Check credentials and try again.","_status":403}
+  },
+  {
+    method: 'GET', path: '/me/contacts?$top=25', status: 403, count: null,
+    note: 'Contacts requires Contacts.Read scope.',
+    raw: {"_error":"ErrorAccessDenied","_msg":"Access is denied. Check credentials and try again.","_status":403}
+  },
 ];
 
-function fmtSize(b){if(!b)return '0 B';if(b<1024)return b+' B';return (b/1024).toFixed(1)+' KB';}
+function syntaxHighlight(obj) {
+  let json = JSON.stringify(obj, null, 2);
+  json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return json.replace(/"([^"]+)":/g,'<span class="k">"$1"</span>:')
+             .replace(/:(\s*)"([^"]*)"/g,':$1<span class="s">"$2"</span>')
+             .replace(/:(\s*)(\d+\.?\d*)/g,':$1<span class="n">$2</span>')
+             .replace(/:(\s*)(null)/g,':$1<span class="null">null</span>')
+             .replace(/:(\s*)(true|false)/g,':$1<span class="n">$2</span>');
+}
 
-document.getElementById('filesList').innerHTML = FILES.map(f => {
-  const ic = f.ext==='xlsx'?'fi-xlsx':f.ext==='docx'?'fi-docx':f.ext==='folder'?'fi-folder':'fi-other';
-  const emoji = f.ext==='xlsx'?'&#x1F4CA;':f.ext==='docx'?'&#x1F4DD;':f.ext==='folder'?'&#x1F4C1;':'&#x1F4C4;';
-  const appBadge = f.app==='M365Chat'?'<span class="badge b-ms" style="font-size:8px;padding:2px 6px">COPILOT</span>':
-                   f.app==='OfficeServicesManager'?'<span class="badge b-pr" style="font-size:8px;padding:2px 6px">SYSTEM</span>':
-                   f.app==='User'?'<span class="badge b-g" style="font-size:8px;padding:2px 6px">HUMAN</span>':
-                   '<span class="badge b-or" style="font-size:8px;padding:2px 6px">AGENT</span>';
-  return `<div class="file-row">
-    <div class="file-icon ${ic}">${emoji}</div>
-    <div class="file-info">
-      <div class="file-name">${f.name}</div>
-      <div class="file-meta">${f.modified} &bull; ${appBadge}</div>
-    </div>
-    <div class="file-size">${fmtSize(f.size)}</div>
-  </div>`;
-}).join('');
-
-const FOLDERS = [
-  {name:'Inbox',total:0,unread:0,size:192671},
-  {name:'Sent Items',total:1,unread:0,size:6269},
-  {name:'Drafts',total:0,unread:0,size:0},
-  {name:'Deleted Items',total:0,unread:0,size:0},
-  {name:'Archive',total:0,unread:0,size:0},
-  {name:'Junk Email',total:0,unread:0,size:0},
-  {name:'Outbox',total:0,unread:0,size:0},
-  {name:'Conversation History',total:0,unread:0,size:0},
-];
-
-document.getElementById('foldersList').innerHTML = FOLDERS.map(f => `<div class="folder-row">
-  <span style="font-size:12px">${f.name==='Inbox'?'&#x1F4E5;':f.name==='Sent Items'?'&#x1F4E4;':'&#x1F4C1;'}</span>
-  <span class="folder-name" style="font-size:12px;color:var(--t1)">${f.name}</span>
-  <span class="folder-count">${f.total} items</span>
-  ${f.size?`<span style="font-size:10px;color:var(--t2)">${fmtSize(f.size)}</span>`:''}
-</div>`).join('');
-
-const API_RESULTS = [
-  {endpoint:'/me/drive',status:'200',items:'1 obj',color:'var(--g)'},
-  {endpoint:'/me/drive/root/children',status:'200',items:'9 files',color:'var(--g)'},
-  {endpoint:'/me/drive/recent',status:'200',items:'1 file',color:'var(--g)'},
-  {endpoint:'/me/mailFolders',status:'200',items:'8 folders',color:'var(--g)'},
-  {endpoint:'/me/mailFolders/inbox/messages',status:'200',items:'0 msgs',color:'var(--or)'},
-  {endpoint:'/me/mailFolders/sentitems/messages',status:'200',items:'1 email',color:'var(--g)'},
-  {endpoint:'/me/chats',status:'200',items:'0 chats',color:'var(--or)'},
-  {endpoint:'/me/people',status:'200',items:'0 people',color:'var(--or)'},
-  {endpoint:'/me',status:'403',items:'No User.Read scope',color:'var(--rd)'},
-  {endpoint:'/me/manager',status:'403',items:'No User.Read scope',color:'var(--rd)'},
-  {endpoint:'/me/directReports',status:'403',items:'No User.Read scope',color:'var(--rd)'},
-  {endpoint:'/me/joinedTeams',status:'403',items:'No Team.Read scope',color:'var(--rd)'},
-  {endpoint:'/me/calendarview',status:'403',items:'No Calendars.Read scope',color:'var(--rd)'},
-  {endpoint:'/me/contacts',status:'403',items:'No Contacts.Read scope',color:'var(--rd)'},
-];
-
-document.getElementById('apiResults').innerHTML = API_RESULTS.map(a => `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">
-  <span class="mono" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${a.color}">${a.endpoint}</span>
-  <span style="font-size:10px;font-weight:700;color:${a.color};min-width:30px;text-align:center">${a.status}</span>
-  <span style="font-size:10px;color:var(--t2);min-width:80px;text-align:right">${a.items}</span>
-</div>`).join('');
+const container = document.getElementById('calls');
+CALLS.forEach((c, i) => {
+  const isErr = c.status >= 400;
+  const countLabel = c.count === null ? 'denied' : typeof c.count === 'number' ? c.count + ' items' : c.count;
+  container.innerHTML += `
+    <div class="call" id="call-${i}" onclick="this.classList.toggle('open')">
+      <div class="call-header">
+        <span class="arrow">&#x25B6;</span>
+        <span class="method${isErr?' err':''}">${c.status}</span>
+        <span class="call-path">${c.method} ${c.path}</span>
+        <span class="call-count">${countLabel}</span>
+      </div>
+      <div class="call-body">
+        <div style="padding:10px 14px;font-size:11px;color:var(--t2);border-bottom:1px solid var(--bd)">${c.note}</div>
+        <div class="raw">${syntaxHighlight(c.raw)}</div>
+      </div>
+    </div>`;
+});
 </script>
 </body>
 </html>
