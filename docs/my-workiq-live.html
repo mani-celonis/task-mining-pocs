@@ -112,6 +112,25 @@
   .footer{margin-top:36px;text-align:center;padding:20px;border-top:1px solid var(--border)}
   .footer p{font-size:11px;color:var(--t2)}
   a{color:var(--ms);text-decoration:none}a:hover{text-decoration:underline}
+
+  .raw-card{border-radius:14px;background:var(--glass);border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+  .raw-hdr{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .15s}
+  .raw-hdr:hover{background:rgba(255,255,255,.02)}
+  .raw-hdr h4{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .raw-hdr .arrow{transition:transform .2s;font-size:10px;color:var(--t2)}
+  .raw-hdr.open .arrow{transform:rotate(90deg)}
+  .raw-body{display:none;padding:0}
+  .raw-body.open{display:block}
+  .raw-pre{margin:0;padding:16px 18px;font-family:'Menlo','Courier New',monospace;font-size:11px;line-height:1.6;
+    color:var(--cyan);background:rgba(0,0,0,.25);white-space:pre-wrap;word-break:break-word;max-height:500px;overflow-y:auto}
+  .raw-pre::-webkit-scrollbar{width:5px}
+  .raw-pre::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+  .raw-meta{padding:10px 18px;font-size:10px;color:var(--t2);border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap}
+  .raw-meta span{display:inline-flex;align-items:center;gap:4px}
+  .q-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.3px}
+  .qb-ok{background:rgba(0,212,126,.1);color:var(--green)}
+  .qb-no{background:rgba(245,158,11,.1);color:var(--orange)}
+  .qb-copilot{background:rgba(0,120,212,.1);color:var(--ms)}
 </style>
 </head>
 <body>
@@ -165,6 +184,7 @@
   <button class="tab" onclick="sw('teams')">Teams</button>
   <button class="tab" onclick="sw('copilot')">Copilot Insights</button>
   <button class="tab" onclick="sw('agents')">Agents</button>
+  <button class="tab" onclick="sw('raw')">Raw A2A Data</button>
 </div>
 
 <!-- DASHBOARD -->
@@ -443,6 +463,88 @@
   </div>
 </div>
 
+<!-- RAW A2A DATA -->
+<div class="panel" id="p-raw">
+  <div class="card">
+    <div class="card-h">
+      <h3>&#x1F4E1; Raw A2A API Responses</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="sts s-ok">9 QUERIES</span>
+        <button onclick="toggleAll()" style="padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--t2);font-size:10px;font-weight:600;cursor:pointer">Expand All</button>
+      </div>
+    </div>
+    <div class="card-b" style="padding:12px 16px">
+      <div style="font-size:11px;color:var(--t2);margin-bottom:14px;line-height:1.6">
+        These are the actual responses from the Work IQ A2A v1.0 endpoint (<code style="color:var(--cyan)">https://workiq.svc.cloud.microsoft/a2a/</code>)
+        via <code style="color:var(--cyan)">SendMessage</code> JSON-RPC calls. Each query ran through the Work IQ CLI binary using cached Keychain OAuth tokens.
+        Extracted on <strong>June 12, 2026 at 11:51 PM IST</strong>.
+      </div>
+      <div id="rawCards"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>&#x2699; A2A Protocol Details</h3></div>
+    <div class="card-b">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+        <div class="item">
+          <div class="item-title">Endpoint</div>
+          <div class="item-body" style="font-family:Menlo,monospace;color:var(--cyan)">https://workiq.svc.cloud.microsoft/a2a/</div>
+        </div>
+        <div class="item">
+          <div class="item-title">Protocol</div>
+          <div class="item-body">JSON-RPC 2.0 over HTTPS &bull; A2A-Version: 1.0</div>
+        </div>
+        <div class="item">
+          <div class="item-title">Method</div>
+          <div class="item-body" style="font-family:Menlo,monospace;color:var(--cyan)">SendMessage</div>
+        </div>
+        <div class="item">
+          <div class="item-title">Auth</div>
+          <div class="item-body">OAuth 2.0 Delegated (PKCE) &bull; Scope: WorkIQAgent.Ask</div>
+        </div>
+        <div class="item">
+          <div class="item-title">Data Center</div>
+          <div class="item-body">South India &bull; Ring 2 &bull; ScaleUnit 000</div>
+        </div>
+        <div class="item">
+          <div class="item-title">Client</div>
+          <div class="item-body">workiq CLI v0.4.1 (osx-arm64 binary) &bull; Keychain token cache</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>&#x1F4CB; A2A Request Format (SendMessage)</h3></div>
+    <div class="card-b">
+      <pre class="raw-pre" style="max-height:none">{
+  "jsonrpc": "2.0",
+  "id": "&lt;request-guid&gt;",
+  "method": "SendMessage",
+  "params": {
+    "message": {
+      "role": "ROLE_USER",
+      "messageId": "&lt;message-guid&gt;",
+      "parts": [
+        { "text": "What is my name and email?" }
+      ],
+      "metadata": {
+        "Location": { "timeZone": "Asia/Kolkata" }
+      }
+    }
+  }
+}
+
+// Headers:
+// POST https://workiq.svc.cloud.microsoft/a2a/
+// Authorization: Bearer {access-token}
+// Content-Type: application/json
+// A2A-Version: 1.0</pre>
+    </div>
+  </div>
+</div>
+
 <div class="footer">
   <p>Data extracted via <strong>Work IQ A2A v1.0</strong> endpoint (<code>workiq.svc.cloud.microsoft/a2a/</code>) &mdash; 9 queries &bull; Celonis Task Mining Integration POC</p>
   <p style="margin-top:4px"><a href="workiq-mcp-explorer.html">View Full MCP Schema Explorer &rarr;</a></p>
@@ -456,6 +558,73 @@ function sw(id){
   event.target.classList.add('active');
   document.getElementById('p-'+id).classList.add('active');
 }
+
+function toggleRaw(el){
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+function toggleAll(){
+  const cards=document.querySelectorAll('.raw-hdr');
+  const anyOpen=[...cards].some(c=>c.classList.contains('open'));
+  cards.forEach(c=>{
+    if(anyOpen){c.classList.remove('open');c.nextElementSibling.classList.remove('open')}
+    else{c.classList.add('open');c.nextElementSibling.classList.add('open')}
+  });
+}
+
+function stripAnsi(s){return s.replace(/\x1b\[[0-9;]*m/g,'').replace(/\x1b\]8;;[^\x07]*\x07/g,'').replace(/\x1b\\/g,'').replace(/\x1b\[0m/g,'');}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+const RAW_QUERIES = [
+  {key:"profile",label:"Profile",icon:"\u{1F464}",q:"What is my full name, job title, department, email address, and office location?",badge:"qb-ok",status:"DATA",convId:"0f738d3d-3868-46c3-af34-4d27ca3232a9"},
+  {key:"emails",label:"Emails",icon:"\u{1F4E7}",q:"List my 10 most recent emails with sender, subject, received date, body preview.",badge:"qb-no",status:"EMPTY",convId:"ff5de995-30ba-4be5-b5d9-707d9edee487"},
+  {key:"calendar",label:"Calendar",icon:"\u{1F4C5}",q:"List all my calendar events for this week and next week.",badge:"qb-ok",status:"2 EVENTS",convId:"93c671f1-4804-4dbb-933a-1d40ce079bd4"},
+  {key:"teams",label:"Teams",icon:"\u{1F4AC}",q:"List my 10 most recent Teams chat messages.",badge:"qb-ok",status:"3 MSGS",convId:"69ec8837-b610-495d-80d4-fd8ec9194b37"},
+  {key:"files",label:"Files",icon:"\u{1F4C2}",q:"List my 10 most recently modified files in OneDrive or SharePoint.",badge:"qb-ok",status:"10 FILES",convId:"11a855f5-b64f-4d15-b3c4-364b316585ea"},
+  {key:"org",label:"Org Structure",icon:"\u{1F465}",q:"Who is my manager? Direct reports? Most frequent collaborators?",badge:"qb-ok",status:"1 COLLAB",convId:"8eacf9ac-6e2f-42eb-993d-1f5d3001e3e1"},
+  {key:"summary",label:"Activity Summary",icon:"\u{1F4CA}",q:"Summarize my work activity this week: emails, meetings, Teams, files. Busiest day?",badge:"qb-ok",status:"SUMMARY",convId:"402dd2cb-4a37-411d-bd89-7ebf5665abfa"},
+  {key:"copilot",label:"Copilot Insights",icon:"\u{1F3C6}",q:"Top 5 things I worked on this week based on emails, meetings, chats, and files?",badge:"qb-copilot",status:"AI RANKED",convId:"77081c37-d370-478a-8f85-4a559127b3ff"},
+  {key:"agents",label:"Agent Inventory",icon:"\u{1F916}",q:"List all available Copilot agents I can interact with.",badge:"qb-copilot",status:"AGENTS",convId:"5fd4235c-e7ff-4e78-9502-818b14d702c9"},
+];
+
+const RAW_DATA = {
+  "profile": "Here\u2019s the most complete profile information I could retrieve from your organization\u2019s directory:\n\n| Field               | Value                                                |\n| ------------------- | ---------------------------------------------------- |\n| **Full Name**       | Manikandan Annamalaisamy                             |\n| **First Name**      | Manikandan                                           |\n| **Last Name**       | Annamalaisamy                                        |\n| **Email Address**   | m.a@pneqatenant.onmicrosoft.com                      |\n| **UPN**             | m.a@pneqatenant.onmicrosoft.com                      |\n| **Job Title**       | Not specified in directory                           |\n| **Department**      | Not specified in directory                           |\n| **Office Location** | Not specified in directory                           |\n| **Company**         | Not specified in directory                           |\n| **Account Status**  | Enabled (Active)                                     |\n\nNotes:\n* Your account is marked as a Member and enabled, meaning it\u2019s active and usable within your organization.\n* Some fields like job title, department, and office location are not available in the current directory data.",
+  "emails": "I wasn\u2019t able to retrieve any emails from your mailbox\u2014no results were returned from your Microsoft 365 data for this request.\n\nThis can happen if:\n* Your mailbox isn\u2019t connected or accessible in this environment\n* There are permission or sync limitations\n* Or there are no recent emails indexed yet\n\nWhat you can do next:\n* Try rephrasing (e.g., \u201clatest unread emails\u201d or \u201cemails from today\u201d)\n* Check directly in Outlook to confirm recent activity\n* If you expect emails to be here, your admin may need to enable access for Copilot",
+  "calendar": "I found 2 calendar events across this week and next week.\n\n1. Title: WorkIQ Meet 2\n   * Date: Today (June 12, 2026)\n   * Start Time: 3:00 PM\n   * End Time: 3:30 PM\n   * Location: Microsoft Teams Meeting\n   * Is Online Meeting: Yes (Teams)\n   * Number of Attendees: 1\n\n2. Title: WorkIQ PoC Sync\n   * Date: Today (June 12, 2026)\n   * Start Time: 4:00 PM\n   * End Time: 4:30 PM\n   * Location: Not specified\n   * Is Online Meeting: Not explicitly specified (likely online)\n   * Number of Attendees: 1\n\nNotes:\n* Both events are non-recurring and scheduled for today.\n* I did not find any additional events for the rest of this week or next week.",
+  "teams": "I searched your Teams chats, but I could only find a limited set of recent messages (not a full 10).\n\n1. Sender: Manikandan Annamalaisamy\n   Chat/Channel: Self chat (notes)\n   Message preview: \u201cTest message to myself\u201d\n   Sent: about an hour ago\n\n2. Sender: Manikandan Annamalaisamy\n   Chat/Channel: Self chat (notes)\n   Message preview: \u201cTest message 2\u201d\n   Sent: about an hour ago\n\n3. Sender: Manikandan Annamalaisamy\n   Chat/Channel: Self chat (notes)\n   Message preview: \u201cOne more message\u201d\n   Sent: about an hour ago\n\nNotes:\n* I wasn\u2019t able to retrieve 10 distinct recent messages.\n* The source doesn\u2019t provide exact timestamps beyond \u201cabout an hour ago.\u201d",
+  "files": "I found 11 recently modified files across your OneDrive/SharePoint. Here are the 10 most recent:\n\n1. Book 2 - Copy.xlsx\n   * File type: Excel (.xlsx)\n   * Location: OneDrive (personal files)\n   * Last modified: 2026-06-12 16:58:43 UTC\n\n2. Book 2.xlsx\n   * File type: Excel (.xlsx)\n   * Location: OneDrive (personal files)\n   * Last modified: 2026-06-12 16:58:42 UTC\n\n3. Book 1.xlsx\n   * File type: Excel (.xlsx)\n   * Location: OneDrive (personal files)\n   * Last modified: 2026-06-12 16:58:31 UTC\n\n4. Book.xlsx\n   * File type: Excel (.xlsx)\n   * Location: OneDrive (personal files)\n   * Last modified: 2026-06-12 16:57:07 UTC\n\n5. WorkIQ Test Doc.docx\n   * File type: Word document (.docx)\n   * Location: OneDrive (personal files)\n   * Last modified: 2026-06-12 16:56:25 UTC\n\n6. Microsoft Copilot Chat Files\n   * File type: Folder/collection\n   * Location: OneDrive\n   * Last modified: ~1 hour ago\n\n7. Attachments\n   * File type: Folder/collection\n   * Location: OneDrive\n   * Last modified: ~1 hour ago\n\n8. WorkIQ Sync Team Notebook\n   * File type: Notebook (likely OneNote)\n   * Location: SharePoint (team workspace)\n   * Last modified: ~1 hour ago\n\n9. WorkIQ Sync Team\n   * File type: Site/library\n   * Location: SharePoint site\n   * Last modified: ~1 hour ago\n\n10. Manikandan Annamalaisamy (PersonImmersive.aspx)\n    * File type: Web/page (.aspx)\n    * Location: SharePoint\n    * Last modified: ~2 hours ago",
+  "org": "I searched across your Microsoft 365 data (people profile, meetings, chats, and inferred collaborators).\n\nManager:\n\u2757 No manager information was found in your organizational profile data.\n\nDirect Reports:\n\u2757 No direct reports were identified.\n\nTop Collaborators (based on available interactions):\nFrom meetings and communications, I found very limited collaboration data. Only one external participant appears:\n\n1. Collaborator:\n   * Name: Not explicitly specified (email only available)\n   * Email: m.a@celonis.com\n   * Context: Invited participant in your meetings\n     - \u201cWorkIQ PoC Sync\u201d\n     - \u201cWorkIQ Meet 2\u201d\n\nSummary:\n| Category       | Status                      |\n| -------------- | --------------------------- |\n| Manager        | Not found                   |\n| Direct Reports | Not found                   |\n| Collaborators  | Only 1 identifiable contact |",
+  "summary": "Weekly Activity Summary\n\nEmails:\n* Total emails sent: Not found in available data\n* Total emails received: Not found in available data\n\nMeetings:\n* Total meetings attended: 2\n  - WorkIQ Meet 2 (30 mins, Teams)\n  - WorkIQ PoC Sync (30 mins, Teams)\n* Total meeting time: ~1 hour\n\nTeams Messages:\n* Total messages sent: 3\n  - \u201cTest message to myself\u201d\n  - \u201cTest message 2\u201d\n  - \u201cOne more message\u201d\n\nFiles Edited:\n* Total files edited: 4\n  - Book.xlsx\n  - Book 1.xlsx\n  - Book 2.xlsx\n  - WorkIQ Test Doc.docx\n* All files were modified within ~1 hour window.\n\nBusiest Day: Today (June 12, 2026)\nPeak Productivity Hours: ~4:30 PM \u2013 6:30 PM\n\nQuick Snapshot:\n  Emails Sent:        0 (no data found)\n  Emails Received:    0 (no data found)\n  Meetings:           2\n  Teams Messages:     3\n  Files Edited:       4\n  Busiest Day:        June 12, 2026\n  Peak Hours:         ~4:30 PM \u2013 6:30 PM\n\nWork Pattern: Post-meeting execution burst\nMeetings \u2192 focused file editing \u2192 messaging",
+  "copilot": "Top 5 Things You Worked On (Ranked)\n\n1) WorkIQ-related meetings & coordination\n   * WorkIQ Meet 2 (30 mins)\n   * WorkIQ PoC Sync (30 mins)\n   Why #1: Two structured meetings, each 30 minutes = ~1 hour total. Both centered on WorkIQ / PoC sync.\n   Summary: Significant time coordinating and progressing WorkIQ / PoC-related work.\n\n2) Creating and editing Excel-based budget/workbook files\n   * Book 2 - Copy.xlsx\n   * Book 2.xlsx\n   * Book 1.xlsx\n   * Book.xlsx\n   Why #2: Multiple files edited around the same time (~1 hour ago). Budget tracking template work.\n   Summary: Actively working on Excel-based templates or financial/budget-related data preparation.\n\n3) Document creation and testing (WorkIQ / general docs)\n   * WorkIQ Test Doc.docx\n   Why #3: Recently created/modified document. Likely tied to testing or documenting WorkIQ scenarios.\n\n4) General file organization / duplication / experimentation\n   * Document.docx\n   * Document - Copy.docx\n   Why #4: Multiple similar files indicate editing, duplication, or experimentation.\n\n5) Self-chat / quick testing in Teams\n   * Test message to myself and related messages\n   Why #5: Minimal volume, short messages. Quick tests.\n\nOverall Breakdown:\n* Meetings (WorkIQ focus): Most structured time\n* Excel work: High activity (multiple files)\n* Docs: Supporting/test work\n* File ops: Minor but noticeable\n* Chats: Minimal\n\nKey Insight: Week heavily centered around WorkIQ-related work.",
+  "agents": "Complete view of Copilot agents you can interact with today:\n\n1. Core Types of Copilot Agents:\n\n   a) Copilot Chat Agents\n      Conversational agents inside Teams, Outlook, Word. Answer questions, guide tasks, fetch info.\n\n   b) SharePoint Agents\n      Specialized agents tied to SharePoint sites. Answer policy questions, retrieve docs, summarize content.\n\n   c) Copilot Studio Agents (Custom)\n      Fully customizable agents built using Copilot Studio. Automate workflows, integrate with CRM/IT/APIs.\n\n   d) Prebuilt / App-specific Copilot Agents\n      Domain-specific copilots: Sales, Service, Security, Finance.\n\n2. Built-in / Prebuilt Agents:\n   * Researcher Agent \u2014 Synthesizes data from emails, Teams, and files\n   * PDF Analyst Agent \u2014 Summarizes and extracts insights from documents\n   * Minutes Agent \u2014 Captures meeting notes, decisions, action items\n   * Email Manager Agent \u2014 Drafts, organizes, improves email communication\n\n3. Functional / Departmental Agents:\n   * Copilot for Sales \u2014 Manages leads, CRM updates, customer communication\n   * Copilot for Service \u2014 Customer support cases and responses\n   * Copilot for Security \u2014 Threat analysis and security operations\n   * Copilot for Finance \u2014 Financial analysis and reporting\n\n4. Template Agents:\n   * Quiz Tutor \u2014 creates quizzes and training content\n   * Learning Coach \u2014 helps with training and onboarding\n   * Meeting Coach \u2014 improves meeting effectiveness\n   * Writing Coach \u2014 improves content quality\n   * Plan My Day Agent \u2014 organizes daily work\n\n5. Third-party Agents (Agent Store):\n   * Asana Agent \u2014 Turns conversations into tasks\n   * Miro Agent \u2014 Collaborative whiteboarding\n   * KPI Buddy \u2014 Business metrics and analytics\n   * IT Support Agents \u2014 IT requests and knowledge retrieval\n\n| Category          | Examples                  | What they do                        |\n| Chat Agents       | Copilot Chat agents       | Answer questions conversationally   |\n| SharePoint Agents | Site assistants           | Work on documents & knowledge bases |\n| Custom Agents     | Copilot Studio agents     | Automate workflows & actions        |\n| Functional Agents | Sales, Service, Security  | Domain-specific business tasks      |\n| Templates         | Quiz Tutor, Meeting Coach | Prebuilt use cases                  |\n| Third-party       | Asana, Miro, KPI Buddy    | Extend Copilot with external tools  |"
+};
+
+(function renderRawCards(){
+  const container = document.getElementById('rawCards');
+  container.innerHTML = RAW_QUERIES.map((q,i) => {
+    const raw = RAW_DATA[q.key] || '(no data)';
+    const lines = raw.split('\n').length;
+    const chars = raw.length;
+    return `<div class="raw-card">
+      <div class="raw-hdr" onclick="toggleRaw(this)">
+        <h4><span class="arrow">\u25B6</span> ${q.icon} ${q.label} <span class="q-badge ${q.badge}">${q.status}</span></h4>
+        <span style="font-size:10px;color:var(--t2)">${lines} lines \u2022 ${chars} chars</span>
+      </div>
+      <div class="raw-body">
+        <div style="padding:10px 18px;font-size:11px;color:var(--t2);background:rgba(0,0,0,.1);border-bottom:1px solid var(--border)">
+          <strong style="color:var(--t1)">Query:</strong> ${escHtml(q.q)}
+        </div>
+        <pre class="raw-pre">${escHtml(raw)}</pre>
+        <div class="raw-meta">
+          <span>\u{1F4E1} A2A v1.0 SendMessage</span>
+          <span>\u{1F4AC} Conversation: ${q.convId}</span>
+          <span>\u{1F310} Data Center: South India</span>
+          <span>#${i+1} of 9</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+})();
 </script>
 </body>
 </html>
